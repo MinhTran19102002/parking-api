@@ -1,32 +1,42 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
+/* eslint-disable no-console */
 
 import express from 'express'
-import { mapOrder } from '~/utils/sorts.js'
+import exitHook from 'async-exit-hook'
+import {connectDB , GET_DB, CLOSE_DB} from '~/config/mongodb'
+import {env} from '~/config/environment'
+import {APIs_V1} from '~/routes/v1/index'
 
-const app = express()
 
-const hostname = 'localhost'
-const port = 8017
+const START_SEVER = () => {
+  const app = express()
 
-app.get('/', (req, res) => {
-  // Test Absolute import mapOrder
-  console.log(mapOrder(
-    [ { id: 'id-1', name: 'One' },
-      { id: 'id-2', name: 'Two' },
-      { id: 'id-3', name: 'Three' },
-      { id: 'id-4', name: 'Four' },
-      { id: 'id-5', name: 'Five' } ],
-    ['id-5', 'id-4', 'id-2', 'id-3', 'id-1'],
-    'id'
-  ))
-  res.end('<h1>Hello World!</h1><hr>')
-})
+  //Enable req.body json data
+  app.use(express.json())
 
-app.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Hello Trung Quan Dev, I am running at ${ hostname }:${ port }/`)
-})
+  //Use API V1
+  app.get('/', async (req, res) => {
+    console.log(await GET_DB().listCollections().toArray())
+    res.end('<h1>Hello World!</h1><hr>')
+  })
+
+  app.use('/v1', APIs_V1)
+
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Hello Minh, I am running at ${ env.APP_HOST }:${ env.APP_PORT }/`)
+  })
+  exitHook(() => {
+    console.log('Disconnecting')
+    CLOSE_DB()
+    console.log('Disconnected')
+  })
+
+}
+
+connectDB()
+  .then(() => console.log('Connect to database'))
+  .then(() => START_SEVER())
+  .catch(error => {
+    console.error(error)
+    process.exit()
+  })
