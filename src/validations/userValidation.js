@@ -1,6 +1,7 @@
 import express from 'express'
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const login = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -12,9 +13,7 @@ const login = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next()
   } catch (error) {
-    console.log(error)
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      error: new Error(error).message })
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
   }
 }
 

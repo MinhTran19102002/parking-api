@@ -5,6 +5,7 @@ import exitHook from 'async-exit-hook'
 import {connectDB , GET_DB, CLOSE_DB} from '~/config/mongodb'
 import {env} from '~/config/environment'
 import {APIs_V1} from '~/routes/v1/index'
+import {errorHandlingMiddleware} from '~/middlewares/errorHandlingMiddleware'
 
 
 const START_SEVER = () => {
@@ -14,12 +15,10 @@ const START_SEVER = () => {
   app.use(express.json())
 
   //Use API V1
-  app.get('/', async (req, res) => {
-    console.log(await GET_DB().listCollections().toArray())
-    res.end('<h1>Hello World!</h1><hr>')
-  })
-
   app.use('/v1', APIs_V1)
+
+  //Middleware xu ly loi tap trung
+  app.use(errorHandlingMiddleware)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console
@@ -30,7 +29,6 @@ const START_SEVER = () => {
     CLOSE_DB()
     console.log('Disconnected')
   })
-
 }
 
 connectDB()
