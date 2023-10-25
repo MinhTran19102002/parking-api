@@ -1,11 +1,11 @@
 import express from 'express'
 import {StatusCodes} from 'http-status-codes'
 import {userValidation} from '~/validations/userValidation'
-import {userController} from '~/controllers/userController'
+import {authController} from '~/controllers/authController'
 
 const Router = express.Router()
 
 Router.route('/')
-  .post(userValidation.createNew, userController.createNew)
+  .post(userValidation.login, authController.login)
 
-export const userRoute = Router
+export const authRoute = Router

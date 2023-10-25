@@ -1,21 +1,18 @@
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '~/utils/ApiError'
 import {userService} from '~/services/userService'
+import bcrypt from 'bcrypt'
 
-const login = async (req, res, next) => {
+const createNew = async (req, res, next) => {
   try {
-    console.log(req.body)
-
-    // throw new ApiError (,'Loi khong xac dinh')
     // Dieu huong sang tang Service
-    const loginUser = await userService.login(req.body)
+    const createUser = await userService.createUser(req.body)
 
-    res.status(StatusCodes.OK).json(loginUser)
+    res.status(StatusCodes.CREATED).json(createUser)
   } catch (error) {
     next(error)
   }
 }
 
 export const userController = {
-  login
+  createNew
 }
