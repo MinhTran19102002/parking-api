@@ -5,5 +5,6 @@ export const env = {
   DATABASE_NAME : process.env.DATABASE_NAME,
   APP_HOST :  process.env.APP_HOST,
   APP_PORT :  process.env.APP_PORT,
-  JWT_ACCESS_KEY: process.env.JWT_ACCESS_KEY
+  JWT_ACCESS_KEY: process.env.JWT_ACCESS_KEY,
+  JWT_REFRESH_KEY: process.env.JWT_REFRESH_KEY
 }

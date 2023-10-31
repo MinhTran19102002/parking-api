@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
     })
   }
   else {
-    res.status(StatusCodes.FORBIDDEN).json({message: 'You are not authenticated'})
+    res.status(StatusCodes.FORBIDDEN).json({message: 'You are not authenticated' })
   }
 }
 
