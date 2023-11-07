@@ -13,7 +13,7 @@ const PARKING_COLLECTION_SCHEMA = Joi.object({
   occupied : Joi.number().strict().default(0),
   slots: Joi.array().items({
     position: Joi.string().min(5).max(6).trim().strict().required(),
-    fee: Joi.string().min(2).max(5).trim().strict().required(),
+    fee: Joi.number().integer().multiple(1000).required(),
     isBlank: Joi.boolean().default(true)
   }).min(1).unique('position').required(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
