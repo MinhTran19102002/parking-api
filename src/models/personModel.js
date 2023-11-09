@@ -1,7 +1,9 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
+import ApiError from '~/utils/ApiError'
 import {OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE} from '~/utils/validators'
 import {GET_DB} from '~/config/mongodb'
+import { StatusCodes } from 'http-status-codes'
 
 const PERSON_COLLECTION_NAME = 'persons'
 const PERSON_COLLECTION_SCHEMA = Joi.object({
@@ -13,8 +15,8 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   email: Joi.string().required().min(6).max(30).trim().strict(),
 
   user: Joi.object({
-    username: Joi.string().required().min(6).max(20).trim().strict(),
-    password: Joi.string().required().min(8).max(100).trim().strict(),
+    username: Joi.string().required().min(6).max(30).trim().strict(),
+    password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict()
   }).optional(),
 
@@ -34,6 +36,10 @@ const validateBeforCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validateData = await validateBeforCreate(data)
+    const check = await findOne(data.user)
+    if (check) {
+      throw new Error('Username already exists')
+    }
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData)
     return createNew
   } catch (error) {
@@ -43,7 +49,7 @@ const createNew = async (data) => {
 
 const findOne = async (data) => {
   try {
-    const findUser = await GET_DB().collection(PERSON_COLLECTION_NAME).findOne({ 'user.username': data.username, 'user.role': data.role })
+    const findUser = await GET_DB().collection(PERSON_COLLECTION_NAME).findOne({ 'user.username': data.username })
     return findUser
   } catch (error) {
     throw new Error(error)

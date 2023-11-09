@@ -18,7 +18,7 @@ const START_SEVER = () => {
   app.use(cors())
 
   //Use API V1
-  app.use('/v1', APIs_V1)
+  app.use('/', APIs_V1)
 
   //Middleware xu ly loi tap trung
   app.use(errorHandlingMiddleware)

@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
-import {userService} from '~/services/userService'
+import {userService} from '~/services/personService'
 
 const login = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
-    const loginUser = await userService.login(req.body)
+    const loginUser = await userService.login(req, res)
 
     res.status(StatusCodes.OK).json(loginUser)
   } catch (error) {
@@ -12,6 +12,18 @@ const login = async (req, res, next) => {
   }
 }
 
+const refreshToken = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const refreshToken = await userService.refreshToken(req, res)
+
+    res.status(StatusCodes.OK).json(refreshToken)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const authController = {
-  login
+  login,
+  refreshToken
 }

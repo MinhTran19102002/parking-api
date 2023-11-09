@@ -30,7 +30,7 @@ const createNew = async (req, res, next) => {
     }).optional()
   })
   try {
-    await correctCondition.validateAsync(req.body, {abortEarly: false})
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
     // Dieu huong sang tang Controller
     next()
   } catch (error) {

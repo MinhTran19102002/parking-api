@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import {userService} from '~/services/userService'
+import {userService} from '~/services/personService'
 import bcrypt from 'bcrypt'
 
 const createNew = async (req, res, next) => {
