@@ -105,6 +105,22 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
         }
       },
       {
+        $group: {
+          _id: {
+            year: '$_id.year',
+            month: '$_id.month',
+            day: '$_id.day'
+          },
+          data: {
+            $push: {
+              k: '$_id.zone',
+              v: '$count'
+            }
+          },
+          total: { $sum: '$count' }
+        }
+      },
+      {
         $project: {
           _id: 0,
           date: {
@@ -120,8 +136,8 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
               }
             }
           },
-          zone : '$_id.zone',
-          count: 1
+          data : { $arrayToObject: '$data' },
+          total: 1
         }
       }
     ])
