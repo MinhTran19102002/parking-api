@@ -43,7 +43,7 @@ const outPaking = async (licenePlate) => {
     //tim vehicleId
     const vihicle = await vehicleModel.findOneByLicenePlate(licenePlate)
     //
-    const filter = { vehicleId : vihicle._id.toString(), _destroy : false }
+    const filter = { vehicleId : vihicle._id, _destroy : false }
     const outPaking = await parkingTurnModel.updateOut(filter)
     if (outPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error')
@@ -54,7 +54,20 @@ const outPaking = async (licenePlate) => {
   }
 }
 
+const getVehicleInOutNumber = async (startDate, endDate) => {
+  try {
+    const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate)
+    if (outPaking.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error')
+    }
+    return getVehicleInOutNumber
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
 export const parkingTurnService = {
   createPakingTurn,
-  outPaking
+  outPaking,
+  getVehicleInOutNumber
 }

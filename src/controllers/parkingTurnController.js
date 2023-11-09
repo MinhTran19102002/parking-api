@@ -27,7 +27,21 @@ const outPaking = async (req, res, next) => {
   }
 }
 
+const getVehicleInOutNumber = async (req, res, next) => {
+  try {
+    const startDate = req.query.startDate
+    const endDate = req.query.endDate
+    // Dieu huong sang tang Service
+    const getVehicleInOutNumber = await parkingTurnService.getVehicleInOutNumber(startDate, endDate)
+
+    res.status(StatusCodes.OK).json(getVehicleInOutNumber)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const parkingTurnController = {
   createNew,
-  outPaking
+  outPaking,
+  getVehicleInOutNumber
 }

@@ -4,6 +4,7 @@ import ApiError from '~/utils/ApiError'
 import {OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE} from '~/utils/validators'
 import {GET_DB} from '~/config/mongodb'
 import { StatusCodes } from 'http-status-codes'
+import {parkingModel} from '~/models/parkingModel'
 
 const PARKINGTURN_COLLECTION_NAME = 'parkingTurn'
 const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
@@ -25,6 +26,8 @@ const validateBeforOperate = async (data) => {
 const createNew = async (data) => {
   try {
     const validateData = await validateBeforOperate(data)
+    validateData.vehicleId = new ObjectId(validateData.vehicleId)
+    validateData.parkingId = new ObjectId(validateData.parkingId)
     const checkPosition = await findPosition(data)
     if (checkPosition) {
       throw new Error('The location already has a car')
@@ -66,10 +69,85 @@ const updateOut = async (filter) => {
     throw new Error(error)
   }
 }
+const getVehicleInOutNumber = async (startDate, endDate) => {
+  try {
+    const start = Date.parse(parseDate(startDate))
+    const end = Date.parse(parseDate(endDate))
+    const getVehicleInOutNumber = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          'start': {
+            $gte: start,
+            $lte: end
+          }
+        }
+      },
+      {
+        $lookup: {
+          from : parkingModel.PARKING_COLLECTION_NAME,
+          localField : 'parkingId',
+          foreignField : '_id',
+          as : 'parking'
+        }
+      },
+      {
+        $unwind: '$parking'
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: { $toDate: '$start' } },
+            month: { $month: { $toDate: '$start' } },
+            day: { $dayOfMonth: { $toDate: '$start' } },
+            zone: '$parking.zone'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          date: {
+            $dateToString:
+            {
+              format: '%d/%m/%Y',
+              date: {
+                $dateFromParts: {
+                  year: '$_id.year',
+                  month: '$_id.month',
+                  day: '$_id.day'
+                }
+              }
+            }
+          },
+          zone : '$_id.zone',
+          count: 1
+        }
+      }
+    ])
+    return await getVehicleInOutNumber.toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const parseDate = (str) => {
+  const parts = str.split('/')
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10)
+    const month = parseInt(parts[1] - 1, 10) // Trừ 1 vì tháng bắt đầu từ 0
+    const year = parseInt(parts[2], 10)
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+      return new Date(year, month, day)
+    }
+  }
+  return null // Trả về null nếu chuỗi không hợp lệ
+}
 
 export const parkingTurnModel = {
   PARKINGTURN_COLLECTION_NAME,
   PARKINGTURN_COLLECTION_SCHEMA,
   createNew,
-  updateOut
+  updateOut,
+  getVehicleInOutNumber
 }

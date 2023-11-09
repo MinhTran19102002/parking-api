@@ -10,4 +10,6 @@ Router.route('/createPakingTurn')
 Router.route('/outPaking')
   .post(parkingTurnController.outPaking)
 
+Router.route('/Reports/GetVehicleInOutNumber')
+  .get(parkingTurnController.getVehicleInOutNumber)
 export const parkingTurnRoute = Router
