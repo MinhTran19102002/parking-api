@@ -54,7 +54,31 @@ const outPaking = async (licenePlate) => {
   }
 }
 
-const getVehicleInOutNumber = async (startDate, endDate) => {
+const formatDay = (day) =>{
+  let today = new Date()
+  if (day == '7') {
+    today.setDate(today.getDate() - 7)
+  }
+  const dd = String(today.getDate()).padStart(2, '0') // Lấy ngày và định dạng thành "dd"
+  const mm = String(today.getMonth() + 1).padStart(2, '0') // Lấy tháng (chú ý: tháng bắt đầu từ 0) và định dạng thành "mm"
+  const yyyy = today.getFullYear() // Lấy năm
+
+  return `${dd}/${mm}/${yyyy}` // Tạo định dạng "dd/mm/yyyy"
+}
+
+const getVehicleInOutNumber = async (req, res) => {
+  const valueFromQuery = req.query.value
+  let startDate
+  let endDate
+
+  if ( valueFromQuery == undefined || valueFromQuery !== null ) {
+    startDate = formatDay('7')
+    endDate = formatDay('today')
+  }
+  else {
+    startDate = req.query.startDate
+    endDate = req.query.endDate
+  }
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate)
     if (outPaking.acknowledged == false) {
