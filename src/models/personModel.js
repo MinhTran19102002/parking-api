@@ -4,6 +4,7 @@ import ApiError from '~/utils/ApiError'
 import {OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE} from '~/utils/validators'
 import {GET_DB} from '~/config/mongodb'
 import { StatusCodes } from 'http-status-codes'
+import {VEHICLE_COLLECTION_NAME, vehicleModel} from '~/models/vehicleModel'
 
 const PERSON_COLLECTION_NAME = 'persons'
 const PERSON_COLLECTION_SCHEMA = Joi.object({
@@ -21,13 +22,33 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   }).optional(),
 
   driver: Joi.object({
-    vihecleId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    vehicleId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required()
   }).optional(),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
+
+const createDriver = async (data, licenePlate) => {
+  try {
+    const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate)
+    if (!vehicle) {
+      throw new Error('LicenePlate already exists')
+    }
+    data.driver = { vehicleId : vehicle._id.toString() }
+    const validateData = await validateBeforCreate(data)
+    validateData.driver.vehicleId = new ObjectId(validateData.driver.vehicleId)
+    const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData)
+    const updateVihecle = await GET_DB().collection(vehicleModel.VEHICLE_COLLECTION_NAME).updateOne({ _id: validateData.driver.vehicleId }, { $set: { driverId : createNew.insertedId } })
+    if (updateVihecle.modifiedCount == 0) {
+      throw new Error('Update error!')
+    }
+    return createNew
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 const validateBeforCreate = async (data) => {
   return await PERSON_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
@@ -65,10 +86,38 @@ const findByID = async (id) => {
   }
 }
 
+const findDriver = async () => {
+  try {
+    const findDriver = await GET_DB().collection(PERSON_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          'driver': { $exists: true }
+        }
+      },
+      {
+        $lookup : {
+          from : vehicleModel.VEHICLE_COLLECTION_NAME,
+          // localField : '_id',
+          // foreignField : 'driver.vehicleId',
+          localField : 'driver.vehicleId',
+          foreignField : '_id',
+          as : 'vehicle'
+        }
+      }
+    ]).toArray()
+    return findDriver
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const userModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
   findOne,
   findByID,
-  createNew
+  createNew,
+  createDriver,
+  findDriver
 }

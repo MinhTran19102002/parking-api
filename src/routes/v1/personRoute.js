@@ -8,4 +8,8 @@ const Router = express.Router()
 Router.route('/')
   .post(userValidation.createNew, userController.createNew)
 
+Router.route('/driver')
+  .post( userController.createDriver)
+  .get(userController.findDriver)
+
 export const userRoute = Router
