@@ -70,6 +70,35 @@ const createUser = async (data) => {
   }
 }
 
+const createDriver = async (data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const licenePlate = data.licenePlate
+    delete data.licenePlate
+    const createDriver = await userModel.createDriver(data, licenePlate)
+    if (createDriver.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created')
+    }
+    return createDriver
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
+const findDriver = async () => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const findDriver = await userModel.findDriver()
+    if (findDriver.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist')
+    }
+    return findDriver
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
+
 const hashPassword = async (password) =>{
   const salt = await bcrypt.genSalt(10)
   const hashed = await bcrypt.hash(password, salt)
@@ -105,5 +134,7 @@ const refreshToken = async (req, res) => {
 export const userService = {
   login,
   createUser,
-  refreshToken
+  refreshToken,
+  createDriver,
+  findDriver
 }

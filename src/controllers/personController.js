@@ -13,6 +13,29 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const createDriver = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createDriver = await userService.createDriver(req.body)
+
+    res.status(StatusCodes.CREATED).json(createDriver)
+  } catch (error) {
+    next(error)
+  }
+}
+const findDriver = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const findDriver = await userService.findDriver()
+
+    res.status(StatusCodes.CREATED).json(findDriver)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
-  createNew
+  createNew,
+  createDriver,
+  findDriver
 }
