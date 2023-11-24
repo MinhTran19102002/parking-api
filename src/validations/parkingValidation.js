@@ -9,8 +9,7 @@ const create = async (req, res, next) => {
     total: Joi.number().strict(),
     occupied : Joi.number().strict(),
     slots: Joi.array().items({
-      position: Joi.string().min(5).max(7).trim().strict().required(),
-      fee: Joi.number().integer().multiple(1000).required(),
+      position: Joi.string().min(4).max(6).trim().strict().required(),
       isBlank: Joi.boolean().default(true)
     }).min(1).unique('position').required()
   })

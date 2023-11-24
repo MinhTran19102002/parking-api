@@ -3,14 +3,13 @@ import { ObjectId } from 'mongodb'
 import ApiError from '~/utils/ApiError'
 import {OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE} from '~/utils/validators'
 import {GET_DB} from '~/config/mongodb'
-import { StatusCodes } from 'http-status-codes'
 import {parkingModel} from '~/models/parkingModel'
 
 const PARKINGTURN_COLLECTION_NAME = 'parkingTurn'
 const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
   vehicleId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   parkingId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  position: Joi.string().min(5).max(6).trim().strict().required(),
+  position: Joi.string().min(4).max(6).trim().strict().required(),
 
   fee: Joi.number().integer().multiple(1000).required().min(1000),
   start: Joi.date().timestamp('javascript').default(Date.now),
@@ -28,16 +27,48 @@ const createNew = async (data) => {
     const validateData = await validateBeforOperate(data)
     validateData.vehicleId = new ObjectId(validateData.vehicleId)
     validateData.parkingId = new ObjectId(validateData.parkingId)
-    const checkPosition = await findPosition(data)
-    if (checkPosition) {
+    const checkPosition = await findPosition(validateData)
+    if (checkPosition == null) {
       throw new Error('The location already has a car')
     }
-    const checkvehicleId = await findvehicleId(data)
+    const checkvehicleId = await findvehicleId(validateData)
     if (checkvehicleId) {
       throw new Error('The car is already in the parking lot')
     }
     const createNew = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).insertOne(validateData)
+    if (createNew.acknowledged == false) {
+      throw new ApiError('Error')
+    }
+    const update = await GET_DB().collection(parkingModel.PARKING_COLLECTION_NAME).updateOne(
+      { '_id' : new ObjectId(validateData.parkingId), 'slots.position' : validateData.position },
+      { $inc: { occupied : 1 },
+        $set: {
+          'slots.$.parkingTurnId': createNew.insertedId,
+          'slots.$.isBlank': false
+        } })
+    if (update.acknowledged == false) {
+      throw new ApiError('Error')
+    }
     return createNew
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const updateOut = async (filter) => {
+  try {
+    const updateOut = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOneAndUpdate(filter, { $set: { end : Date.now(), _destroy : true } })
+    const update = await GET_DB().collection(parkingModel.PARKING_COLLECTION_NAME).updateOne(
+      { _id : new ObjectId(updateOut.parkingId) },
+      { $inc: { occupied : - 1 },
+        $set: {
+          'slots.$.parkingTurnId': null,
+          'slots.$.isBlank': true
+        } })
+    if (update.acknowledged == false) {
+      throw new ApiError('Error')
+    }
+    return updateOut
   } catch (error) {
     throw new Error(error)
   }
@@ -45,7 +76,7 @@ const createNew = async (data) => {
 
 const findvehicleId = async (data) => {
   try {
-    const findvehicleId = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne({ 'vehicleId' : data.vehicleId, '_destroy' : false })
+    const findvehicleId = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne({ 'vehicleId' : new ObjectId(data.vehicleId), '_destroy' : false }) // KẾt quả trả về là xe nằm trong bãi
     return findvehicleId
   } catch (error) {
     throw new Error(error)
@@ -54,21 +85,22 @@ const findvehicleId = async (data) => {
 
 const findPosition = async (data) => {
   try {
-    const findPosition = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne({ 'parkingId' : data.parkingId, 'position' : data.position, '_destroy' : false})
+    // const findPosition = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne({ 'parkingId' : data.parkingId, 'position' : data.position, '_destroy' : false })
+    const findPosition = await GET_DB().collection(parkingModel.PARKING_COLLECTION_NAME).findOne({ '_id' : new ObjectId(data.parkingId),
+      'slots': {
+        $elemMatch: {
+          'position': data.position,
+          'isBlank': true
+        }
+      }
+    })
     return findPosition
   } catch (error) {
     throw new Error(error)
   }
 }
 
-const updateOut = async (filter) => {
-  try {
-    const updateOut = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).updateOne(filter, { $set: { end : Date.now(), _destroy : true } })
-    return updateOut
-  } catch (error) {
-    throw new Error(error)
-  }
-}
+
 const getVehicleInOutNumber = async (startDate, endDate) => {
   try {
     const start = Date.parse(parseDate(startDate))

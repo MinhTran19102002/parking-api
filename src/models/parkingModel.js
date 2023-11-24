@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import ApiError from '~/utils/ApiError'
 import {OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE} from '~/utils/validators'
 import {GET_DB} from '~/config/mongodb'
-import { StatusCodes } from 'http-status-codes'
+import {parkingTurnModel} from '~/models/parkingTurnModel'
 
 const PARKING_COLLECTION_NAME = 'parking'
 const PARKING_COLLECTION_SCHEMA = Joi.object({
@@ -12,8 +12,8 @@ const PARKING_COLLECTION_SCHEMA = Joi.object({
   total: Joi.number().strict().default(0),
   occupied : Joi.number().strict().default(0),
   slots: Joi.array().items({
-    position: Joi.string().min(5).max(6).trim().strict().required(),
-    fee: Joi.number().integer().multiple(1000).required(),
+    position: Joi.string().min(4).max(6).trim().strict().required(),
+    parkingTurnId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).default(null),
     isBlank: Joi.boolean().default(true)
   }).min(1).unique('position').required(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -50,10 +50,78 @@ const findOne = async (zone) => {
   }
 }
 
+const getStatus = async (zone) => {
+  try {
+    const getStatus = await GET_DB().collection(PARKING_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          'zone': zone
+          // 'slots.parkingTurnId': { $ne: null }
+        }
+      },
+      {
+        $lookup: {
+          from : parkingTurnModel.PARKINGTURN_COLLECTION_NAME,
+          localField : 'slots.parkingTurnId',
+          foreignField : '_id',
+          as : 'parkingTurn'
+        }
+      },
+      {
+        $unwind: '$parkingTurn'
+      },
+      {
+        $addFields: {
+          'slots.parkingTurn': {
+            $cond: {
+              if: { $eq: ['$slots.parkingTurnId', null] },
+              then: null,
+              else: { $arrayElemAt: ['$parkingTurn', 0] }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          zone: 1,
+          description: 1,
+          total: 1,
+          occupied: 1,
+          'slots.position': 1,
+          'slots.parkingTurnId': 1,
+          'slots.isBlank': 1
+          // 'slots.parkingTurn': {
+          //   $cond: {
+          //     if: { $eq: ['$slots.parkingTurnId', null] },
+          //     then: null,
+          //     else: '$parkingTurn'
+          //   }
+          // }
+        }
+      }
+      // },
+      // {
+      //   $group: {
+      //     _id: '$_id',
+      //     // zone: '$zone',
+      //     // description: '$description' ,
+      //     // total: '$total' ,
+      //     // occupied: '$occupied' ,
+      //     slots: { $push: '$slots' }
+      //   }
+      // }
+    ])
+    return await getStatus.toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const parkingModel = {
   PARKING_COLLECTION_NAME,
   PARKING_COLLECTION_SCHEMA,
   createNew,
-  findOne
+  findOne,
+  getStatus
 }
