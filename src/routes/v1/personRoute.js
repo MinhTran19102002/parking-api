@@ -12,4 +12,7 @@ Router.route('/driver')
   .post( userController.createDriver)
   .get(userController.findDriver)
 
+Router.route('/getAll')
+  .get(userController.findUsers)
+
 export const userRoute = Router

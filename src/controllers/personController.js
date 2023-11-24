@@ -34,8 +34,19 @@ const findDriver = async (req, res, next) => {
   }
 }
 
+const findUsers = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const users = await userService.findUsers()
+    res.status(StatusCodes.CREATED).json(users)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   createDriver,
-  findDriver
+  findDriver,
+  findUsers,
 }

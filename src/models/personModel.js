@@ -112,6 +112,22 @@ const findDriver = async () => {
   }
 }
 
+const findUsers = async () => {
+  try {
+    const users = await GET_DB().collection(PERSON_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          'user': { $exists: true }
+        }
+      },
+    ]).toArray()
+    return users
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const userModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -119,5 +135,6 @@ export const userModel = {
   findByID,
   createNew,
   createDriver,
-  findDriver
+  findDriver,
+  findUsers
 }
