@@ -11,6 +11,17 @@ const getStatusByZone = async (req, res, next) => {
     next(error)
   }
 }
+
+const getStatus = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const getStatus = await parkingService.getStatus(req.query.zone)
+    res.status(StatusCodes.OK).json(getStatus)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const createPaking = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -24,5 +35,6 @@ const createPaking = async (req, res, next) => {
 
 export const parkingController = {
   getStatusByZone,
-  createPaking
+  createPaking,
+  getStatus
 }

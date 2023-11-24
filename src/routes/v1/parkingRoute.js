@@ -11,5 +11,8 @@ Router.route('/getStatusByZone')
 Router.route('/createPaking')
   .post(parkingValidation.create, parkingController.createPaking)
 
+Router.route('/getStatus')
+  .get(parkingController.getStatus)
+
 
 export const parkingRoute = Router

@@ -12,6 +12,15 @@ const getStatusByZone = async (zone) => {
   return { zone: findOnde.zone, total: findOnde.total, occupied: findOnde.occupied, unoccupied: findOnde.total-findOnde.occupied }
 }
 
+const getStatus = async (zone) => {
+  const getStatus = await parkingModel.getStatus(zone)
+  if (!getStatus) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Zone not found')
+  }
+  return getStatus
+}
+
+
 const createPaking = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -27,5 +36,6 @@ const createPaking = async (data) => {
 
 export const parkingService = {
   getStatusByZone,
-  createPaking
+  createPaking,
+  getStatus
 }
