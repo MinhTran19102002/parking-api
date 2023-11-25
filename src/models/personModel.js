@@ -128,6 +128,10 @@ const findUsers = async () => {
   }
 }
 
+const findUsersWithParams = async () => {
+
+}
+
 export const userModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -136,5 +140,6 @@ export const userModel = {
   createNew,
   createDriver,
   findDriver,
-  findUsers
+  findUsers,
+  findUsersWithParams
 }

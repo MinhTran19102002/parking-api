@@ -12,7 +12,7 @@ Router.route('/driver')
   .post( userController.createDriver)
   .get(userController.findDriver)
 
-Router.route('/getAll')
+Router.route('/employee')
   .get(userController.findUsers)
 
 export const userRoute = Router
