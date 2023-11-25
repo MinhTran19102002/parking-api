@@ -143,7 +143,20 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
         },
       ])
       .toArray();
-    return users;
+
+    let totalCount = users.length;
+    let totalPage = 1;
+    let newUsers = users;
+
+    if (pageSize & pageIndex) {
+      totalPage = Math.ceil(totalCount / pageSize);
+      newUsers = newUsers.slice((pageIndex - 1) * pageSize, pageIndex * pageSize - 1);
+    }
+    return {
+      data: newUsers,
+      totalCount,
+      totalPage,
+    };
   } catch (error) {
     throw new Error(error);
   }
