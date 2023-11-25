@@ -1,15 +1,12 @@
-
 module.exports = {
   env: { es2020: true, node: true },
-  extends: [
-    'eslint:recommended'
-  ],
+  extends: ['eslint:recommended'],
   parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
     requireConfigFile: false,
-    allowImportExportEverywhere: true
+    allowImportExportEverywhere: true,
   },
   plugins: [],
   rules: {
@@ -23,14 +20,14 @@ module.exports = {
     'no-multiple-empty-lines': 1,
     'space-before-blocks': ['error', 'always'],
     'object-curly-spacing': [1, 'always'],
-    'indent': ['warn', 2],
-    'quotes': ['error', 'single'],
+    indent: ['warn', 2],
+    quotes: ['error', 'single'],
     'array-bracket-spacing': 1,
     'linebreak-style': 0,
     'no-unexpected-multiline': 'warn',
     'keyword-spacing': 1,
-    'comma-dangle': 1,
+    'comma-dangle': [2, 'always-multiline'],
     'comma-spacing': 1,
-    'arrow-spacing': 1
-  }
-}
+    'arrow-spacing': 1,
+  },
+};

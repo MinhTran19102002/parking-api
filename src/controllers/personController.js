@@ -36,11 +36,8 @@ const findDriver = async (req, res, next) => {
 
 const findUsers = async (req, res, next) => {
   try {
-    //get param
-    const { pageSize, pageIndex, name } = req.query;
-
     // Dieu huong sang tang Service
-    const users = await userService.findUsers();
+    const users = await userService.findUsers(req.query);
     res.status(StatusCodes.CREATED).json(users);
   } catch (error) {
     next(error);
