@@ -26,7 +26,7 @@ const createPaking = async (data) => {
   try {
     const createPaking = await parkingModel.createNew(data)
     if (createPaking.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created')
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Parking is not created')
     }
     return createPaking
   } catch (error) {

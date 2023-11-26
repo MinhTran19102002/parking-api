@@ -56,7 +56,6 @@ const getStatus = async (zone) => {
       {
         $match: {
           'zone': zone
-          // 'slots.parkingTurnId': { $ne: null }
         }
       },
       {
@@ -68,18 +67,7 @@ const getStatus = async (zone) => {
         }
       },
       {
-        $unwind: '$parkingTurn'
-      },
-      {
-        $addFields: {
-          'slots.parkingTurn': {
-            $cond: {
-              if: { $eq: ['$slots.parkingTurnId', null] },
-              then: null,
-              else: { $arrayElemAt: ['$parkingTurn', 0] }
-            }
-          }
-        }
+        $unwind: '$slots'
       },
       {
         $project: {
@@ -90,27 +78,16 @@ const getStatus = async (zone) => {
           occupied: 1,
           'slots.position': 1,
           'slots.parkingTurnId': 1,
-          'slots.isBlank': 1
-          // 'slots.parkingTurn': {
-          //   $cond: {
-          //     if: { $eq: ['$slots.parkingTurnId', null] },
-          //     then: null,
-          //     else: '$parkingTurn'
-          //   }
-          // }
+          'slots.isBlank': 1,
+          'slots.vehicle': {
+            $cond: {
+              if: { $eq: ['$slots.parkingTurnId', null] },
+              then: null,
+              else: '$parkingTurn'
+            }
+          }
         }
       }
-      // },
-      // {
-      //   $group: {
-      //     _id: '$_id',
-      //     // zone: '$zone',
-      //     // description: '$description' ,
-      //     // total: '$total' ,
-      //     // occupied: '$occupied' ,
-      //     slots: { $push: '$slots' }
-      //   }
-      // }
     ])
     return await getStatus.toArray()
   } catch (error) {
