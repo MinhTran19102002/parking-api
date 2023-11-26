@@ -15,6 +15,6 @@ Router.route('/driver')
 Router.route('/employee')
   .get(userController.findUsers)
   .post(userValidation.createNew, userController.createNew)
-  .put(userValidation.valid, userController.createNew)
+  .put(userValidation.valid, userController.updateUser)
 
 export const userRoute = Router

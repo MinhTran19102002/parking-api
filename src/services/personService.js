@@ -118,6 +118,19 @@ const findUsers = async (params) => {
   }
 };
 
+const updateUser = async (params) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const users = await userModel.updateUser(params);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const hashPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
   const hashed = await bcrypt.hash(password, salt);
@@ -156,4 +169,5 @@ export const userService = {
   createDriver,
   findDriver,
   findUsers,
+  updateUser
 };
