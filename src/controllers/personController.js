@@ -36,12 +36,32 @@ const findDriver = async (req, res, next) => {
 
 const findUsers = async (req, res, next) => {
   try {
-    //get param
-    const { pageSize, pageIndex, name } = req.query;
-
     // Dieu huong sang tang Service
-    const users = await userService.findUsers();
+    const users = await userService.findUsers(req.query);
     res.status(StatusCodes.CREATED).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const findByID = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const { _id } = req.query;
+    const users = await userService.findByID(_id);
+    res.status(StatusCodes.OK).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const newUser = req.body;
+    delete newUser.user;
+    const rs = await userService.updateUser(req.query._id, newUser);
+    res.status(StatusCodes.OK).json(rs);
   } catch (error) {
     next(error);
   }
@@ -51,5 +71,7 @@ export const userController = {
   createNew,
   createDriver,
   findDriver,
-  findUsers
+  findUsers,
+  updateUser,
+  findByID,
 };
