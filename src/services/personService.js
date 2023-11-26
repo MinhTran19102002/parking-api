@@ -118,12 +118,12 @@ const findUsers = async (params) => {
   }
 };
 
-const updateUser = async (params) => {
+const updateUser = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const users = await userModel.updateUser(params);
+    const users = await userModel.updateUser(_id, params);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');
     }
     return users;
   } catch (error) {

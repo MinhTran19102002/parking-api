@@ -162,8 +162,24 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-
-const findUsersWithParams = async () => {};
+const updateUser = async (_id, data) => {
+  try {
+    const validateData = await validateBeforCreate(data);
+    const createNew = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .updateOne(
+        {
+          _id: {
+            $eq: _id,
+          },
+        },
+        validateData
+      );
+    return createNew;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 export const userModel = {
   PERSON_COLLECTION_NAME,
@@ -174,5 +190,5 @@ export const userModel = {
   createDriver,
   findDriver,
   findUsers,
-  findUsersWithParams,
+  updateUser,
 };

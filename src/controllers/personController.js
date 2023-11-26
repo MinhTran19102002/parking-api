@@ -36,7 +36,11 @@ const findDriver = async (req, res, next) => {
 
 const findUsers = async (req, res, next) => {
   try {
+    //get param
+    const { pageSize, pageIndex, name } = req.query;
+
     // Dieu huong sang tang Service
+    const users = await userService.findUsers();
     res.status(StatusCodes.CREATED).json(users);
   } catch (error) {
     next(error);
@@ -46,8 +50,10 @@ const findUsers = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
-    const users = await userService.updateUser(req.query);
-    res.status(StatusCodes.CREATED).json(users);
+    const { _id } = req.query;
+    const rs = await userService.updateUser(_id, req.body);
+
+    res.status(StatusCodes.OK).json(rs);
   } catch (error) {
     next(error);
   }
@@ -56,7 +62,7 @@ const updateUser = async (req, res, next) => {
 export const userController = {
   createNew,
   createDriver,
-  updateUser,
   findDriver,
   findUsers,
+  updateUser,
 };
