@@ -179,7 +179,6 @@ const updateUser = async (_id, data) => {
       .collection(PERSON_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
 
-    console.log('updated', result);
     return result;
   } catch (error) {
     throw new Error(error);
