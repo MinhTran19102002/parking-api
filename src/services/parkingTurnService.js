@@ -67,11 +67,14 @@ const formatDay = (day) =>{
 }
 
 const getVehicleInOutNumber = async (req, res) => {
-  const valueFromQuery = req.query.value
+  const valueFromQuery = req.query
+  console.log(valueFromQuery)
   let startDate
   let endDate
 
-  if ( valueFromQuery == undefined || valueFromQuery !== null ) {
+
+  if ( req.query.startDate === undefined) {
+    console.log('valueFromQuery')
     startDate = formatDay('7')
     endDate = formatDay('today')
   }
