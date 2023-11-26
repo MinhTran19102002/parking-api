@@ -59,8 +59,29 @@ const valid = async (req, res, next) => {
   }
 }
 
+const validateToUpdate = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    name: Joi.string().min(6).max(50).trim().strict(),
+    address: Joi.string().min(6).max(20).trim().strict(),
+    phone: Joi.string().min(10).max(11).trim().strict(),
+    email: Joi.string().min(6).max(30).trim().strict(),
+    user: Joi.object({
+      username: Joi.string().min(6).max(20).trim().strict(),
+      role: Joi.string().min(3).max(20).trim().strict()
+    }).optional()
+  })
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    // Dieu huong sang tang Controller
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
 export const userValidation = {
   login,
   createNew,
-  valid
+  valid,
+  validateToUpdate
 }

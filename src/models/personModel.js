@@ -148,7 +148,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
     let totalPage = 1;
     let newUsers = users;
 
-    if (pageSize & pageIndex) {
+    if (pageSize && pageIndex) {
       totalPage = Math.ceil(totalCount / pageSize);
       newUsers = newUsers.slice((pageIndex - 1) * pageSize, pageIndex * pageSize - 1);
     }
@@ -163,19 +163,24 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
 };
 
 const updateUser = async (_id, data) => {
+  console.log('data', data, _id);
+  delete data._id;
   try {
-    const validateData = await validateBeforCreate(data);
-    const createNew = await GET_DB()
+    const updateOperation = {
+      $unset: {
+        user: 1, // 1 indicates to remove the field
+      },
+      $set: {
+        ...data,
+      },
+    };
+
+    const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .updateOne(
-        {
-          _id: {
-            $eq: _id,
-          },
-        },
-        validateData
-      );
-    return createNew;
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+
+    console.log('updated', result);
+    return result;
   } catch (error) {
     throw new Error(error);
   }

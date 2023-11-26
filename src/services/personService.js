@@ -92,6 +92,18 @@ const createDriver = async (data) => {
   }
 };
 
+const findByID = async (_id) => {
+  try {
+    const users = await userModel.findByID(_id);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const findDriver = async () => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -106,7 +118,6 @@ const findDriver = async () => {
 };
 
 const findUsers = async (params) => {
-  // eslint-disable-next-line no-useless-catch
   try {
     const users = await userModel.findUsers(params);
     if (users.acknowledged == false) {
@@ -169,5 +180,6 @@ export const userService = {
   createDriver,
   findDriver,
   findUsers,
-  updateUser
+  findByID,
+  updateUser,
 };
