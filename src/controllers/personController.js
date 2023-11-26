@@ -48,5 +48,5 @@ export const userController = {
   createNew,
   createDriver,
   findDriver,
-  findUsers
+  findUsers,
 };
