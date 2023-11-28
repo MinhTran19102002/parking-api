@@ -16,7 +16,7 @@ const generateAccessToken = (user) => {
       username: user.user.username,
     },
     env.JWT_ACCESS_KEY,
-    { expiresIn: '2h' }
+    { expiresIn: '2h' },
   );
 };
 
@@ -28,7 +28,7 @@ const generateRefreshToken = (user) => {
       username: user.user.username,
     },
     env.JWT_REFRESH_KEY,
-    { expiresIn: '2d' }
+    { expiresIn: '2d' },
   );
 };
 

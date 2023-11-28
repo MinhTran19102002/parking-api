@@ -79,20 +79,84 @@ const getStatus = async (zone) => {
           $unwind: '$slots',
         },
         {
+          $lookup: {
+            from: 'parkingTurn',
+            localField: 'slots.parkingTurnId',
+            foreignField: '_id',
+            as: 'slots.parkingTurn',
+          },
+        },
+        {
+          $unwind: {
+            path: '$slots.parkingTurn',
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            zone: { $first: '$zone' },
+            description: { $first: '$description' },
+            total: { $first: '$total' },
+            occupied: { $first: '$occupied' },
+            createdAt: { $first: '$createdAt' },
+            updatedAt: { $first: '$updatedAt' },
+            _destroy: { $first: '$_destroy' },
+            parkingTurn: { $first: '$parkingTurn' },
+            slots: {
+              $push: {
+                position: '$slots.position',
+                isBlank: '$slots.isBlank',
+                parkingTurn: '$slots.parkingTurn',
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
+          },
+        },
+        {
           $project: {
-            _id: 1,
+            _id: 0,
             zone: 1,
             description: 1,
             total: 1,
             occupied: 1,
-            'slots.position': 1,
-            'slots.parkingTurnId': 1,
-            'slots.isBlank': 1,
-            'slots.vehicle': {
-              $cond: {
-                if: { $eq: ['$slots.parkingTurnId', null] },
-                then: null,
-                else: '$parkingTurn',
+            createdAt: 1,
+            updatedAt: 1,
+            _destroy: 1,
+            slots: {
+              $filter: {
+                input: {
+                  $map: {
+                    input: '$slots',
+                    as: 'slot',
+                    in: {
+                      position: '$$slot.position',
+                      isBlank: '$$slot.isBlank',
+                      parkingTurn: {
+                        position: '$$slot.parkingTurn.position',
+                        fee: '$$slot.parkingTurn.fee',
+                        _destroy: '$$slot.parkingTurn._destroy',
+                        start: {
+                          $dateToString: {
+                            date: {
+                              $subtract: [
+                                { $toDate: '$$slot.parkingTurn.start' },
+                                '$timezoneOffset',
+                              ],
+                            },
+                            format: '%H:%M:%S %d/%m/%Y',
+                          },
+                        },
+                        end: '$$slot.parkingTurn.end',
+                      },
+                    },
+                  },
+                },
+                as: 'slot',
+                cond: { $ne: ['$$slot.parkingTurn.start', null] },
               },
             },
           },

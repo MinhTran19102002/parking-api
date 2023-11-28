@@ -6,7 +6,7 @@ const login = async (req, res, next) => {
   const correctCondition = Joi.object({
     username: Joi.string().required().min(6).max(50).trim().strict(),
     password: Joi.string().required().min(8).max(20).trim().strict(),
-    role: Joi.string().required().min(3).max(20).trim().strict()
+    role: Joi.string().required().min(3).max(20).trim().strict(),
   })
   try {
     await correctCondition.validateAsync(req.body, {abortEarly: false})
@@ -26,8 +26,8 @@ const createNew = async (req, res, next) => {
     user: Joi.object({
       username: Joi.string().required().min(6).max(20).trim().strict(),
       password: Joi.string().required().min(8).max(20).trim().strict(),
-      role: Joi.string().required().min(3).max(20).trim().strict()
-    }).optional()
+      role: Joi.string().required().min(3).max(20).trim().strict(),
+    }).optional(),
   })
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
@@ -47,8 +47,8 @@ const valid = async (req, res, next) => {
     user: Joi.object({
       username: Joi.string().required().min(6).max(20).trim().strict(),
       password: Joi.string().required().min(8).max(20).trim().strict(),
-      role: Joi.string().required().min(3).max(20).trim().strict()
-    }).optional()
+      role: Joi.string().required().min(3).max(20).trim().strict(),
+    }).optional(),
   })
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
@@ -67,8 +67,8 @@ const validateToUpdate = async (req, res, next) => {
     email: Joi.string().min(6).max(30).trim().strict(),
     user: Joi.object({
       username: Joi.string().min(6).max(20).trim().strict(),
-      role: Joi.string().min(3).max(20).trim().strict()
-    }).optional()
+      role: Joi.string().min(3).max(20).trim().strict(),
+    }).optional(),
   })
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
@@ -83,5 +83,5 @@ export const userValidation = {
   login,
   createNew,
   valid,
-  validateToUpdate
+  validateToUpdate,
 }
