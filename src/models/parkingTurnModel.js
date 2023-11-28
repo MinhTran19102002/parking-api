@@ -15,7 +15,7 @@ const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
   start: Joi.date().timestamp('javascript').default(Date.now),
   end: Joi.date().timestamp('javascript').default(null),
 
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
 })
 
 const validateBeforOperate = async (data) => {
@@ -44,7 +44,7 @@ const createNew = async (data) => {
       { $inc: { occupied : 1 },
         $set: {
           'slots.$.parkingTurnId': createNew.insertedId,
-          'slots.$.isBlank': false
+          'slots.$.isBlank': false,
         } })
     if (update.acknowledged == false) {
       throw new ApiError('Error')
@@ -63,7 +63,7 @@ const updateOut = async (filter) => {
       { $inc: { occupied : - 1 },
         $set: {
           'slots.$.parkingTurnId': null,
-          'slots.$.isBlank': true
+          'slots.$.isBlank': true,
         } })
     if (update.acknowledged == false) {
       throw new ApiError('Error')
@@ -90,9 +90,9 @@ const findPosition = async (data) => {
       'slots': {
         $elemMatch: {
           'position': data.position,
-          'isBlank': true
-        }
-      }
+          'isBlank': true,
+        },
+      },
     })
     return findPosition
   } catch (error) {
@@ -110,20 +110,20 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
         $match: {
           'start': {
             $gte: start,
-            $lte: end
-          }
-        }
+            $lte: end,
+          },
+        },
       },
       {
         $lookup: {
           from : parkingModel.PARKING_COLLECTION_NAME,
           localField : 'parkingId',
           foreignField : '_id',
-          as : 'parking'
-        }
+          as : 'parking',
+        },
       },
       {
-        $unwind: '$parking'
+        $unwind: '$parking',
       },
       {
         $group: {
@@ -131,26 +131,26 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
             year: { $year: { $toDate: '$start' } },
             month: { $month: { $toDate: '$start' } },
             day: { $dayOfMonth: { $toDate: '$start' } },
-            zone: '$parking.zone'
+            zone: '$parking.zone',
           },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
         $group: {
           _id: {
             year: '$_id.year',
             month: '$_id.month',
-            day: '$_id.day'
+            day: '$_id.day',
           },
           data: {
             $push: {
               k: '$_id.zone',
-              v: '$count'
-            }
+              v: '$count',
+            },
           },
-          total: { $sum: '$count' }
-        }
+          total: { $sum: '$count' },
+        },
       },
       {
         $project: {
@@ -163,15 +163,15 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
                 $dateFromParts: {
                   year: '$_id.year',
                   month: '$_id.month',
-                  day: '$_id.day'
-                }
-              }
-            }
+                  day: '$_id.day',
+                },
+              },
+            },
           },
           data : { $arrayToObject: '$data' },
-          total: 1
-        }
-      }
+          total: 1,
+        },
+      },
     ])
     return await getVehicleInOutNumber.toArray()
   } catch (error) {
@@ -197,5 +197,5 @@ export const parkingTurnModel = {
   PARKINGTURN_COLLECTION_SCHEMA,
   createNew,
   updateOut,
-  getVehicleInOutNumber
+  getVehicleInOutNumber,
 }

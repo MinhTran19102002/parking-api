@@ -44,7 +44,7 @@ const createDriver = async (data, licenePlate) => {
       .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
       .updateOne(
         { _id: validateData.driver.vehicleId },
-        { $set: { driverId: createNew.insertedId } }
+        { $set: { driverId: createNew.insertedId } },
       );
     if (updateVihecle.modifiedCount == 0) {
       throw new Error('Update error!');
