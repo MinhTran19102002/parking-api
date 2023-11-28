@@ -2,7 +2,6 @@ import {userModel} from '~/models/personModel'
 import ApiError from '~/utils/ApiError'
 import {parkingModel} from '~/models/parkingModel'
 import { StatusCodes } from 'http-status-codes'
-import express from 'express'
 
 const getStatusByZone = async (zone) => {
   const findOnde = await parkingModel.findOne(zone)

@@ -8,7 +8,6 @@ import {env} from '~/config/environment'
 import {APIs_V1} from '~/routes/v1/index'
 import {errorHandlingMiddleware} from '~/middlewares/errorHandlingMiddleware'
 
-
 const START_SEVER = () => {
   const app = express()
 

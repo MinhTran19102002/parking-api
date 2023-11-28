@@ -59,7 +59,7 @@ const updateUser = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
     const newUser = req.body;
-    delete newUser.user;
+    delete newUser.account;
     const rs = await userService.updateUser(req.query._id, newUser);
     res.status(StatusCodes.OK).json(rs);
   } catch (error) {
