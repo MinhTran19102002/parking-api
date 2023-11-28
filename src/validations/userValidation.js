@@ -78,7 +78,7 @@ const valid = async (req, res, next) => {
 const validateToUpdate = async (req, res, next) => {
   const updateSchema = user.object().keys({
     account: account.optional(),
-  })
+  });
   try {
     await updateSchema.validateAsync(req.body, { abortEarly: false });
     // Dieu huong sang tang Controller

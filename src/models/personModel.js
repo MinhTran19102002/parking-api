@@ -62,7 +62,7 @@ const validateBeforCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validateData = await validateBeforCreate(data);
-    const check = await findOne(data.user);
+    const check = await findOne(data.account);
     if (check) {
       throw new Error('Username already exists');
     }
@@ -77,7 +77,7 @@ const findOne = async (data) => {
   try {
     const findUser = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOne({ 'user.username': data.username });
+      .findOne({ 'account.username': data.username });
     return findUser;
   } catch (error) {
     throw new Error(error);
