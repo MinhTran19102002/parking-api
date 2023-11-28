@@ -54,7 +54,7 @@ const login = async (req, res) => {
       sercure: false,
       sametime: 'strict',
     });
-    // const { user: { password,  }, ...userLogin } = findOne
+    // const { account: { password,  }, ...userLogin } = findOne
     return { person: findOne, accessToken };
   } catch (error) {
     throw error;
@@ -64,9 +64,9 @@ const login = async (req, res) => {
 const createUser = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const hashed = await hashPassword(data.user.password);
+    const hashed = await hashPassword(data.account.password);
 
-    data.user.password = hashed;
+    data.account.password = hashed;
     const createUser = await userModel.createNew(data);
     if (createUser.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');

@@ -15,7 +15,7 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   phone: Joi.string().required().min(10).max(11).trim().strict(),
   email: Joi.string().required().min(6).max(30).trim().strict(),
 
-  user: Joi.object({
+  account: Joi.object({
     username: Joi.string().required().min(6).max(30).trim().strict(),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
@@ -62,7 +62,7 @@ const validateBeforCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validateData = await validateBeforCreate(data);
-    const check = await findOne(data.user);
+    const check = await findOne(data.account);
     if (check) {
       throw new Error('Username already exists');
     }
@@ -77,7 +77,7 @@ const findOne = async (data) => {
   try {
     const findUser = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOne({ 'user.username': data.username });
+      .findOne({ 'account.username': data.username });
     return findUser;
   } catch (error) {
     throw new Error(error);
@@ -137,7 +137,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
       .aggregate([
         {
           $match: {
-            user: { $exists: true },
+            account: { $exists: true },
             ...paramMatch,
           },
         },
@@ -163,12 +163,11 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
 };
 
 const updateUser = async (_id, data) => {
-  console.log('data', data, _id);
   delete data._id;
   try {
     const updateOperation = {
       $unset: {
-        user: 1, // 1 indicates to remove the field
+        account: 1, // 1 indicates to remove the field
       },
       $set: {
         ...data,
