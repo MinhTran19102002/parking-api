@@ -15,7 +15,7 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   phone: Joi.string().required().min(10).max(11).trim().strict(),
   email: Joi.string().required().min(6).max(30).trim().strict(),
 
-  user: Joi.object({
+  account: Joi.object({
     username: Joi.string().required().min(6).max(30).trim().strict(),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
@@ -137,7 +137,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
       .aggregate([
         {
           $match: {
-            user: { $exists: true },
+            account: { $exists: true },
             ...paramMatch,
           },
         },
@@ -163,12 +163,11 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
 };
 
 const updateUser = async (_id, data) => {
-  console.log('data', data, _id);
   delete data._id;
   try {
     const updateOperation = {
       $unset: {
-        user: 1, // 1 indicates to remove the field
+        account: 1, // 1 indicates to remove the field
       },
       $set: {
         ...data,

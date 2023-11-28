@@ -54,7 +54,7 @@ const login = async (req, res) => {
       sercure: false,
       sametime: 'strict',
     });
-    // const { user: { password,  }, ...userLogin } = findOne
+    // const { account: { password,  }, ...userLogin } = findOne
     return { person: findOne, accessToken };
   } catch (error) {
     throw error;
