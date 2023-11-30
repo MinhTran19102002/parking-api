@@ -173,6 +173,18 @@ const refreshToken = async (req, res) => {
   }
 };
 
+const deleteUser = async (_id) => {
+  try {
+    const users = await userModel.deleteUser(_id);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const userService = {
   login,
   createUser,
@@ -182,4 +194,5 @@ export const userService = {
   findUsers,
   findByID,
   updateUser,
+  deleteUser,
 };

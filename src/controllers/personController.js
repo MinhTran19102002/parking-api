@@ -18,7 +18,7 @@ const createDriver = async (req, res, next) => {
     // Dieu huong sang tang Service
     const createDriver = await userService.createDriver(req.body);
 
-    res.status(StatusCodes.CREATED).json(createDriver);
+    res.status(StatusCodes.OK).json(createDriver);
   } catch (error) {
     next(error);
   }
@@ -28,7 +28,7 @@ const findDriver = async (req, res, next) => {
     // Dieu huong sang tang Service
     const findDriver = await userService.findDriver();
 
-    res.status(StatusCodes.CREATED).json(findDriver);
+    res.status(StatusCodes.OK).json(findDriver);
   } catch (error) {
     next(error);
   }
@@ -38,7 +38,7 @@ const findUsers = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
     const users = await userService.findUsers(req.query);
-    res.status(StatusCodes.CREATED).json(users);
+    res.status(StatusCodes.OK).json(users);
   } catch (error) {
     next(error);
   }
@@ -61,6 +61,15 @@ const updateUser = async (req, res, next) => {
     const newUser = req.body;
     delete newUser.account;
     const rs = await userService.updateUser(req.query._id, newUser);
+    res.status(StatusCodes.CREATED).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteUser = async (req, res, next) => {
+  try {
+    const rs = await userService.deleteUser(req.query._id);
     res.status(StatusCodes.OK).json(rs);
   } catch (error) {
     next(error);
@@ -74,4 +83,5 @@ export const userController = {
   findUsers,
   updateUser,
   findByID,
+  deleteUser,
 };

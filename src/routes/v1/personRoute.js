@@ -5,7 +5,11 @@ import { userController } from '~/controllers/personController';
 
 const Router = express.Router();
 
-Router.route('/').post(userValidation.createNew, userController.createNew);
+Router.route('/')
+  .post(userValidation.createNew, userController.createNew)
+  .get(userController.findUsers)
+  .put(userController.updateUser)
+  .delete(userController.deleteUser);
 
 Router.route('/driver').post(userController.createDriver).get(userController.findDriver);
 

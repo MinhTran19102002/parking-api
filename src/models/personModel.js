@@ -152,12 +152,12 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
         {
           $skip: pageSize * (pageIndex - 1),
         },
-        { $limit: pageSize }
+        { $limit: pageSize },
       );
+      totalPage = Math.ceil(totalCount / pageSize);
     }
 
     const users = await query.aggregate([...pipeline]).toArray();
-    totalPage = Math.ceil(totalCount / pageSize);
 
     return {
       data: users,
@@ -191,6 +191,22 @@ const updateUser = async (_id, data) => {
   }
 };
 
+const deleteUser = async (_id) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteOne(
+        { _id: new ObjectId(_id) },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const userModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -201,4 +217,5 @@ export const userModel = {
   findDriver,
   findUsers,
   updateUser,
+  deleteUser,
 };
