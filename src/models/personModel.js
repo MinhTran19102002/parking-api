@@ -132,28 +132,35 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 
   try {
-    const users = await GET_DB()
-      .collection(PERSON_COLLECTION_NAME)
-      .aggregate([
-        {
-          $match: {
-            account: { $exists: true },
-            ...paramMatch,
-          },
+    let pipeline = [
+      {
+        $match: {
+          account: { $exists: true },
+          ...paramMatch,
         },
-      ])
-      .toArray();
-
-    let totalCount = users.length;
+      },
+    ];
+    let query = await GET_DB().collection(PERSON_COLLECTION_NAME);
+    const allUsers = await query.aggregate(pipeline).toArray();
+    let totalCount = allUsers.length;
     let totalPage = 1;
-    let newUsers = users;
 
     if (pageSize && pageIndex) {
-      totalPage = Math.ceil(totalCount / pageSize);
-      newUsers = newUsers.slice((pageIndex - 1) * pageSize, pageIndex * pageSize - 1);
+      pageSize = Number(pageSize);
+      pageIndex = Number(pageIndex);
+      pipeline.push(
+        {
+          $skip: pageSize * (pageIndex - 1),
+        },
+        { $limit: pageSize }
+      );
     }
+
+    const users = await query.aggregate([...pipeline]).toArray();
+    totalPage = Math.ceil(totalCount / pageSize);
+
     return {
-      data: newUsers,
+      data: users,
       totalCount,
       totalPage,
     };
