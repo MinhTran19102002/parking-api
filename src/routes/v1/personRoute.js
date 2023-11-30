@@ -7,7 +7,7 @@ const Router = express.Router();
 
 Router.route('/').post(userValidation.createNew, userController.createNew);
 
-Router.route('/driver').post(userController.createDriver).get(userController.findDriver);
+Router.route('/driver').post(userController.createDriver).get(userController.findDriver).put(userController.updateDriver);
 
 Router.route('/driver/filter').get(userController.findDriverByFilter);
 

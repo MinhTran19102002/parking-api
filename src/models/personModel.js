@@ -209,6 +209,27 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
+const updateDriver = async (_id, data) => {
+  delete data._id;
+  data.updatedAt = Date.now()
+  const validateData = await validateBeforCreate(data);
+  try {
+    const updateOperation = {
+      $set: {
+        ...validateData,
+      },
+    };
+    console.log(updateOperation)
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+    console.log(result)
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const updateUser = async (_id, data) => {
   delete data._id;
   try {
@@ -242,4 +263,5 @@ export const userModel = {
   findUsers,
   updateUser,
   findDriverByFilter,
+  updateDriver,
 };

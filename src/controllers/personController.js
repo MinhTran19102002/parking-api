@@ -67,6 +67,17 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+const updateDriver = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const updateDriver = req.body;
+    const rs = await userService.updateDriver(req.query._id, updateDriver);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const findDriverByFilter = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -85,4 +96,5 @@ export const userController = {
   updateUser,
   findByID,
   findDriverByFilter,
+  updateDriver,
 };
