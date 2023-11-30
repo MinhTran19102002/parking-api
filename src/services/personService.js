@@ -88,6 +88,7 @@ const createDriver = async (data) => {
     }
     return createDriver;
   } catch (error) {
+    console.log('error Service', error);
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
