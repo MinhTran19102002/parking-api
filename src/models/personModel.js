@@ -135,6 +135,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
     let pipeline = [
       {
         $match: {
+          _destroy: false,
           account: { $exists: true },
           ...paramMatch,
         },
@@ -193,10 +194,23 @@ const updateUser = async (_id, data) => {
 
 const deleteUser = async (_id) => {
   try {
+    // const result = await GET_DB()
+    //   .collection(PERSON_COLLECTION_NAME)
+    //   .deleteOne(
+    //     { _id: new ObjectId(_id) },
+    //     { returnDocument: 'after' },
+    //     { locale: 'vi', strength: 1 },
+    //   );
+
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .deleteOne(
+      .updateOne(
         { _id: new ObjectId(_id) },
+        {
+          $set: {
+            _destroy: true,
+          },
+        },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
