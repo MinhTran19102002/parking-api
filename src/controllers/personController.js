@@ -103,6 +103,16 @@ const deleteMany = async (req, res, next) => {
   }
 };
 
+const findDriverByFilter = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const rs = await userService.findDriverByFilter(req.query);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export const userController = {
   createNew,
   createMany,
@@ -114,4 +124,5 @@ export const userController = {
   deleteUser,
   deleteMany,
   deleteAll,
+  findDriverByFilter,
 };
