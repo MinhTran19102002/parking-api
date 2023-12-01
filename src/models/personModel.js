@@ -169,13 +169,13 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-const updateUser = async (_id, data) => {
+const updateUser = async (_id, _data) => {
+  _data.updatedAt = Date.now();
+  const data = validateBeforCreate(_data);
+  data.updatedAt = Date.now();
   delete data._id;
   try {
     const updateOperation = {
-      $unset: {
-        account: 1, // 1 indicates to remove the field
-      },
       $set: {
         ...data,
       },
@@ -183,7 +183,7 @@ const updateUser = async (_id, data) => {
 
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation);
 
     return result;
   } catch (error) {
