@@ -44,7 +44,7 @@ const createDriver = async (data, licenePlate) => {
       .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
       .updateOne(
         { _id: validateData.driver.vehicleId },
-        { $set: { driverId: createNew.insertedId } },
+        { $set: { driverId: createNew.insertedId } }
       );
     if (updateVihecle.modifiedCount == 0) {
       throw new Error('Update error!');
@@ -243,7 +243,50 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-const updateUser = async (_id, _data) => {
+
+const updateDriver = async (_id, data) => {
+  delete data._id;
+  data.updatedAt = Date.now();
+  const validateData = await validateBeforCreate(data);
+  try {
+    const updateOperation = {
+      $set: {
+        ...validateData,
+      },
+    };
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteDriver = async (_id) => {
+  try {
+    const driver = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(_id), driver: { $exists: true } });
+    if (driver) {
+      if (driver.driver.vehicleId) {
+        const updateId = await GET_DB()
+          .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+          .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId : null } });
+      }
+    } else {
+      throw new ApiError('Driver not exist');
+    }
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(_id) });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateUser = async (_id, data) => {
   _data.updatedAt = Date.now();
   const data = validateBeforCreate(_data);
   data.updatedAt = Date.now();
@@ -341,4 +384,6 @@ export const userModel = {
   deleteMany,
   deleteAll,
   findDriverByFilter,
+  updateDriver,
+  deleteDriver,
 };

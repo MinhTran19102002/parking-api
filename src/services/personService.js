@@ -179,6 +179,46 @@ const updateUser = async (_id, params) => {
   }
 };
 
+const updateDriver = async (_id, params) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const users = await userModel.updateDriver(_id, params);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteDriver = async (_idDelete) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const users = await userModel.deleteDriver(_idDelete);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Deletion failed');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteDrivers = async (ids) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    // const users = await userModel.deleteDriver(ids);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Deletion failed');
+    }
+    console.log(ids)
+    return null;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const hashPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);
   const hashed = await bcrypt.hash(password, salt);
@@ -260,4 +300,7 @@ export const userService = {
   deleteMany,
   deleteAll,
   findDriverByFilter,
+  updateDriver,
+  deleteDriver,
+  deleteDrivers,
 };
