@@ -66,9 +66,28 @@ const createUser = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const hashed = await hashPassword(data.account.password);
-
     data.account.password = hashed;
     const createUser = await userModel.createNew(data);
+    if (createUser.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
+    }
+    return createUser;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const createMany = async (_data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const data = await Promise.all(
+      _data.map(async (el) => {
+        const hashed = await hashPassword(el.account.password);
+        el.account.password = hashed;
+        return el;
+      }),
+    );
+    const createUser = await userModel.createMany(data);
     if (createUser.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
     }
@@ -231,15 +250,55 @@ const refreshToken = async (req, res) => {
   }
 };
 
+const deleteUser = async (_id) => {
+  try {
+    const users = await userModel.deleteUser(_id);
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteAll = async () => {
+  try {
+    const users = await userModel.deleteAll();
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteMany = async (body) => {
+  try {
+    const users = await userModel.deleteMany();
+    if (users.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const userService = {
   login,
   createUser,
+  createMany,
   refreshToken,
   createDriver,
   findDriver,
   findUsers,
   findByID,
   updateUser,
+  deleteUser,
+  deleteMany,
+  deleteAll,
   findDriverByFilter,
   updateDriver,
   deleteDriver,
