@@ -78,6 +78,28 @@ const updateDriver = async (req, res, next) => {
   }
 };
 
+const deleteDriver = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const _idDelete = req.query._id;
+    const rs = await userService.deleteDriver(_idDelete);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteDrivers = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const ids = req.body.ids;
+    const rs = await userService.deleteDrivers(ids);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const findDriverByFilter = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -97,4 +119,6 @@ export const userController = {
   findByID,
   findDriverByFilter,
   updateDriver,
+  deleteDriver,
+  deleteDrivers,
 };
