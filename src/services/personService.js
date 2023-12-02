@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { slugify } from '~/utils/formatter';
 import { userModel } from '~/models/personModel';
-import { vehicleModel } from '~/models/vehicleModel';
 import ApiError from '~/utils/ApiError';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
@@ -102,10 +101,6 @@ const createDriver = async (data) => {
   try {
     const licenePlate = data.licenePlate;
     delete data.licenePlate;
-    let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
-    if (!vehicle) {
-      vehicle = await vehicleModel.createNew({licenePlate});
-    }
     const createDriver = await userModel.createDriver(data, licenePlate);
     if (createDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
@@ -132,19 +127,6 @@ const findDriver = async () => {
   // eslint-disable-next-line no-useless-catch
   try {
     const findDriver = await userModel.findDriver();
-    if (findDriver.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
-    }
-    return findDriver;
-  } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
-  }
-};
-
-const findDriverByFilter = async (filter) => {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const findDriver = await userModel.findDriverByFilter(filter);
     if (findDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
     }
@@ -259,5 +241,4 @@ export const userService = {
   deleteUser,
   deleteMany,
   deleteAll,
-  findDriverByFilter,
 };

@@ -49,9 +49,6 @@ const outPaking = async (licenePlate) => {
   try {
     //tim vehicleId
     const vihicle = await vehicleModel.findOneByLicenePlate(licenePlate);
-    if (!vihicle) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'The car not exist');
-    }
     //
     const filter = { vehicleId: vihicle._id, _destroy: false };
     const outPaking = await parkingTurnModel.updateOut(filter);

@@ -123,17 +123,7 @@ const getStatus = async (zone) => {
             description: 1,
             total: 1,
             occupied: 1,
-            createdAt:  {
-              $dateToString: {
-                date: {
-                  $subtract: [
-                    { $toDate: '$createdAt' },
-                    '$timezoneOffset',
-                  ],
-                },
-                format: '%d/%m/%Y %H:%M:%S',
-              },
-            },
+            createdAt: 1,
             updatedAt: 1,
             _destroy: 1,
             slots: {
@@ -157,7 +147,7 @@ const getStatus = async (zone) => {
                                 '$timezoneOffset',
                               ],
                             },
-                            format: '%d/%m/%Y %H:%M:%S',
+                            format: '%H:%M:%S %d/%m/%Y',
                           },
                         },
                         end: '$$slot.parkingTurn.end',

@@ -4,7 +4,7 @@ import ApiError from '~/utils/ApiError';
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { GET_DB } from '~/config/mongodb';
 import { StatusCodes } from 'http-status-codes';
-import { vehicleModel } from '~/models/vehicleModel';
+import { VEHICLE_COLLECTION_NAME, vehicleModel } from '~/models/vehicleModel';
 
 const PERSON_COLLECTION_NAME = 'persons';
 const PERSON_COLLECTION_SCHEMA = Joi.object({
@@ -133,63 +133,16 @@ const findDriver = async () => {
         {
           $lookup: {
             from: vehicleModel.VEHICLE_COLLECTION_NAME,
+            // localField : '_id',
+            // foreignField : 'driver.vehicleId',
             localField: 'driver.vehicleId',
             foreignField: '_id',
-            as: 'driver.vehicle',
+            as: 'vehicle',
           },
         },
       ])
       .toArray();
     return findDriver;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
-  // Construct the regular expression pattern dynamically
-  let paramMatch = {};
-  for (const [key, value] of Object.entries(params)) {
-    const regex = {
-      [key]: new RegExp(`^${value}`, 'i'),
-    };
-    Object.assign(paramMatch, regex);
-  }
-
-  try {
-    const driver = await GET_DB()
-      .collection(PERSON_COLLECTION_NAME)
-      .aggregate([
-        {
-          $match: {
-            driver: { $exists: true },
-            ...paramMatch,
-          },
-        },
-        {
-          $lookup: {
-            from: vehicleModel.VEHICLE_COLLECTION_NAME,
-            localField: 'driver.vehicleId',
-            foreignField: '_id',
-            as: 'driver.vehicle',
-          },
-        },
-      ])
-      .toArray();
-
-    let totalCount = driver.length;
-    let totalPage = 1;
-    let newDriver = driver;
-
-    if (pageSize && pageIndex) {
-      totalPage = Math.ceil(totalCount / pageSize);
-      newDriver = newDriver.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
-    }
-    return {
-      data: newDriver,
-      totalCount,
-      totalPage,
-    };
   } catch (error) {
     throw new Error(error);
   }
@@ -337,5 +290,7 @@ export const userModel = {
   findDriver,
   findUsers,
   updateUser,
-  findDriverByFilter,
+  deleteUser,
+  deleteMany,
+  deleteAll,
 };

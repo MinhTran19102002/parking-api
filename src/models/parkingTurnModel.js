@@ -70,7 +70,7 @@ const updateOut = async (filter) => {
     const update = await GET_DB()
       .collection(parkingModel.PARKING_COLLECTION_NAME)
       .updateOne(
-        { _id: new ObjectId(updateOut.parkingId), 'slots.position':  updateOut.position },
+        { _id: new ObjectId(updateOut.parkingId) },
         {
           $inc: { occupied: -1 },
           $set: {

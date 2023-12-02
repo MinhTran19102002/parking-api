@@ -17,8 +17,6 @@ Router.route('/deleteAll').delete(userController.deleteAll);
 
 Router.route('/driver').post(userController.createDriver).get(userController.findDriver);
 
-Router.route('/driver/filter').get(userController.findDriverByFilter);
-
 Router.route('/employee')
   .get(userController.findUsers)
   .post(userValidation.createNew, userController.createNew)
