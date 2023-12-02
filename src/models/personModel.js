@@ -11,9 +11,9 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   // boadId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
 
   name: Joi.string().required().min(6).max(50).trim().strict(),
-  address: Joi.string().required().min(6).max(20).trim().strict(),
+  address: Joi.string().required().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
-  email: Joi.string().required().min(6).max(30).trim().strict(),
+  email: Joi.string().required().min(6).max(50).trim().strict(),
 
   account: Joi.object({
     username: Joi.string().required().min(6).max(30).trim().strict(),
@@ -67,6 +67,33 @@ const createNew = async (data) => {
       throw new Error('Username already exists');
     }
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
+    return createNew;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const createMany = async (_data) => {
+  try {
+    const data = await Promise.all(
+      _data.map(async (el) => {
+        const rs = await validateBeforCreate(el);
+        return rs;
+      }),
+    );
+
+    // const noValid = await data.some(async (el) => {
+    //   const rs = await findOne(el.account);
+    //   return rs;
+    // });
+
+    // if (noValid) {
+    //   throw new Error('Cant create this user list, beacuse there are usernames already exists');
+    // }
+
+    const createNew = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .insertMany(data, { ordered: true });
     return createNew;
   } catch (error) {
     throw new Error(error);
@@ -179,28 +206,35 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 
   try {
-    const users = await GET_DB()
-      .collection(PERSON_COLLECTION_NAME)
-      .aggregate([
-        {
-          $match: {
-            account: { $exists: true },
-            ...paramMatch,
-          },
+    let pipeline = [
+      {
+        $match: {
+          account: { $exists: true },
+          ...paramMatch,
         },
-      ])
-      .toArray();
-
-    let totalCount = users.length;
+      },
+    ];
+    let query = await GET_DB().collection(PERSON_COLLECTION_NAME);
+    const allUsers = await query.aggregate(pipeline).toArray();
+    let totalCount = allUsers.length;
     let totalPage = 1;
-    let newUsers = users;
 
     if (pageSize && pageIndex) {
+      pageSize = Number(pageSize);
+      pageIndex = Number(pageIndex);
+      pipeline.push(
+        {
+          $skip: pageSize * (pageIndex - 1),
+        },
+        { $limit: pageSize },
+      );
       totalPage = Math.ceil(totalCount / pageSize);
-      newUsers = newUsers.slice((pageIndex - 1) * pageSize, pageIndex * pageSize - 1);
     }
+
+    const users = await query.aggregate([...pipeline]).toArray();
+
     return {
-      data: newUsers,
+      data: users,
       totalCount,
       totalPage,
     };
@@ -209,13 +243,13 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-const updateUser = async (_id, data) => {
+const updateUser = async (_id, _data) => {
+  _data.updatedAt = Date.now();
+  const data = validateBeforCreate(_data);
+  data.updatedAt = Date.now();
   delete data._id;
   try {
     const updateOperation = {
-      $unset: {
-        account: 1, // 1 indicates to remove the field
-      },
       $set: {
         ...data,
       },
@@ -223,7 +257,68 @@ const updateUser = async (_id, data) => {
 
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation);
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteUser = async (_id) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteOne(
+        { _id: new ObjectId(_id) },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    // const result = await GET_DB()
+    //   .collection(PERSON_COLLECTION_NAME)
+    //   .updateOne(
+    //     { _id: new ObjectId(_id) },
+    //     {
+    //       $set: {
+    //         _destroy: true,
+    //       },
+    //     },
+    //     { returnDocument: 'after' },
+    //     { locale: 'vi', strength: 1 },
+    //   );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteAll = async (_ids) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { account: { $exists: true } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteMany = async (_ids) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { name: { $exists: false } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
 
     return result;
   } catch (error) {
@@ -237,9 +332,13 @@ export const userModel = {
   findOne,
   findByID,
   createNew,
+  createMany,
   createDriver,
   findDriver,
   findUsers,
   updateUser,
+  deleteUser,
+  deleteMany,
+  deleteAll,
   findDriverByFilter,
 };
