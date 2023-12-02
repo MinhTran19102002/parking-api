@@ -12,6 +12,16 @@ const createNew = async (req, res, next) => {
   }
 };
 
+const createMany = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createUser = await userService.createMany(req.body);
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createDriver = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -73,14 +83,35 @@ const deleteUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+}
+
+const deleteAll = async (req, res, next) => {
+  try {
+    const rs = await userService.deleteAll();
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteMany = async (req, res, next) => {
+  try {
+    const rs = await userService.deleteMany();
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const userController = {
   createNew,
+  createMany,
   createDriver,
   findDriver,
   findUsers,
   updateUser,
   findByID,
   deleteUser,
+  deleteMany,
+  deleteAll,
 };

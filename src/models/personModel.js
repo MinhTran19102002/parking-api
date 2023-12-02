@@ -11,9 +11,9 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   // boadId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
 
   name: Joi.string().required().min(6).max(50).trim().strict(),
-  address: Joi.string().required().min(6).max(20).trim().strict(),
+  address: Joi.string().required().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
-  email: Joi.string().required().min(6).max(30).trim().strict(),
+  email: Joi.string().required().min(6).max(50).trim().strict(),
 
   account: Joi.object({
     username: Joi.string().required().min(6).max(30).trim().strict(),
@@ -67,6 +67,33 @@ const createNew = async (data) => {
       throw new Error('Username already exists');
     }
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
+    return createNew;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const createMany = async (_data) => {
+  try {
+    const data = await Promise.all(
+      _data.map(async (el) => {
+        const rs = await validateBeforCreate(el);
+        return rs;
+      }),
+    );
+
+    // const noValid = await data.some(async (el) => {
+    //   const rs = await findOne(el.account);
+    //   return rs;
+    // });
+
+    // if (noValid) {
+    //   throw new Error('Cant create this user list, beacuse there are usernames already exists');
+    // }
+
+    const createNew = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .insertMany(data, { ordered: true });
     return createNew;
   } catch (error) {
     throw new Error(error);
@@ -220,15 +247,50 @@ const deleteUser = async (_id) => {
   }
 };
 
+const deleteAll = async (_ids) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { account: { $exists: true } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteMany = async (_ids) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { name: { $exists: false } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const userModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
   findOne,
   findByID,
   createNew,
+  createMany,
   createDriver,
   findDriver,
   findUsers,
   updateUser,
   deleteUser,
+  deleteMany,
+  deleteAll,
 };

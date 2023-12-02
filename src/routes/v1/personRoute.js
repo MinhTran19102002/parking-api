@@ -11,6 +11,10 @@ Router.route('/')
   .put(userController.updateUser)
   .delete(userController.deleteUser);
 
+Router.route('/addMany').post(userController.createMany);
+Router.route('/deleteMany').post(userController.deleteMany);
+Router.route('/deleteAll').delete(userController.deleteAll);
+
 Router.route('/driver').post(userController.createDriver).get(userController.findDriver);
 
 Router.route('/employee')
