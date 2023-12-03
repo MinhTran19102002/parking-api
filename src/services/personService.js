@@ -281,9 +281,9 @@ const deleteAll = async () => {
   }
 };
 
-const deleteMany = async (body) => {
+const deleteMany = async (params) => {
   try {
-    const users = await personModel.deleteMany();
+    const users = await personModel.deleteMany(params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
     }

@@ -106,7 +106,7 @@ const deleteAll = async (req, res, next) => {
 
 const deleteMany = async (req, res, next) => {
   try {
-    const rs = await userService.deleteMany();
+    const rs = await userService.deleteMany(req.body);
     res.status(StatusCodes.OK).json(rs);
   } catch (error) {
     next(error);
