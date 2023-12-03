@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { slugify } from '~/utils/formatter';
-import { userModel } from '~/models/personModel';
+import { personModel } from '~/models/personModel';
 import { vehicleModel } from '~/models/vehicleModel';
 import ApiError from '~/utils/ApiError';
 import { StatusCodes } from 'http-status-codes';
@@ -14,7 +14,7 @@ const generateAccessToken = (user) => {
     {
       id: user._id,
       name: user.name,
-      username: user.user.username,
+      username: user.account.username,
     },
     env.JWT_ACCESS_KEY,
     { expiresIn: '2h' },
@@ -26,7 +26,7 @@ const generateRefreshToken = (user) => {
     {
       id: user._id,
       name: user.name,
-      username: user.user.username,
+      username: user.account.username,
     },
     env.JWT_REFRESH_KEY,
     { expiresIn: '2d' },
@@ -37,17 +37,17 @@ const login = async (req, res) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const data = req.body;
-    const findOne = await userModel.findOne(data);
+    const findOne = await personModel.findOne(data);
     if (!findOne) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not exist');
     }
-    const validatePasword = await bcrypt.compare(data.password, findOne.user.password);
+    const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
     if (!validatePasword) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Password is wrong');
     }
     const accessToken = generateAccessToken(findOne);
     const refreshToken = generateRefreshToken(findOne);
-    delete findOne.user.password;
+    delete findOne.account.password;
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -67,7 +67,7 @@ const createUser = async (data) => {
   try {
     const hashed = await hashPassword(data.account.password);
     data.account.password = hashed;
-    const createUser = await userModel.createNew(data);
+    const createUser = await personModel.createNew(data);
     if (createUser.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
     }
@@ -87,7 +87,7 @@ const createMany = async (_data) => {
         return el;
       }),
     );
-    const createUser = await userModel.createMany(data);
+    const createUser = await personModel.createMany(data);
     if (createUser.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
     }
@@ -106,7 +106,7 @@ const createDriver = async (data) => {
     if (!vehicle) {
       vehicle = await vehicleModel.createNew({licenePlate});
     }
-    const createDriver = await userModel.createDriver(data, licenePlate);
+    const createDriver = await personModel.createDriver(data, licenePlate);
     if (createDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
     }
@@ -118,7 +118,7 @@ const createDriver = async (data) => {
 
 const findByID = async (_id) => {
   try {
-    const users = await userModel.findByID(_id);
+    const users = await personModel.findByID(_id);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
@@ -131,7 +131,7 @@ const findByID = async (_id) => {
 const findDriver = async () => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const findDriver = await userModel.findDriver();
+    const findDriver = await personModel.findDriver();
     if (findDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
     }
@@ -144,7 +144,7 @@ const findDriver = async () => {
 const findDriverByFilter = async (filter) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const findDriver = await userModel.findDriverByFilter(filter);
+    const findDriver = await personModel.findDriverByFilter(filter);
     if (findDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
     }
@@ -156,7 +156,7 @@ const findDriverByFilter = async (filter) => {
 
 const findUsers = async (params) => {
   try {
-    const users = await userModel.findUsers(params);
+    const users = await personModel.findUsers(params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
@@ -169,7 +169,7 @@ const findUsers = async (params) => {
 const updateUser = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const users = await userModel.updateUser(_id, params);
+    const users = await personModel.updateUser(_id, params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');
     }
@@ -182,7 +182,7 @@ const updateUser = async (_id, params) => {
 const updateDriver = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const users = await userModel.updateDriver(_id, params);
+    const users = await personModel.updateDriver(_id, params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');
     }
@@ -195,7 +195,7 @@ const updateDriver = async (_id, params) => {
 const deleteDriver = async (_idDelete) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const users = await userModel.deleteDriver(_idDelete);
+    const users = await personModel.deleteDriver(_idDelete);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Deletion failed');
     }
@@ -208,12 +208,14 @@ const deleteDriver = async (_idDelete) => {
 const deleteDrivers = async (ids) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    // const users = await userModel.deleteDriver(ids);
-    if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Deletion failed');
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'The IDs array is invalid or empty.');
     }
-    console.log(ids)
-    return null;
+    const users = await personModel.deleteDrivers(ids);
+    // if (users.acknowledged == false) {
+    //   throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Deletion failed');
+    // }
+    return users;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -252,7 +254,7 @@ const refreshToken = async (req, res) => {
 
 const deleteUser = async (_id) => {
   try {
-    const users = await userModel.deleteUser(_id);
+    const users = await personModel.deleteUser(_id);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
     }
@@ -264,7 +266,7 @@ const deleteUser = async (_id) => {
 
 const deleteAll = async () => {
   try {
-    const users = await userModel.deleteAll();
+    const users = await personModel.deleteAll();
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
     }
@@ -276,7 +278,7 @@ const deleteAll = async () => {
 
 const deleteMany = async (body) => {
   try {
-    const users = await userModel.deleteMany();
+    const users = await personModel.deleteMany();
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
     }

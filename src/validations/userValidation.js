@@ -26,7 +26,7 @@ const account = Joi.object({
 const base = Joi.object().keys({
   name: Joi.string().required().min(6).max(50).trim().strict(),
   address: Joi.string().min(6).max(50).trim().strict(),
-  phone: Joi.string().required().min(10).max(11).trim().strict(),
+  phone: Joi.string().required().min(10).max(11).trim().strict().pattern(/(0[3|5|7|8|9])+([0-9]{8})\b/),
   email: Joi.string()
     .required()
     .email({ tlds: { allow: false } })

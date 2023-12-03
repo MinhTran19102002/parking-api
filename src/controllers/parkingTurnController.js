@@ -38,8 +38,20 @@ const getVehicleInOutNumber = async (req, res, next) => {
   }
 };
 
+const getRevenue = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const getRevenue = await parkingTurnService.getRevenue(req, res);
+
+    res.status(StatusCodes.OK).json(getRevenue);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const parkingTurnController = {
   createNew,
   outPaking,
   getVehicleInOutNumber,
+  getRevenue,
 };
