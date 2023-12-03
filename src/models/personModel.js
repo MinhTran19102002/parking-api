@@ -33,10 +33,12 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
 const createDriver = async (data, licenePlate) => {
   try {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
-    if (!vehicle) { // xe da duoc tao o service neu xe chua ton tai
+    if (!vehicle) {
+      // xe da duoc tao o service neu xe chua ton tai
       throw new Error('LicenePlate already exists');
     }
-    if (vehicle.driverId != null) { // xe da co chu
+    if (vehicle.driverId != null) {
+      // xe da co chu
       throw new Error('The car has an owner');
     }
     data.driver = { vehicleId: vehicle._id.toString() };
@@ -47,7 +49,7 @@ const createDriver = async (data, licenePlate) => {
       .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
       .updateOne(
         { _id: validateData.driver.vehicleId },
-        { $set: { driverId: createNew.insertedId } }
+        { $set: { driverId: createNew.insertedId } },
       );
     if (updateVihecle.modifiedCount == 0) {
       throw new Error('Update error!');
@@ -246,11 +248,50 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-
 const updateDriver = async (_id, data) => {
   delete data._id;
   data.updatedAt = Date.now();
-  const validateData = await validateBeforCreate(data);
+  const findDriver = await GET_DB()
+    .collection(PERSON_COLLECTION_NAME)
+    .findOne({ _id: new ObjectId(_id) });
+  const findVehicleOfDataUpdate = await GET_DB()
+    .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+    .findOne({ licenePlate: data.licenePlate });
+  let vehicleId = findDriver.driver.vehicleId;
+
+  if (findVehicleOfDataUpdate == null) {
+    console.log('1')
+    //Neu xe khong ton tai
+    const createVehicle = await vehicleModel.createNew({
+      licenePlate: data.licenePlate,
+      type: 'Car',
+      driverId : findDriver._id,
+    });
+    vehicleId = createVehicle.insertedId;
+    await vehicleModel.deleteOne(findDriver.driver.vehicleId);
+  }
+  else if (findVehicleOfDataUpdate.driverId == null) {
+    console.log('2')
+    //Neu xe ton tai nhung chua co chu
+    const update = await vehicleModel.updateDriverId(findVehicleOfDataUpdate._id, findDriver._id);
+    vehicleId = findVehicleOfDataUpdate._id;
+    await vehicleModel.deleteOne(findDriver.driver.vehicleId);
+  }
+  else if (!(findVehicleOfDataUpdate.driverId).equals(findDriver._id)) {
+    console.log('3')
+    //Neu xe ton tai nhung co chu khac roi
+    throw new Error('Xe có chủ rồi bà');
+  }
+  else if ((findVehicleOfDataUpdate.driverId).equals(findDriver._id)) {
+    console.log('4')
+    //Neu xe ton tai va la xe cua chu nay
+    vehicleId = findVehicleOfDataUpdate._id;
+  }
+
+  delete data.licenePlate;
+
+  let validateData = await validateBeforCreate(data);
+  validateData = { ...validateData, 'driver.vehicleId': new ObjectId(vehicleId) };
   try {
     const updateOperation = {
       $set: {
@@ -275,7 +316,7 @@ const deleteDriver = async (_id) => {
       if (driver.driver.vehicleId) {
         const updateId = await GET_DB()
           .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
-          .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId : null } });
+          .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId: null } });
       }
     } else {
       throw new ApiError('Driver not exist');
@@ -292,10 +333,10 @@ const deleteDriver = async (_id) => {
 const deleteDrivers = async (_ids) => {
   try {
     //update lai nhung xe co Id la nguoi dung muon xa tro thanh xe khong chu
-    const objectIds = _ids.map(_ids => new ObjectId(_ids));
+    const objectIds = _ids.map((_ids) => new ObjectId(_ids));
     const updateId = await GET_DB()
       .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
-      .updateMany({ driverId : { $in: objectIds } }, { $set: { driverId : null } });
+      .updateMany({ driverId: { $in: objectIds } }, { $set: { driverId: null } });
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany({ _id: { $in: objectIds } });
@@ -304,7 +345,6 @@ const deleteDrivers = async (_ids) => {
     throw new Error(error);
   }
 };
-
 
 const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
