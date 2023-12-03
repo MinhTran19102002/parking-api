@@ -195,7 +195,7 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-const findUsers = async ({ pageSize, pageIndex, ...params }) => {
+const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
@@ -205,11 +205,12 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
     Object.assign(paramMatch, regex);
   }
 
+  const checkRole = role ? { 'account.role': role } : { account: { $exists: true } };
   try {
     let pipeline = [
       {
         $match: {
-          account: { $exists: true },
+          ...checkRole,
           ...paramMatch,
         },
       },
@@ -286,7 +287,7 @@ const deleteAll = async (_ids) => {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { account: { $exists: true }, isAdmin: { $exists: false } },
+        { account: { $exists: true, username: { $ne: 'admin' } }, isAdmin: { $exists: false } },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );

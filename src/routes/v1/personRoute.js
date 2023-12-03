@@ -20,7 +20,7 @@ Router.route('/driver').post(userController.createDriver).get(userController.fin
 Router.route('/driver/filter').get(userController.findDriverByFilter);
 
 Router.route('/employee')
-  .get(userController.findUsers)
+  .get(userController.findEmployees)
   .post(userValidation.createNew, userController.createNew)
   .put(userController.updateUser);
 

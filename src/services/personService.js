@@ -41,7 +41,6 @@ const login = async (req, res) => {
     if (!findOne) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not exist');
     }
-    console.log(findOne);
     const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
     if (!validatePasword) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Password is wrong');
@@ -105,7 +104,7 @@ const createDriver = async (data) => {
     delete data.licenePlate;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
-      vehicle = await vehicleModel.createNew({licenePlate});
+      vehicle = await vehicleModel.createNew({ licenePlate });
     }
     const createDriver = await userModel.createDriver(data, licenePlate);
     if (createDriver.acknowledged == false) {
@@ -157,7 +156,12 @@ const findDriverByFilter = async (filter) => {
 
 const findUsers = async (params) => {
   try {
-    const users = await userModel.findUsers(params);
+    let role;
+    if (params.role) {
+      role = params.role;
+      delete params.role;
+    }
+    const users = await userModel.findUsers(params, role);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
@@ -170,6 +174,7 @@ const findUsers = async (params) => {
 const updateUser = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
+    console.log(_id, params);
     const users = await userModel.updateUser(_id, params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');

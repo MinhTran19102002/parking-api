@@ -53,6 +53,16 @@ const findUsers = async (req, res, next) => {
   }
 };
 
+const findEmployees = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const users = await userService.findUsers({ ...req.query, role: 'Employee' });
+    res.status(StatusCodes.OK).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const findByID = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -83,7 +93,7 @@ const deleteUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 const deleteAll = async (req, res, next) => {
   try {
@@ -111,7 +121,7 @@ const findDriverByFilter = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const userController = {
   createNew,
@@ -119,6 +129,7 @@ export const userController = {
   createDriver,
   findDriver,
   findUsers,
+  findEmployees,
   updateUser,
   findByID,
   deleteUser,
