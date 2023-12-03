@@ -14,6 +14,9 @@ const client = new MongoClient(env.MONGODB_URI, {
 export const connectDB = async () => {
   await client.connect();
   pakingDatabaseInstance = client.db(env.DATABASE_NAME);
+  const m = await pakingDatabaseInstance.collection('persons').createIndex({ phone : 1}, { unique: true });
+  const n = await pakingDatabaseInstance.collection('persons').createIndex({email : 1},  { unique: true });
+  console.log(m)
 };
 
 export const GET_DB = () => {

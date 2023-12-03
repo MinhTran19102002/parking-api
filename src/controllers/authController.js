@@ -25,5 +25,5 @@ const refreshToken = async (req, res, next) => {
 
 export const authController = {
   login,
-  refreshToken
+  refreshToken,
 }

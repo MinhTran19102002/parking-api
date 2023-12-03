@@ -33,8 +33,11 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
 const createDriver = async (data, licenePlate) => {
   try {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
-    if (!vehicle) {
+    if (!vehicle) { // xe da duoc tao o service neu xe chua ton tai
       throw new Error('LicenePlate already exists');
+    }
+    if (vehicle.driverId != null) { // xe da co chu
+      throw new Error('The car has an owner');
     }
     data.driver = { vehicleId: vehicle._id.toString() };
     const validateData = await validateBeforCreate(data);
@@ -286,7 +289,24 @@ const deleteDriver = async (_id) => {
   }
 };
 
-const updateUser = async (_id, data) => {
+const deleteDrivers = async (_ids) => {
+  try {
+    //update lai nhung xe co Id la nguoi dung muon xa tro thanh xe khong chu
+    const objectIds = _ids.map(_ids => new ObjectId(_ids));
+    const updateId = await GET_DB()
+      .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+      .updateMany({ driverId : { $in: objectIds } }, { $set: { driverId : null } });
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany({ _id: { $in: objectIds } });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+
+const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
   const data = validateBeforCreate(_data);
   data.updatedAt = Date.now();
@@ -369,7 +389,7 @@ const deleteMany = async (_ids) => {
   }
 };
 
-export const userModel = {
+export const personModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
   findOne,
@@ -386,4 +406,5 @@ export const userModel = {
   findDriverByFilter,
   updateDriver,
   deleteDriver,
+  deleteDrivers,
 };

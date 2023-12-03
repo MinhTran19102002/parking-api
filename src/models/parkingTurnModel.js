@@ -64,13 +64,25 @@ const createNew = async (data) => {
 
 const updateOut = async (filter) => {
   try {
+    const timeOut = Date.now();
+    const find = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne(filter);
+    let fee = find.fee
+    if (find) {
+      const dateIn = new Date(find.start);
+      const dateOut = new Date(timeOut);
+      const timeDifference = dateOut - dateIn;
+      const hoursDifference = timeDifference / (1000 * 60 * 60);
+      if (hoursDifference > 10) {
+        fee = fee + Math.floor(hoursDifference / 10)*5000
+      }
+    }
     const updateOut = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
-      .findOneAndUpdate(filter, { $set: { end: Date.now(), _destroy: true } });
+      .findOneAndUpdate(filter, { $set: { end: timeOut, _destroy: true, fee: fee } });
     const update = await GET_DB()
       .collection(parkingModel.PARKING_COLLECTION_NAME)
       .updateOne(
-        { _id: new ObjectId(updateOut.parkingId), 'slots.position':  updateOut.position },
+        { _id: new ObjectId(updateOut.parkingId), 'slots.position': updateOut.position },
         {
           $inc: { occupied: -1 },
           $set: {
@@ -203,6 +215,90 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
   }
 };
 
+const getRevenue = async (startDate, endDate) => {
+  try {
+    const start = Date.parse(parseDate(startDate));
+    const end = Date.parse(parseDate(endDate));
+    const getVehicleInOutNumber = await GET_DB()
+      .collection(PARKINGTURN_COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            start: {
+              $gte: start,
+              $lte: end,
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: parkingModel.PARKING_COLLECTION_NAME,
+            localField: 'parkingId',
+            foreignField: '_id',
+            as: 'parking',
+          },
+        },
+        {
+          $unwind: '$parking',
+        },
+        {
+          $addFields: {
+            timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              month: { $month: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              day: { $dayOfMonth: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              zone: '$parking.zone',
+            },
+            totalFee: { $sum: '$fee' },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: '$_id.year',
+              month: '$_id.month',
+              day: '$_id.day',
+            },
+            data: {
+              $push: {
+                k: '$_id.zone',
+                v: '$totalFee',
+              },
+            },
+            total: { $sum: '$totalFee' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateToString: {
+                format: '%d/%m/%Y',
+                date: {
+                  $dateFromParts: {
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    day: '$_id.day',
+                  },
+                },
+              },
+            },
+            data: { $arrayToObject: '$data' },
+            total: 1,
+          },
+        },
+      ]);
+    return await getVehicleInOutNumber.toArray();
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const parseDate = (str) => {
   const parts = str.split('/');
   if (parts.length === 3) {
@@ -222,4 +318,5 @@ export const parkingTurnModel = {
   createNew,
   updateOut,
   getVehicleInOutNumber,
+  getRevenue,
 };
