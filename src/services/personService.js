@@ -14,7 +14,7 @@ const generateAccessToken = (user) => {
     {
       id: user._id,
       name: user.name,
-      username: user.user.username,
+      username: user.account.username,
     },
     env.JWT_ACCESS_KEY,
     { expiresIn: '2h' },
@@ -26,7 +26,7 @@ const generateRefreshToken = (user) => {
     {
       id: user._id,
       name: user.name,
-      username: user.user.username,
+      username: user.account.username,
     },
     env.JWT_REFRESH_KEY,
     { expiresIn: '2d' },
@@ -41,13 +41,14 @@ const login = async (req, res) => {
     if (!findOne) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not exist');
     }
-    const validatePasword = await bcrypt.compare(data.password, findOne.user.password);
+    console.log(findOne);
+    const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
     if (!validatePasword) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Password is wrong');
     }
     const accessToken = generateAccessToken(findOne);
     const refreshToken = generateRefreshToken(findOne);
-    delete findOne.user.password;
+    delete findOne.account.password;
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,

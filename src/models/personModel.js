@@ -10,13 +10,13 @@ const PERSON_COLLECTION_NAME = 'persons';
 const PERSON_COLLECTION_SCHEMA = Joi.object({
   // boadId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
 
-  name: Joi.string().required().min(6).max(50).trim().strict(),
-  address: Joi.string().required().min(6).max(50).trim().strict(),
+  name: Joi.string().required().min(4).max(50).trim().strict(),
+  address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
-  email: Joi.string().required().min(6).max(50).trim().strict(),
+  email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(6).max(30).trim().strict(),
+    username: Joi.string().required().min(4).max(30).trim().strict(),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -275,19 +275,6 @@ const deleteUser = async (_id) => {
         { locale: 'vi', strength: 1 },
       );
 
-    // const result = await GET_DB()
-    //   .collection(PERSON_COLLECTION_NAME)
-    //   .updateOne(
-    //     { _id: new ObjectId(_id) },
-    //     {
-    //       $set: {
-    //         _destroy: true,
-    //       },
-    //     },
-    //     { returnDocument: 'after' },
-    //     { locale: 'vi', strength: 1 },
-    //   );
-
     return result;
   } catch (error) {
     throw new Error(error);
@@ -299,7 +286,7 @@ const deleteAll = async (_ids) => {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { account: { $exists: true } },
+        { account: { $exists: true }, isAdmin: { $exists: false } },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );

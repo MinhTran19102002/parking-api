@@ -18,7 +18,7 @@ const validatePassword = Joi.string()
   .strict();
 
 const account = Joi.object({
-  username: Joi.string().required().min(6).max(20).trim().strict(),
+  username: Joi.string().required().min(4).max(20).trim().strict(),
   password: validatePassword,
   role: Joi.string().required().min(3).max(20).trim().strict(),
 });
@@ -41,11 +41,7 @@ const user = base.keys({
 });
 
 const login = async (req, res, next) => {
-  const correctCondition = Joi.object({
-    username: Joi.string().required().min(6).max(50).trim().strict(),
-    password: Joi.string().required().min(8).max(20).trim().strict(),
-    role: Joi.string().required().min(3).max(20).trim().strict(),
-  });
+  const correctCondition = account;
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false });
     // Dieu huong sang tang Controller
