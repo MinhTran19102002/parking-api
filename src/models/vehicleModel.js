@@ -23,7 +23,9 @@ const validateBeforCreate = async (data) => {
 
 const createNew = async (data) => {
   try {
+    data.driverId = data.driverId.toString();
     const validateData = await validateBeforCreate(data);
+    validateData.driverId = new ObjectId(validateData.driverId);
     const check = await findOneByLicenePlate(data.licenePlate);
     if (check) {
       throw new Error('Vehicle already exists');
@@ -46,11 +48,22 @@ const findOneByLicenePlate = async (licenePlate) => {
   }
 };
 
+const updateDriverId = async (id, driverId) => {
+  try {
+    const update = await GET_DB()
+      .collection(VEHICLE_COLLECTION_NAME)
+      .updateOne({ _id: new ObjectId(id) }, { $set: { driverId: new ObjectId(driverId) } });
+    return update;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const deleteOne = async (id) => {
   try {
     const deleteOne = await GET_DB()
       .collection(VEHICLE_COLLECTION_NAME)
-      .deleteOne({ _id: new ObjectId(id) });
+      .updateOne({ _id: new ObjectId(id) },{$set: { driverId:null }});
     return deleteOne;
   } catch (error) {
     throw new Error(error);
@@ -63,4 +76,5 @@ export const vehicleModel = {
   createNew,
   findOneByLicenePlate,
   deleteOne,
+  updateDriverId,
 };
