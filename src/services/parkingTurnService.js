@@ -32,7 +32,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       vehicleId: vihicle._id.toString(),
       parkingId: parking._id.toString(),
       position: position,
-      fee: 5000,
+      fee: 10000,
       _destroy: false,
     };
     const createPaking = await parkingTurnModel.createNew(data);
@@ -77,13 +77,10 @@ const formatDay = (day) => {
 };
 
 const getVehicleInOutNumber = async (req, res) => {
-  const valueFromQuery = req.query;
-  console.log(valueFromQuery);
   let startDate;
   let endDate;
 
   if (req.query.startDate === undefined) {
-    console.log('valueFromQuery');
     startDate = formatDay('7');
     endDate = formatDay('today');
   } else {
@@ -101,8 +98,31 @@ const getVehicleInOutNumber = async (req, res) => {
   }
 };
 
+const getRevenue = async (req, res) => {
+  let startDate;
+  let endDate;
+
+  if (req.query.startDate === undefined) {
+    startDate = formatDay('7');
+    endDate = formatDay('today');
+  } else {
+    startDate = req.query.startDate;
+    endDate = req.query.endDate;
+  }
+  try {
+    const getRevenue = await parkingTurnModel.getRevenue(startDate, endDate);
+    if (getRevenue.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+    }
+    return getRevenue;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const parkingTurnService = {
   createPakingTurn,
   outPaking,
   getVehicleInOutNumber,
+  getRevenue,
 };

@@ -12,4 +12,7 @@ Router.route('/outPaking')
 
 Router.route('/Reports/GetVehicleInOutNumber')
   .get(parkingTurnController.getVehicleInOutNumber)
+
+Router.route('/Reports/GetRevenue')
+  .get(parkingTurnController.getRevenue)
 export const parkingTurnRoute = Router

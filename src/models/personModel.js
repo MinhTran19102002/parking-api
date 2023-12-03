@@ -33,8 +33,11 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
 const createDriver = async (data, licenePlate) => {
   try {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
-    if (!vehicle) {
+    if (!vehicle) { // xe da duoc tao o service neu xe chua ton tai
       throw new Error('LicenePlate already exists');
+    }
+    if (vehicle.driverId != null) { // xe da co chu
+      throw new Error('The car has an owner');
     }
     data.driver = { vehicleId: vehicle._id.toString() };
     const validateData = await validateBeforCreate(data);
@@ -44,7 +47,7 @@ const createDriver = async (data, licenePlate) => {
       .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
       .updateOne(
         { _id: validateData.driver.vehicleId },
-        { $set: { driverId: createNew.insertedId } },
+        { $set: { driverId: createNew.insertedId } }
       );
     if (updateVihecle.modifiedCount == 0) {
       throw new Error('Update error!');
@@ -244,6 +247,66 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   }
 };
 
+
+const updateDriver = async (_id, data) => {
+  delete data._id;
+  data.updatedAt = Date.now();
+  const validateData = await validateBeforCreate(data);
+  try {
+    const updateOperation = {
+      $set: {
+        ...validateData,
+      },
+    };
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteDriver = async (_id) => {
+  try {
+    const driver = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(_id), driver: { $exists: true } });
+    if (driver) {
+      if (driver.driver.vehicleId) {
+        const updateId = await GET_DB()
+          .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+          .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId : null } });
+      }
+    } else {
+      throw new ApiError('Driver not exist');
+    }
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(_id) });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteDrivers = async (_ids) => {
+  try {
+    //update lai nhung xe co Id la nguoi dung muon xa tro thanh xe khong chu
+    const objectIds = _ids.map(_ids => new ObjectId(_ids));
+    const updateId = await GET_DB()
+      .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+      .updateMany({ driverId : { $in: objectIds } }, { $set: { driverId : null } });
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany({ _id: { $in: objectIds } });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+
 const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
   const data = validateBeforCreate(_data);
@@ -314,7 +377,7 @@ const deleteMany = async (_ids) => {
   }
 };
 
-export const userModel = {
+export const personModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
   findOne,
@@ -329,4 +392,7 @@ export const userModel = {
   deleteMany,
   deleteAll,
   findDriverByFilter,
+  updateDriver,
+  deleteDriver,
+  deleteDrivers,
 };

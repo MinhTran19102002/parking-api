@@ -4,6 +4,8 @@ import ApiError from '~/utils/ApiError';
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { GET_DB } from '~/config/mongodb';
 import { parkingTurnModel } from '~/models/parkingTurnModel';
+import { vehicleModel } from '~/models/vehicleModel';
+import { personModel } from '~/models/personModel';
 
 const PARKING_COLLECTION_NAME = 'parking';
 const PARKING_COLLECTION_SCHEMA = Joi.object({
@@ -80,6 +82,33 @@ const getStatus = async (zone) => {
         },
         {
           $lookup: {
+            from: vehicleModel.VEHICLE_COLLECTION_NAME,
+            localField: 'parkingTurn.vehicleId',
+            foreignField: '_id',
+            as: 'vehicles',
+          },
+        },
+
+        {
+          $lookup: {
+            from: personModel.PERSON_COLLECTION_NAME,
+            localField: 'vehicles.driverId',
+            foreignField: '_id',
+            as: 'persons',
+          },
+        },
+
+
+        {
+          $lookup: {
+            from: 'slots.parkingTurn',
+            localField: 'vehicles._id',
+            foreignField: 'vehicleId',
+            as: 'vehicleParkingTurn',
+          },
+        },
+        {
+          $lookup: {
             from: 'parkingTurn',
             localField: 'slots.parkingTurnId',
             foreignField: '_id',
@@ -91,86 +120,89 @@ const getStatus = async (zone) => {
             path: '$slots.parkingTurn',
           },
         },
-        {
-          $group: {
-            _id: '$_id',
-            zone: { $first: '$zone' },
-            description: { $first: '$description' },
-            total: { $first: '$total' },
-            occupied: { $first: '$occupied' },
-            createdAt: { $first: '$createdAt' },
-            updatedAt: { $first: '$updatedAt' },
-            _destroy: { $first: '$_destroy' },
-            parkingTurn: { $first: '$parkingTurn' },
-            slots: {
-              $push: {
-                position: '$slots.position',
-                isBlank: '$slots.isBlank',
-                parkingTurn: '$slots.parkingTurn',
-              },
-            },
-          },
-        },
-        {
-          $addFields: {
-            timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            zone: 1,
-            description: 1,
-            total: 1,
-            occupied: 1,
-            createdAt:  {
-              $dateToString: {
-                date: {
-                  $subtract: [
-                    { $toDate: '$createdAt' },
-                    '$timezoneOffset',
-                  ],
-                },
-                format: '%d/%m/%Y %H:%M:%S',
-              },
-            },
-            updatedAt: 1,
-            _destroy: 1,
-            slots: {
-              $filter: {
-                input: {
-                  $map: {
-                    input: '$slots',
-                    as: 'slot',
-                    in: {
-                      position: '$$slot.position',
-                      isBlank: '$$slot.isBlank',
-                      parkingTurn: {
-                        position: '$$slot.parkingTurn.position',
-                        fee: '$$slot.parkingTurn.fee',
-                        _destroy: '$$slot.parkingTurn._destroy',
-                        start: {
-                          $dateToString: {
-                            date: {
-                              $subtract: [
-                                { $toDate: '$$slot.parkingTurn.start' },
-                                '$timezoneOffset',
-                              ],
-                            },
-                            format: '%d/%m/%Y %H:%M:%S',
-                          },
-                        },
-                        end: '$$slot.parkingTurn.end',
-                      },
-                    },
-                  },
-                },
-                as: 'slot',
-                cond: { $ne: ['$$slot.parkingTurn.start', null] },
-              },
-            },
-          },
-        },
+
+        // {
+        //   $group: {
+        //     _id: '$_id',
+        //     zone: { $first: '$zone' },
+        //     description: { $first: '$description' },
+        //     total: { $first: '$total' },
+        //     occupied: { $first: '$occupied' },
+        //     createdAt: { $first: '$createdAt' },
+        //     updatedAt: { $first: '$updatedAt' },
+        //     _destroy: { $first: '$_destroy' },
+        //     parkingTurn: { $first: '$parkingTurn' },
+        //     slots: {
+        //       $push: {
+        //         position: '$slots.position',
+        //         isBlank: '$slots.isBlank',
+        //         parkingTurn: '$slots.parkingTurn',
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   $addFields: {
+        //     timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     zone: 1,
+        //     description: 1,
+        //     total: 1,
+        //     occupied: 1,
+        //     createdAt:  {
+        //       $dateToString: {
+        //         date: {
+        //           $subtract: [
+        //             { $toDate: '$createdAt' },
+        //             '$timezoneOffset',
+        //           ],
+        //         },
+        //         format: '%d/%m/%Y %H:%M:%S',
+        //       },
+        //     },
+        //     updatedAt: 1,
+        //     _destroy: 1,
+        //     slots: {
+        //       $filter: {
+        //         input: {
+        //           $map: {
+        //             input: '$slots',
+        //             as: 'slot',
+        //             in: {
+        //               position: '$$slot.position',
+        //               isBlank: '$$slot.isBlank',
+        //               parkingTurn: {
+        //                 // vehicleInfo: '$$slot.parkingTurn.vehicleInfo',
+        //                 // driverInfo: '$$slot.parkingTurn.personInfo',
+        //                 position: '$$slot.parkingTurn.position',
+        //                 fee: '$$slot.parkingTurn.fee',
+        //                 _destroy: '$$slot.parkingTurn._destroy',
+        //                 start: {
+        //                   $dateToString: {
+        //                     date: {
+        //                       $subtract: [
+        //                         { $toDate: '$$slot.parkingTurn.start' },
+        //                         '$timezoneOffset',
+        //                       ],
+        //                     },
+        //                     format: '%d/%m/%Y %H:%M:%S',
+        //                   },
+        //                 },
+        //                 end: '$$slot.parkingTurn.end',
+        //               },
+        //             },
+        //           },
+        //         },
+        //         as: 'slot',
+        //         cond: { $ne: ['$$slot.parkingTurn.start', null] },
+        //       },
+        //     },
+        //   },
+        // },
       ]);
     return await getStatus.toArray();
   } catch (error) {

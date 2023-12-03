@@ -15,7 +15,9 @@ Router.route('/addMany').post(userController.createMany);
 Router.route('/deleteMany').post(userController.deleteMany);
 Router.route('/deleteAll').delete(userController.deleteAll);
 
-Router.route('/driver').post(userController.createDriver).get(userController.findDriver);
+Router.route('/driver').post(userController.createDriver).get(userController.findDriver).put(userController.updateDriver).delete(userController.deleteDriver);
+
+Router.route('/driver/deletes').delete(userController.deleteDrivers);
 
 Router.route('/driver/filter').get(userController.findDriverByFilter);
 
