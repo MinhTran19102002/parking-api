@@ -161,7 +161,7 @@ const findUsers = async (params) => {
       role = params.role;
       delete params.role;
     }
-    const users = await userModel.findUsers(params, role);
+    const users = await personModel.findUsers(params, role);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
