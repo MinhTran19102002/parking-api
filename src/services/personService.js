@@ -104,7 +104,7 @@ const createDriver = async (data) => {
     delete data.licenePlate;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
-      vehicle = await vehicleModel.createNew({licenePlate});
+      vehicle = await vehicleModel.createNew({ licenePlate });
     }
     const createDriver = await personModel.createDriver(data, licenePlate);
     if (createDriver.acknowledged == false) {
@@ -156,7 +156,12 @@ const findDriverByFilter = async (filter) => {
 
 const findUsers = async (params) => {
   try {
-    const users = await personModel.findUsers(params);
+    let role;
+    if (params.role) {
+      role = params.role;
+      delete params.role;
+    }
+    const users = await personModel.findUsers(params, role);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
@@ -276,9 +281,9 @@ const deleteAll = async () => {
   }
 };
 
-const deleteMany = async (body) => {
+const deleteMany = async (params) => {
   try {
-    const users = await personModel.deleteMany();
+    const users = await personModel.deleteMany(params);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Delete failure');
     }
