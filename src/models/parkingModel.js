@@ -80,37 +80,6 @@ const getStatus = async (zone) => {
         {
           $unwind: '$slots',
         },
-        // {
-        //   $unwind: '$parkingTurn',
-        // },
-        // /
-
-
-        
-
-        // {
-        //   $lookup: {
-        //     from: personModel.PERSON_COLLECTION_NAME,
-        //     localField: 'vehicles.driverId',
-        //     foreignField: '_id',
-        //     as: 'persons',
-        //   },
-        // },
-
-
-        // {
-        //   $lookup: {
-        //     from: 'vehicles',
-        //     localField: 'parkingTurn.vehicleId',
-        //     foreignField: '_id',
-        //     as: 'parkingTurn.vehicleParkingTurn',
-        //   },
-        // },
-        // {
-        //   $unwind: {
-        //     path: '$parkingTurn.vehicleParkingTurn',
-        //   },
-        // },
 
         {
           $lookup: {

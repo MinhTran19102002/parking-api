@@ -30,6 +30,11 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false),
 });
 
+const validateBeforCreate = async (data) => {
+  return await PERSON_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+
+
 const createDriver = async (data, licenePlate) => {
   try {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
@@ -60,9 +65,6 @@ const createDriver = async (data, licenePlate) => {
   }
 };
 
-const validateBeforCreate = async (data) => {
-  return await PERSON_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
-};
 
 const createNew = async (data) => {
   try {
@@ -154,29 +156,31 @@ const findDriver = async () => {
 const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
-  for (const [key, value] of Object.entries(params)) {
+  for (let [key, value] of Object.entries(params)) {
+    if (key == 'licenePlate') {
+      key = 'driver.vehicle.' + key
+    }
     const regex = {
-      [key]: new RegExp(`^${value}`, 'i'),
+      [key]: new RegExp(`${value}`, 'i'),
     };
     Object.assign(paramMatch, regex);
   }
-
   try {
     const driver = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .aggregate([
-        {
-          $match: {
-            driver: { $exists: true },
-            ...paramMatch,
-          },
-        },
         {
           $lookup: {
             from: vehicleModel.VEHICLE_COLLECTION_NAME,
             localField: 'driver.vehicleId',
             foreignField: '_id',
             as: 'driver.vehicle',
+          },
+        },
+        {
+          $match: {
+            driver: { $exists: true },
+            ...paramMatch,
           },
         },
       ])
