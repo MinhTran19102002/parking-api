@@ -10,13 +10,13 @@ const PERSON_COLLECTION_NAME = 'persons';
 const PERSON_COLLECTION_SCHEMA = Joi.object({
   // boadId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
 
-  name: Joi.string().required().min(6).max(50).trim().strict(),
-  address: Joi.string().required().min(6).max(50).trim().strict(),
+  name: Joi.string().required().min(4).max(50).trim().strict(),
+  address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
-  email: Joi.string().required().min(6).max(50).trim().strict(),
+  email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(6).max(30).trim().strict(),
+    username: Joi.string().required().min(4).max(30).trim().strict(),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -204,7 +204,7 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-const findUsers = async ({ pageSize, pageIndex, ...params }) => {
+const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
@@ -214,11 +214,12 @@ const findUsers = async ({ pageSize, pageIndex, ...params }) => {
     Object.assign(paramMatch, regex);
   }
 
+  const checkRole = role ? { 'account.role': role } : { account: { $exists: true } };
   try {
     let pipeline = [
       {
         $match: {
-          account: { $exists: true },
+          ...checkRole,
           ...paramMatch,
         },
       },
@@ -382,31 +383,18 @@ const deleteUser = async (_id) => {
         { locale: 'vi', strength: 1 },
       );
 
-    // const result = await GET_DB()
-    //   .collection(PERSON_COLLECTION_NAME)
-    //   .updateOne(
-    //     { _id: new ObjectId(_id) },
-    //     {
-    //       $set: {
-    //         _destroy: true,
-    //       },
-    //     },
-    //     { returnDocument: 'after' },
-    //     { locale: 'vi', strength: 1 },
-    //   );
-
     return result;
   } catch (error) {
     throw new Error(error);
   }
 };
 
-const deleteAll = async (_ids) => {
+const deleteAll = async () => {
   try {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { account: { $exists: true } },
+        { account: { $exists: true }, 'account.usename': { $ne: 'admin' } },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
@@ -417,12 +405,17 @@ const deleteAll = async (_ids) => {
   }
 };
 
-const deleteMany = async (_ids) => {
+const deleteMany = async ({ ids }) => {
   try {
+    const objectIds = ids.map((id) => new ObjectId(id));
+    const updateId = await GET_DB()
+      .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
+      .updateMany({ driverId: { $in: objectIds } }, { $set: { driverId: null } });
+
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { name: { $exists: false } },
+        { _id: { $in: objectIds } },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
