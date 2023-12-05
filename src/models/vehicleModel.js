@@ -23,9 +23,13 @@ const validateBeforCreate = async (data) => {
 
 const createNew = async (data) => {
   try {
-    data.driverId = data.driverId.toString();
+    if (data.driverId) {
+      data.driverId = data.driverId.toString();
+    }
     const validateData = await validateBeforCreate(data);
-    validateData.driverId = new ObjectId(validateData.driverId);
+    if (validateData.driverId) {
+      validateData.driverId = new ObjectId(validateData.driverId);
+    }
     const check = await findOneByLicenePlate(data.licenePlate);
     if (check) {
       throw new Error('Vehicle already exists');
@@ -63,7 +67,7 @@ const deleteOne = async (id) => {
   try {
     const deleteOne = await GET_DB()
       .collection(VEHICLE_COLLECTION_NAME)
-      .updateOne({ _id: new ObjectId(id) },{$set: { driverId:null }});
+      .updateOne({ _id: new ObjectId(id) }, { $set: { driverId: null } });
     return deleteOne;
   } catch (error) {
     throw new Error(error);
