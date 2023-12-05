@@ -22,4 +22,5 @@ Router.use('/parkingTurn', parkingTurnRoute)
 // API vehicle
 Router.use('/vehicle', vehicleRoute)
 
+
 export const APIs_V1 = Router

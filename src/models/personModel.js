@@ -350,19 +350,18 @@ const deleteDrivers = async (_ids) => {
 
 const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
-  const data = validateBeforCreate(_data);
+  delete _data._id;
+  const data = await validateBeforCreate(_data);
   data.updatedAt = Date.now();
-  delete data._id;
   try {
     const updateOperation = {
       $set: {
         ...data,
       },
     };
-
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation);
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation,  { returnDocument: 'after' });
 
     return result;
   } catch (error) {
