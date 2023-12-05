@@ -80,7 +80,6 @@ const getStatus = async (zone) => {
         {
           $unwind: '$slots',
         },
-
         {
           $lookup: {
             from: 'parkingTurn',
@@ -105,6 +104,7 @@ const getStatus = async (zone) => {
         {
           $unwind: {
             path: '$slots.parkingTurn.vehicles',
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -118,6 +118,14 @@ const getStatus = async (zone) => {
         {
           $unwind: {
             path: '$slots.parkingTurn.persons',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            'slots.parkingTurn.persons': {
+              $ifNull: ['$slots.parkingTurn.persons', null],
+            },
           },
         },
         {
