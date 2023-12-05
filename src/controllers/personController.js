@@ -12,6 +12,16 @@ const createNew = async (req, res, next) => {
   }
 };
 
+const changePassword = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const changePassword = await userService.changePassword(req, res);
+    res.status(StatusCodes.CREATED).json(changePassword);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createMany = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -172,4 +182,5 @@ export const userController = {
   updateDriver,
   deleteDriver,
   deleteDrivers,
+  changePassword,
 };

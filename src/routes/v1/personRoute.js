@@ -30,4 +30,6 @@ Router.route('/employee')
   .post(userValidation.createNew, userController.createNew)
   .put(userController.updateUser);
 
+Router.route('/changePassword').post(userController.changePassword)
+
 export const userRoute = Router;

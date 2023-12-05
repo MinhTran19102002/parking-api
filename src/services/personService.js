@@ -62,6 +62,29 @@ const login = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const data = req.body;
+    const findOne = await personModel.findOne(data);
+    if (!findOne) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại');
+    }
+    const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
+    if (!validatePasword) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Mật khẩu không chính xác');
+    }
+    const newPassword = await hashPassword(data.newPassword);
+    console.log(findOne.account.password)
+    findOne.account.password = newPassword;
+    console.log(findOne.account.password)
+    const updatePassword = await personModel.updateUser(findOne._id, findOne);
+    return updatePassword;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const createUser = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -310,4 +333,5 @@ export const userService = {
   updateDriver,
   deleteDriver,
   deleteDrivers,
+  changePassword,
 };

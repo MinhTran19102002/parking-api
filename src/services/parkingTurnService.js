@@ -35,7 +35,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     if (createPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
-    await eventModel.createEvent({ name: 'Xe vào bãi đỗ', eventId: createPaking.insertedId, createdAt: now })
+    await eventModel.createEvent({ name: 'in', eventId: createPaking.insertedId, createdAt: now })
     return createPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -56,7 +56,7 @@ const outPaking = async (licenePlate) => {
     if (outPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
-    await eventModel.createEvent({ name: 'Xe ra bãi đỗ', eventId: outPaking._id, createdAt: now })
+    await eventModel.createEvent({ name: 'Out', eventId: outPaking._id, createdAt: now })
     return outPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -119,9 +119,25 @@ const getRevenue = async (req, res) => {
   }
 };
 
+const getEvent = async (req, res) => {
+  // const pageIndex = req.query.pageIndex;
+  // const pageSize = req.query.pageSize;
+  const filter = req.query
+  try {
+    const findEvent = await eventModel.findEvent(filter);
+    if (findEvent.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
+    }
+    return findEvent;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const parkingTurnService = {
   createPakingTurn,
   outPaking,
   getVehicleInOutNumber,
   getRevenue,
+  getEvent,
 };
