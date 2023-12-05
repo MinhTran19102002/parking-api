@@ -34,7 +34,6 @@ const validateBeforCreate = async (data) => {
   return await PERSON_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
-
 const createDriver = async (data, licenePlate) => {
   try {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
@@ -64,7 +63,6 @@ const createDriver = async (data, licenePlate) => {
     throw new Error(error);
   }
 };
-
 
 const createNew = async (data) => {
   try {
@@ -158,17 +156,29 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   let paramMatch = {};
   for (let [key, value] of Object.entries(params)) {
     if (key == 'licenePlate') {
-      key = 'driver.vehicle.' + key
+      key = 'driver.vehicle.' + key;
     }
-    const regex = {
-      [key]: new RegExp(`${value}`, 'i'),
-    };
+    let regex
+    if (key == 'name') {
+      regex = {
+        [key]: new RegExp(`${value}`, 'i'),
+      };
+    } else {
+      regex = {
+        [key]: new RegExp(`^${value}`, 'i'),
+      };
+    }
     Object.assign(paramMatch, regex);
   }
   try {
     const driver = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .aggregate([
+        {
+          $match: {
+            driver: { $exists: true },
+          },
+        },
         {
           $lookup: {
             from: vehicleModel.VEHICLE_COLLECTION_NAME,
@@ -179,7 +189,6 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
         },
         {
           $match: {
-            driver: { $exists: true },
             ...paramMatch,
           },
         },
@@ -208,9 +217,16 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
-    const regex = {
-      [key]: new RegExp(`${value}`, 'i'),
-    };
+    let regex
+    if (key == 'name') {
+      regex = {
+        [key]: new RegExp(`${value}`, 'i'),
+      };
+    } else {
+      regex = {
+        [key]: new RegExp(`^${value}`, 'i'),
+      };
+    }
     Object.assign(paramMatch, regex);
   }
 
@@ -259,6 +275,9 @@ const updateDriver = async (_id, data) => {
   const findDriver = await GET_DB()
     .collection(PERSON_COLLECTION_NAME)
     .findOne({ _id: new ObjectId(_id) });
+  if (!findDriver) {
+    throw new Error('Không tìm thấy người');
+  }
   const findVehicleOfDataUpdate = await GET_DB()
     .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
     .findOne({ licenePlate: data.licenePlate });
@@ -361,7 +380,7 @@ const updateUser = async (_id, _data) => {
     };
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation,  { returnDocument: 'after' });
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
 
     return result;
   } catch (error) {
