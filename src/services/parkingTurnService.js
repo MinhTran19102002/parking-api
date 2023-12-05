@@ -15,6 +15,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     if (!vihicle) {
       const createVehicle = await vehicleModel.createNew({ licenePlate: licenePlate, type: 'Car' });
       vihicle = { _id: createVehicle.insertedId };
+
       if (createVehicle.acknowledged == false) {
         throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
       }
@@ -31,6 +32,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       start: now,
       _destroy: false,
     };
+    
     const createPaking = await parkingTurnModel.createNew(data);
     if (createPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
