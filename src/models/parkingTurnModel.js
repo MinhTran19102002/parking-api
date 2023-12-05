@@ -12,7 +12,7 @@ const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
   position: Joi.string().min(4).max(6).trim().strict().required(),
 
   fee: Joi.number().integer().multiple(1000).required().min(1000),
-  start: Joi.date().timestamp('javascript').default(Date.now),
+  start: Joi.date().timestamp('javascript').default(null),
   end: Joi.date().timestamp('javascript').default(null),
 
   _destroy: Joi.boolean().default(false),
@@ -25,6 +25,7 @@ const validateBeforOperate = async (data) => {
 const createNew = async (data) => {
   try {
     const validateData = await validateBeforOperate(data);
+    validateData.start = data.start
     validateData.vehicleId = new ObjectId(validateData.vehicleId);
     validateData.parkingId = new ObjectId(validateData.parkingId);
     const checkPosition = await findPosition(validateData);
@@ -62,12 +63,13 @@ const createNew = async (data) => {
   }
 };
 
-const updateOut = async (filter) => {
+const updateOut = async (filter, now) => {
   try {
-    const timeOut = Date.now();
+    const timeOut = now;
     const find = await GET_DB().collection(PARKINGTURN_COLLECTION_NAME).findOne(filter);
-    let fee = find.fee
+    let fee
     if (find) {
+      fee = find.fee
       const dateIn = new Date(find.start);
       const dateOut = new Date(timeOut);
       const timeDifference = dateOut - dateIn;
@@ -75,6 +77,9 @@ const updateOut = async (filter) => {
       if (hoursDifference > 10) {
         fee = fee + Math.floor(hoursDifference / 10)*5000
       }
+    }
+    else {
+      throw new Error('Car is not in the parking lot ');
     }
     const updateOut = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
@@ -92,7 +97,7 @@ const updateOut = async (filter) => {
         },
       );
     if (update.acknowledged == false) {
-      throw new ApiError('Error');
+      throw new Error('Error');
     }
     return updateOut;
   } catch (error) {

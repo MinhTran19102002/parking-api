@@ -3,18 +3,12 @@ import ApiError from '~/utils/ApiError';
 import { parkingModel } from '~/models/parkingModel';
 import { parkingTurnModel } from '~/models/parkingTurnModel';
 import { vehicleModel } from '~/models/vehicleModel';
+import { eventModel } from '~/models/eventModel';
 import { StatusCodes } from 'http-status-codes';
 import express from 'express';
 import { ObjectId } from 'mongodb';
 
 const createPakingTurn = async (licenePlate, zone, position) => {
-  // const data1 = {
-  //   driverId : new ObjectId('6538ebedd56683ced0852cee'),
-  //   licenePlate : '12A-21731',
-  //   type : 'Car'
-  // }
-  // vehicleModel.createNew(data1)
-  // eslint-disable-next-line no-useless-catch
   try {
     //tim vehicleId
     let vihicle = await vehicleModel.findOneByLicenePlate(licenePlate);
@@ -28,17 +22,20 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     //tim parkingId
     const parking = await parkingModel.findOne(zone);
     //
+    const now = Date.now()
     const data = {
       vehicleId: vihicle._id.toString(),
       parkingId: parking._id.toString(),
       position: position,
       fee: 10000,
+      start: now,
       _destroy: false,
     };
     const createPaking = await parkingTurnModel.createNew(data);
     if (createPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
+    await eventModel.createEvent({ name: 'Xe vào bãi đỗ', eventId: createPaking.insertedId, createdAt: now })
     return createPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -53,11 +50,13 @@ const outPaking = async (licenePlate) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'The car not exist');
     }
     //
+    const now = Date.now()
     const filter = { vehicleId: vihicle._id, _destroy: false };
-    const outPaking = await parkingTurnModel.updateOut(filter);
+    const outPaking = await parkingTurnModel.updateOut(filter, now);
     if (outPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
+    await eventModel.createEvent({ name: 'Xe ra bãi đỗ', eventId: outPaking._id, createdAt: now })
     return outPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
