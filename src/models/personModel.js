@@ -156,7 +156,7 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
     const regex = {
-      [key]: new RegExp(`^${value}`, 'i'),
+      [key]: new RegExp(`${value}`, 'i'),
     };
     Object.assign(paramMatch, regex);
   }
@@ -205,7 +205,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
     const regex = {
-      [key]: new RegExp(`^${value}`, 'i'),
+      [key]: new RegExp(`${value}`, 'i'),
     };
     Object.assign(paramMatch, regex);
   }
@@ -261,30 +261,27 @@ const updateDriver = async (_id, data) => {
   let vehicleId = findDriver.driver.vehicleId;
 
   if (findVehicleOfDataUpdate == null) {
-    console.log('1')
+    console.log('1');
     //Neu xe khong ton tai
     const createVehicle = await vehicleModel.createNew({
       licenePlate: data.licenePlate,
       type: 'Car',
-      driverId : findDriver._id,
+      driverId: findDriver._id,
     });
     vehicleId = createVehicle.insertedId;
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
-  }
-  else if (findVehicleOfDataUpdate.driverId == null) {
-    console.log('2')
+  } else if (findVehicleOfDataUpdate.driverId == null) {
+    console.log('2');
     //Neu xe ton tai nhung chua co chu
     const update = await vehicleModel.updateDriverId(findVehicleOfDataUpdate._id, findDriver._id);
     vehicleId = findVehicleOfDataUpdate._id;
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
-  }
-  else if (!(findVehicleOfDataUpdate.driverId).equals(findDriver._id)) {
-    console.log('3')
+  } else if (!findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
+    console.log('3');
     //Neu xe ton tai nhung co chu khac roi
     throw new Error('Xe có chủ rồi bà');
-  }
-  else if ((findVehicleOfDataUpdate.driverId).equals(findDriver._id)) {
-    console.log('4')
+  } else if (findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
+    console.log('4');
     //Neu xe ton tai va la xe cua chu nay
     vehicleId = findVehicleOfDataUpdate._id;
   }
