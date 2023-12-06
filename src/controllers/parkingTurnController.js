@@ -1,5 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { parkingTurnService } from '~/services/parkingTurnService';
+import {server} from '~/server'
+
 
 const createNew = async (req, res, next) => {
   try {
@@ -8,7 +10,8 @@ const createNew = async (req, res, next) => {
     const position = req.body.position;
     // Dieu huong sang tang Service
     const createUser = await parkingTurnService.createPakingTurn(licenePlate, zone, position);
-
+    server.io.emit('notification-parking',{ message:  'Car enters the parking lot'})
+    // io.emit('notification-parking',{ message:  'Car enters the parking lot'})
     res.status(StatusCodes.CREATED).json(createUser);
   } catch (error) {
     next(error);
@@ -20,7 +23,7 @@ const outPaking = async (req, res, next) => {
     const licenePlate = req.body.licenePlate;
     // Dieu huong sang tang Service
     const outPaking = await parkingTurnService.outPaking(licenePlate);
-
+    server.io.emit('notification-parking',{ message:  'Car goes to the parking lot'})
     res.status(StatusCodes.OK).json(outPaking);
   } catch (error) {
     next(error);

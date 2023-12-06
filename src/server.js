@@ -1,42 +1,70 @@
 /* eslint-disable no-console */
 
-import express from 'express'
-import cors from 'cors'
-import exitHook from 'async-exit-hook'
-import {connectDB , GET_DB, CLOSE_DB} from '~/config/mongodb'
-import {env} from '~/config/environment'
-import {APIs_V1} from '~/routes/v1/index'
-import {errorHandlingMiddleware} from '~/middlewares/errorHandlingMiddleware'
+import express from 'express';
+import cors from 'cors';
+import exitHook from 'async-exit-hook';
+import { connectDB, GET_DB, CLOSE_DB } from '~/config/mongodb';
+import { env } from '~/config/environment';
+import { APIs_V1 } from '~/routes/v1/index';
+import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+// const io = new Server(3000, {
+//   cors: {
+//     origin: ['http://localhost:3001'],
+//   },
+// });
+// io.on('connection', (socket) => {
+//   console.log('A user connected');
+// });
+let io;
 
 const START_SEVER = () => {
-  const app = express()
+  const app = express();
+  //
+  const httpServer = createServer(app);
+  io = new Server(httpServer, {
+    cors: {
+      origin: ['http://localhost:3001'],
+    },
+  });
 
-  //Enable req.body json data
-  app.use(express.json())
+  io.on('connection', (socket) => {
+    console.log('connect !')
+  });
 
-  app.use(cors())
+  httpServer.listen(3000);
+
+  app.use(express.json());
+
+  app.use(cors());
 
   //Use API V1
-  app.use('/', APIs_V1)
+  app.use('/', APIs_V1);
 
   //Middleware xu ly loi tap trung
-  app.use(errorHandlingMiddleware)
+  app.use(errorHandlingMiddleware);
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console
-    console.log(`Hello Minh, I am running at ${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+    console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
+  });
   exitHook(() => {
-    console.log('Disconnecting')
-    CLOSE_DB()
-    console.log('Disconnected')
-  })
-}
+    console.log('Disconnecting');
+    CLOSE_DB();
+    console.log('Disconnected');
+  });
+};
 
 connectDB()
   .then(() => console.log('Connect to database'))
   .then(() => START_SEVER())
-  .catch(error => {
-    console.error(error)
-    process.exit()
-  })
+  .catch((error) => {
+    console.error(error);
+    process.exit();
+  });
+
+export const server = {
+  io,
+};
