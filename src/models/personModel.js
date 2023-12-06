@@ -308,6 +308,7 @@ const updateDriver = async (_id, data) => {
   delete data.licenePlate;
 
   let validateData = await validateBeforCreate(data);
+  validateData.updatedAt = Date.now();
   validateData = { ...validateData, 'driver.vehicleId': new ObjectId(vehicleId) };
   try {
     const updateOperation = {
