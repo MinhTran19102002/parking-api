@@ -91,6 +91,7 @@ const getStatus = async (zone) => {
         {
           $unwind: {
             path: '$slots.parkingTurn',
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
