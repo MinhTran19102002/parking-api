@@ -5,6 +5,7 @@ import { GET_DB } from '~/config/mongodb';
 import { parkingModel } from './parkingModel';
 import { parkingTurnModel } from './parkingTurnModel';
 import { vehicleModel } from './vehicleModel';
+import { personModel } from './personModel';
 
 const EVENT_COLLECTION_NAME = 'event';
 const EVENT_COLLECTION_SCHEMA = Joi.object({
@@ -65,6 +66,42 @@ const findEvent = async ({ pageSize, pageIndex, ...params }) => {
         {
           $unwind: '$vehicle',
         },
+        {
+          $lookup: {
+            from: personModel.PERSON_COLLECTION_NAME,
+            localField: 'vehicle.driverId',
+            foreignField: '_id',
+            as: 'person',
+          },
+        },
+        // {
+        //   $unwind: '$person',
+        //   // preserveNullAndEmptyArrays: true,
+        // },
+        {
+          $unwind: {
+            path: '$person',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            'person': {
+              $ifNull: ['$person', null],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: parkingModel.PARKING_COLLECTION_NAME,
+            localField: 'parkingTurn.parkingId',
+            foreignField: '_id',
+            as: 'parking',
+          },
+        },
+        {
+          $unwind: '$parking',
+        },
         // {
         //   $addFields: {
         //     timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
@@ -86,6 +123,7 @@ const findEvent = async ({ pageSize, pageIndex, ...params }) => {
             //   },
             // },
             createdAt: 1,
+            zone : '$parking.zone',
             parkingTurn: {
               position: '$parkingTurn.position',
               fee: '$parkingTurn.fee',
@@ -118,13 +156,19 @@ const findEvent = async ({ pageSize, pageIndex, ...params }) => {
             vehicle: {
               licenePlate: '$vehicle.licenePlate',
               type: '$vehicle.type',
+              driverId: '$vehicle.driverId',
             },
-
+            person : 1,
           },
         },
       ])
       .toArray();
-
+    if (event.person) {
+      delete event.person.driver
+      delete event.person.createdAt
+      delete event.person.updatedAt
+      delete event.person._destroy
+    }
     let totalCount = event.length;
     let totalPage = 1;
     let newEvent = event;
