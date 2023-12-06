@@ -18,24 +18,23 @@ import { Server } from 'socket.io';
 // io.on('connection', (socket) => {
 //   console.log('A user connected');
 // });
-let io;
+
+const app = express();
+//
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ['http://localhost:3001'],
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('connect !');
+});
+
+httpServer.listen(3000);
 
 const START_SEVER = () => {
-  const app = express();
-  //
-  const httpServer = createServer(app);
-  io = new Server(httpServer, {
-    cors: {
-      origin: ['http://localhost:3001'],
-    },
-  });
-
-  io.on('connection', (socket) => {
-    console.log('connect !')
-  });
-
-  httpServer.listen(3000);
-
   app.use(express.json());
 
   app.use(cors());
