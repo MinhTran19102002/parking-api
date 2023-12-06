@@ -65,51 +65,54 @@ const findEvent = async ({ pageSize, pageIndex, ...params }) => {
         {
           $unwind: '$vehicle',
         },
-        {
-          $addFields: {
-            timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
-          },
-        },
+        // {
+        //   $addFields: {
+        //     timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
+        //   },
+        // },
         {
           $project: {
             _id: 0,
             name: 1,
-            createdAt:  {
-              $dateToString: {
-                date: {
-                  $subtract: [
-                    { $toDate: '$createdAt' },
-                    '$timezoneOffset',
-                  ],
-                },
-                format: '%d/%m/%Y %H:%M:%S',
-              },
-            },
+            // createdAt:  {
+            //   $dateToString: {
+            //     date: {
+            //       $subtract: [
+            //         { $toDate: '$createdAt' },
+            //         '$timezoneOffset',
+            //       ],
+            //     },
+            //     format: '%d/%m/%Y %H:%M:%S',
+            //   },
+            // },
+            createdAt: 1,
             parkingTurn: {
               position: '$parkingTurn.position',
               fee: '$parkingTurn.fee',
-              start:  {
-                $dateToString: {
-                  date: {
-                    $subtract: [
-                      { $toDate: '$parkingTurn.start' },
-                      '$timezoneOffset',
-                    ],
-                  },
-                  format: '%d/%m/%Y %H:%M:%S',
-                },
-              },
-              end:  {
-                $dateToString: {
-                  date: {
-                    $subtract: [
-                      { $toDate: '$parkingTurn.end' },
-                      '$timezoneOffset',
-                    ],
-                  },
-                  format: '%d/%m/%Y %H:%M:%S',
-                },
-              },
+              // start:  {
+              //   $dateToString: {
+              //     date: {
+              //       $subtract: [
+              //         { $toDate: '$parkingTurn.start' },
+              //         '$timezoneOffset',
+              //       ],
+              //     },
+              //     format: '%d/%m/%Y %H:%M:%S',
+              //   },
+              // },
+              start :'$parkingTurn.start',
+              // end:  {
+              //   $dateToString: {
+              //     date: {
+              //       $subtract: [
+              //         { $toDate: '$parkingTurn.end' },
+              //         '$timezoneOffset',
+              //       ],
+              //     },
+              //     format: '%d/%m/%Y %H:%M:%S',
+              //   },
+              // },
+              end : '$parkingTurn.end',
             },
 
             vehicle: {

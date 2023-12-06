@@ -149,11 +149,11 @@ const getStatus = async (zone) => {
             },
           },
         },
-        {
-          $addFields: {
-            timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
-          },
-        },
+        // {
+        //   $addFields: {
+        //     timezoneOffset: { $literal: new Date().getTimezoneOffset() * 60 * 1000 },
+        //   },
+        // },
         {
           $project: {
             _id: 0,
@@ -161,17 +161,18 @@ const getStatus = async (zone) => {
             description: 1,
             total: 1,
             occupied: 1,
-            createdAt:  {
-              $dateToString: {
-                date: {
-                  $subtract: [
-                    { $toDate: '$createdAt' },
-                    '$timezoneOffset',
-                  ],
-                },
-                format: '%d/%m/%Y %H:%M:%S',
-              },
-            },
+            // createdAt:  {
+            //   $dateToString: {
+            //     date: {
+            //       $subtract: [
+            //         { $toDate: '$createdAt' },
+            //         '$timezoneOffset',
+            //       ],
+            //     },
+            //     format: '%d/%m/%Y %H:%M:%S',
+            //   },
+            // },
+            createdAt: 1,
             updatedAt: 1,
             _destroy: 1,
             slots: {
@@ -189,17 +190,18 @@ const getStatus = async (zone) => {
                         position: '$$slot.parkingTurn.position',
                         fee: '$$slot.parkingTurn.fee',
                         _destroy: '$$slot.parkingTurn._destroy',
-                        start: {
-                          $dateToString: {
-                            date: {
-                              $subtract: [
-                                { $toDate: '$$slot.parkingTurn.start' },
-                                '$timezoneOffset',
-                              ],
-                            },
-                            format: '%d/%m/%Y %H:%M:%S',
-                          },
-                        },
+                        // start: {
+                        //   $dateToString: {
+                        //     date: {
+                        //       $subtract: [
+                        //         { $toDate: '$$slot.parkingTurn.start' },
+                        //         '$timezoneOffset',
+                        //       ],
+                        //     },
+                        //     format: '%d/%m/%Y %H:%M:%S',
+                        //   },
+                        // },
+                        start: '$$slot.parkingTurn.start',
                         end: '$$slot.parkingTurn.end',
                         vehicles: '$$slot.parkingTurn.vehicles',
                         persons :'$$slot.parkingTurn.persons',
@@ -208,7 +210,7 @@ const getStatus = async (zone) => {
                   },
                 },
                 as: 'slot',
-                cond: { $ne: ['$$slot.parkingTurn.start', null] },
+                cond: { $ne: ['$$slot.isBlank', true] },
               },
             },
           },

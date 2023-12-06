@@ -284,7 +284,6 @@ const updateDriver = async (_id, data) => {
   let vehicleId = findDriver.driver.vehicleId;
 
   if (findVehicleOfDataUpdate == null) {
-    console.log('1');
     //Neu xe khong ton tai
     const createVehicle = await vehicleModel.createNew({
       licenePlate: data.licenePlate,
@@ -294,17 +293,14 @@ const updateDriver = async (_id, data) => {
     vehicleId = createVehicle.insertedId;
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
   } else if (findVehicleOfDataUpdate.driverId == null) {
-    console.log('2');
     //Neu xe ton tai nhung chua co chu
     const update = await vehicleModel.updateDriverId(findVehicleOfDataUpdate._id, findDriver._id);
     vehicleId = findVehicleOfDataUpdate._id;
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
   } else if (!findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
-    console.log('3');
     //Neu xe ton tai nhung co chu khac roi
     throw new Error('Xe có chủ rồi bà');
   } else if (findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
-    console.log('4');
     //Neu xe ton tai va la xe cua chu nay
     vehicleId = findVehicleOfDataUpdate._id;
   }
