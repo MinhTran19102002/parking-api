@@ -42,11 +42,11 @@ const createDriver = async (data, licenePlate, job, department) => {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
-      throw new Error('LicenePlate already exists');
+      throw new Error('Biển số đã tồn tại');
     }
     if (vehicle.driverId != null) {
       // xe da co chu
-      throw new Error('The car has an owner');
+      throw new Error('Xe đã có chủ');
     }
     data.driver = { 'vehicleId': vehicle._id.toString(), 'job': job, 'department': department };
     const validateData = await validateBeforCreate(data);
@@ -59,7 +59,7 @@ const createDriver = async (data, licenePlate, job, department) => {
         { $set: { driverId: createNew.insertedId } },
       );
     if (updateVihecle.modifiedCount == 0) {
-      throw new Error('Update error!');
+      throw new Error('Cập nhật không thành công');
     }
     return createNew;
   } catch (error) {
@@ -72,7 +72,7 @@ const createNew = async (data) => {
     const validateData = await validateBeforCreate(data);
     const check = await findOne(data.account);
     if (check) {
-      throw new Error('Username already exists');
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại', 'Not Found', 'BR_person_1');
     }
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
     return createNew;

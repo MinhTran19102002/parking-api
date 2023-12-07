@@ -4,6 +4,7 @@ import ApiError from '~/utils/ApiError';
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { GET_DB } from '~/config/mongodb';
 import { parkingModel } from '~/models/parkingModel';
+import { StatusCodes } from 'http-status-codes';
 
 const PARKINGTURN_COLLECTION_NAME = 'parkingTurn';
 const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
@@ -34,13 +35,13 @@ const createNew = async (data) => {
     }
     const checkvehicleId = await findvehicleId(validateData);
     if (checkvehicleId) {
-      throw new Error('The car is already in the parking lot');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe đã ở trong bãi', 'Error', 'BR_vihicle_5');
     }
     const createNew = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
       .insertOne(validateData);
     if (createNew.acknowledged == false) {
-      throw new ApiError('Error');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Lượt đỗ tạo không thành công', 'Not Created', 'BR_parkingTurn_2');
     }
     const update = await GET_DB()
       .collection(parkingModel.PARKING_COLLECTION_NAME)
@@ -55,7 +56,7 @@ const createNew = async (data) => {
         },
       );
     if (update.acknowledged == false) {
-      throw new ApiError('Error');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Bãi cập nhật không thành công', 'Not Updated', 'BR_parking_3');
     }
     return createNew;
   } catch (error) {
@@ -79,7 +80,7 @@ const updateOut = async (filter, now) => {
       }
     }
     else {
-      throw new Error('Car is not in the parking lot ');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe không ở trong bãi', 'Error', 'BR_vihicle_5_1');
     }
     const updateOut = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
@@ -96,8 +97,8 @@ const updateOut = async (filter, now) => {
           },
         },
       );
-    if (update.acknowledged == false) {
-      throw new Error('Error');
+    if (update.momodifiedCountdi == 0) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Bãi cập nhật không thành công', 'Not Updated', 'BR_parking_3');
     }
     return updateOut;
   } catch (error) {

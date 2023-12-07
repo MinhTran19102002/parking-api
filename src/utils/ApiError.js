@@ -1,5 +1,5 @@
 class ApiError extends Error {
-  constructor(statusCode, type, code, message ) {
+  constructor(statusCode, message, type, code ) {
     // Gọi tới hàm khởi tạo của class Error (class cha) để còn dùng this (kiến thức OOP lập trình hướng đối tượng căn bản)
     // Thằng cha (Error) có property message rồi nên gọi nó luôn trong super cho gọn
     super(message)

@@ -6,6 +6,7 @@ import { GET_DB } from '~/config/mongodb';
 import { parkingTurnModel } from '~/models/parkingTurnModel';
 import { vehicleModel } from '~/models/vehicleModel';
 import { personModel } from '~/models/personModel';
+import { StatusCodes } from 'http-status-codes';
 
 const PARKING_COLLECTION_NAME = 'parking';
 const PARKING_COLLECTION_SCHEMA = Joi.object({
@@ -41,7 +42,7 @@ const createNew = async (data) => {
     const validateData = await validateBeforOperate(data);
     const check = await findOne(data.zone);
     if (check) {
-      throw new Error('Zone already exists');
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Khu vực không được tìm thấy', 'Not Found', 'BR_zone_1');
     }
     const createNew = await GET_DB().collection(PARKING_COLLECTION_NAME).insertOne(validateData);
     return createNew;

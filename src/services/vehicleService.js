@@ -16,7 +16,7 @@ const createVehicle = async (licenePlate, type) => {
   try {
     const createNew = await vehicleModel.createNew(data)
     if (createNew.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe tạo không thành công', 'Not Deleted', 'BR_vihicle_4');
     }
     return createNew;
   } catch (error) {
