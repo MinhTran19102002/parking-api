@@ -21,7 +21,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       vihicle = { _id: createVehicle.insertedId };
 
       if (createVehicle.acknowledged == false) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe tạo không thành công', 'Not Created', 'BR_vihicle_2');
       }
     }
     //tim parkingId
@@ -37,12 +37,12 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       _destroy: false,
     };
 
-    const createPaking = await parkingTurnModel.createNew(data);
-    if (createPaking.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+    const createPakingTurn = await parkingTurnModel.createNew(data);
+    if (createPakingTurn.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Lượt đỗ tạo không thành công', 'Not Created', 'BR_parkingTurn_2');
     }
-    await eventModel.createEvent({ name: 'in', eventId: createPaking.insertedId, createdAt: now });
-    return createPaking;
+    await eventModel.createEvent({ name: 'in', eventId: createPakingTurn.insertedId, createdAt: now });
+    return createPakingTurn;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -69,36 +69,22 @@ const outPaking = async (licenePlate) => {
   }
 };
 
-const formatDay = (day) => {
-  let today = new Date();
-  if (day == '7') {
-    today.setDate(today.getDate() - 7);
-  }
-  const dd = String(today.getDate()).padStart(2, '0'); // Lấy ngày và định dạng thành "dd"
-  const mm = String(today.getMonth() + 1).padStart(2, '0'); // Lấy tháng (chú ý: tháng bắt đầu từ 0) và định dạng thành "mm"
-  const yyyy = today.getFullYear(); // Lấy năm
-
-  return `${dd}/${mm}/${yyyy}`; // Tạo định dạng "dd/mm/yyyy"
-};
 
 const getVehicleInOutNumber = async (req, res) => {
   let startDate;
   let endDate;
 
   if (req.query.startDate === undefined) {
-    // startDate = formatDay('7');
-    // endDate = formatDay('today');
     endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY')
     startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY')
   } else {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
-  console.log(startDate + ' ' + endDate)
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Thống kê lượt xe không thành công', 'Not Success', 'BR_parkingTurn_4');
     }
     return getVehicleInOutNumber;
   } catch (error) {
@@ -120,7 +106,7 @@ const getRevenue = async (req, res) => {
   try {
     const getRevenue = await parkingTurnModel.getRevenue(startDate, endDate);
     if (getRevenue.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Thống kê doanh số không thành công', 'Not Success', 'BR_parkingTurn_5');
     }
     return getRevenue;
   } catch (error) {
@@ -135,7 +121,7 @@ const getEvent = async (req, res) => {
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Driver not exist');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không tìm thấy sự kiện', 'Not Found', 'BR_event_1');
     }
     return findEvent;
   } catch (error) {
@@ -148,7 +134,7 @@ const exportEvent = async (req, res) => {
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Event not exist');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không tìm thấy sự kiện', 'Not Found', 'BR_event_1');
     }
     const data = findEvent.data;
 
