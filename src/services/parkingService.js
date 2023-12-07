@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 const getStatusByZone = async (zone) => {
   const findOnde = await parkingModel.findOne(zone)
   if (!findOnde) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Zone not found')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Not Found', 'BR_zone_1', 'Khu vực không được tìm thấy')
   }
   return { zone: findOnde.zone, total: findOnde.total, occupied: findOnde.occupied, unoccupied: findOnde.total-findOnde.occupied }
 }
@@ -14,7 +14,7 @@ const getStatusByZone = async (zone) => {
 const getStatus = async (zone) => {
   const getStatus = await parkingModel.getStatus(zone)
   if (!getStatus) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Zone not found')
+    throw new ApiError(StatusCodes.NOT_FOUND,'Not Found', 'BR_zone_1', 'Khu vực không được tìm thấy')
   }
   return getStatus
 }

@@ -15,6 +15,7 @@ const generateAccessToken = (user) => {
       id: user._id,
       name: user.name,
       username: user.account.username,
+      role: user.account.role,
     },
     env.JWT_ACCESS_KEY,
     { expiresIn: '2h' },
@@ -27,6 +28,7 @@ const generateRefreshToken = (user) => {
       id: user._id,
       name: user.name,
       username: user.account.username,
+      role: user.account.role,
     },
     env.JWT_REFRESH_KEY,
     { expiresIn: '2d' },
@@ -47,6 +49,8 @@ const login = async (req, res) => {
     }
     const accessToken = generateAccessToken(findOne);
     const refreshToken = generateRefreshToken(findOne);
+    console.log('Access:   ' + accessToken)
+    console.log('refreshToken:   ' + refreshToken)
     delete findOne.account.password;
 
     res.cookie('refreshToken', refreshToken, {
@@ -123,13 +127,14 @@ const createMany = async (_data) => {
 const createDriver = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const licenePlate = data.licenePlate;
-    delete data.licenePlate;
+    // const licenePlate = data.licenePlate;
+    // delete data.licenePlate;
+    let {licenePlate, job, department, ...other} = data
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       vehicle = await vehicleModel.createNew({ licenePlate });
     }
-    const createDriver = await personModel.createDriver(data, licenePlate);
+    const createDriver = await personModel.createDriver(other, licenePlate, job, department);
     if (createDriver.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User is not created');
     }
@@ -210,7 +215,8 @@ const updateUser = async (_id, params) => {
 const updateDriver = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const users = await personModel.updateDriver(_id, params);
+    let {licenePlate, job, department, ...other} = params
+    const users = await personModel.updateDriver(_id, other, licenePlate, job, department);
     if (users.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'User not exist');
     }
@@ -261,6 +267,8 @@ const refreshToken = async (req, res) => {
     if (!refreshToken) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');
     }
+    //
+
     jwt.verify(refreshToken, env.JWT_REFRESH_KEY, (err, user) => {
       if (err) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');

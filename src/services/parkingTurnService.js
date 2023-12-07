@@ -7,6 +7,10 @@ import { eventModel } from '~/models/eventModel';
 import { StatusCodes } from 'http-status-codes';
 import express from 'express';
 import { ObjectId } from 'mongodb';
+import moment from 'moment';
+// import { Excel } from 'exceljs';
+const ExcelJS = require('exceljs');
+var fs = require('fs')
 
 const createPakingTurn = async (licenePlate, zone, position) => {
   try {
@@ -23,7 +27,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     //tim parkingId
     const parking = await parkingModel.findOne(zone);
     //
-    const now = Date.now()
+    const now = Date.now();
     const data = {
       vehicleId: vihicle._id.toString(),
       parkingId: parking._id.toString(),
@@ -32,12 +36,12 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       start: now,
       _destroy: false,
     };
-    
+
     const createPaking = await parkingTurnModel.createNew(data);
     if (createPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
-    await eventModel.createEvent({ name: 'in', eventId: createPaking.insertedId, createdAt: now })
+    await eventModel.createEvent({ name: 'in', eventId: createPaking.insertedId, createdAt: now });
     return createPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -52,13 +56,13 @@ const outPaking = async (licenePlate) => {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'The car not exist');
     }
     //
-    const now = Date.now()
+    const now = Date.now();
     const filter = { vehicleId: vihicle._id, _destroy: false };
     const outPaking = await parkingTurnModel.updateOut(filter, now);
     if (outPaking.acknowledged == false) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Error');
     }
-    await eventModel.createEvent({ name: 'Out', eventId: outPaking._id, createdAt: now })
+    await eventModel.createEvent({ name: 'out', eventId: outPaking._id, createdAt: now });
     return outPaking;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -82,12 +86,15 @@ const getVehicleInOutNumber = async (req, res) => {
   let endDate;
 
   if (req.query.startDate === undefined) {
-    startDate = formatDay('7');
-    endDate = formatDay('today');
+    // startDate = formatDay('7');
+    // endDate = formatDay('today');
+    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY')
+    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY')
   } else {
-    startDate = req.query.startDate;
-    endDate = req.query.endDate;
+    startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
+    endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
+  console.log(startDate + ' ' + endDate)
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
@@ -104,11 +111,11 @@ const getRevenue = async (req, res) => {
   let endDate;
 
   if (req.query.startDate === undefined) {
-    startDate = formatDay('7');
-    endDate = formatDay('today');
+    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY')
+    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY')
   } else {
-    startDate = req.query.startDate;
-    endDate = req.query.endDate;
+    startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
+    endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
   try {
     const getRevenue = await parkingTurnModel.getRevenue(startDate, endDate);
@@ -124,7 +131,7 @@ const getRevenue = async (req, res) => {
 const getEvent = async (req, res) => {
   // const pageIndex = req.query.pageIndex;
   // const pageSize = req.query.pageSize;
-  const filter = req.query
+  const filter = req.query;
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
@@ -136,10 +143,49 @@ const getEvent = async (req, res) => {
   }
 };
 
+const exportEvent = async (req, res) => {
+  const filter = req.query;
+  try {
+    const findEvent = await eventModel.findEvent(filter);
+    if (findEvent.acknowledged == false) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Event not exist');
+    }
+    const data = findEvent.data;
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1');
+    // Thêm dòng tiêu đề
+    worksheet.columns = [
+      { header: 'STT', key: 'stt', width: 15, style: { font: { bold: true } } },
+      { header: 'Name', key: 'name', width: 15, style: { font: { bold: true } } },
+      { header: 'Position', key: 'parkingTurn.position', width: 15, style: { font: { bold: true } } },
+      { header: 'Fee', key: 'parkingTurn.fee', width: 15, style: { font: { bold: true } } },
+    ];
+    let stt = 1;
+    // Thêm dữ liệu từ JSON vào Worksheet
+    await data.forEach(item => {
+      worksheet.addRow([
+        stt++,
+        item.name,
+        item.parkingTurn.position,
+        item.parkingTurn.fee,
+        // Thêm các trường khác theo yêu cầu của bạn
+      ]);
+    });
+    // Tạo một tệp Excel và gửi nó dưới dạng phản hồi HTTP
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader( 'Content-Disposition', 'attachment; filename=output.xlsx')
+    await workbook.xlsx.write(res);
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const parkingTurnService = {
   createPakingTurn,
   outPaking,
   getVehicleInOutNumber,
   getRevenue,
   getEvent,
+  exportEvent,
 };

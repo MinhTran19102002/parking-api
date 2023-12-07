@@ -1,6 +1,7 @@
 import express from 'express'
 import {StatusCodes} from 'http-status-codes'
 import {parkingTurnController} from '~/controllers/parkingTurnController'
+import { verifyTokenMidleware } from '~/middlewares/verifytokenMidleware'
 
 const Router = express.Router()
 
@@ -11,12 +12,15 @@ Router.route('/outPaking')
   .post(parkingTurnController.outPaking)
 
 Router.route('/Reports/GetVehicleInOutNumber')
-  .get(parkingTurnController.getVehicleInOutNumber)
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getVehicleInOutNumber)
 
 Router.route('/Reports/GetRevenue')
-  .get(parkingTurnController.getRevenue)
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
 
 Router.route('/event')
-  .get(parkingTurnController.getEvent)
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
+
+Router.route('/event/export')
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.exportEvent)
 
 export const parkingTurnRoute = Router

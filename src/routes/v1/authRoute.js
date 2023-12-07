@@ -1,6 +1,6 @@
 import express from 'express'
 import {StatusCodes} from 'http-status-codes'
-import {userValidation} from '~/validations/userValidation'
+import {userValidation} from '~/validations/personValidation'
 import {authController} from '~/controllers/authController'
 
 const Router = express.Router()
@@ -10,5 +10,7 @@ Router.route('/login')
 
 Router.route('/refreshToken')
   .post(authController.refreshToken)
+
+// Router.route('/logout').post()
 
 export const authRoute = Router
