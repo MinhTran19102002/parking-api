@@ -23,5 +23,5 @@ const create = async (req, res, next) => {
 }
 
 export const parkingValidation = {
-  create
+  create,
 }

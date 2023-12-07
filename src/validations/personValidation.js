@@ -40,6 +40,12 @@ const user = base.keys({
   account: account.required(),
 });
 
+const driver = base.keys({
+  licenePlate: Joi.string().required().min(6).max(20).trim().strict(),
+  job: Joi.string().required().min(4).max(50).trim().strict(),
+  department: Joi.string().required().min(4).max(50).trim().strict(),
+});
+
 const login = async (req, res, next) => {
   const correctCondition = account;
   try {
@@ -54,6 +60,16 @@ const login = async (req, res, next) => {
 const createNew = async (req, res, next) => {
   try {
     await user.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
+const createDriver = async (req, res, next) => {
+  try {
+    await driver.validateAsync(req.body, { abortEarly: false });
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
@@ -89,4 +105,5 @@ export const userValidation = {
   createNew,
   valid,
   validateToUpdate,
+  createDriver,
 };

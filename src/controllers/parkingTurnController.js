@@ -11,7 +11,6 @@ const createNew = async (req, res, next) => {
     // Dieu huong sang tang Service
     const createUser = await parkingTurnService.createPakingTurn(licenePlate, zone, position);
     server.io.emit('notification-parking',{ message:  'Car enters the parking lot'})
-    // io.emit('notification-parking',{ message:  'Car enters the parking lot'})
     res.status(StatusCodes.CREATED).json(createUser);
   } catch (error) {
     next(error);
@@ -63,10 +62,21 @@ const getEvent = async (req, res, next) => {
   }
 };
 
+const exportEvent = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    await parkingTurnService.exportEvent(req, res);
+    // res.status(StatusCodes.OK).json('Thanh cong');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const parkingTurnController = {
   createNew,
   outPaking,
   getVehicleInOutNumber,
   getRevenue,
   getEvent,
+  exportEvent,
 };

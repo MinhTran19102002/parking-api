@@ -23,6 +23,8 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
 
   driver: Joi.object({
     vehicleId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+    job: Joi.string().required().min(4).max(50).trim().strict(),
+    department: Joi.string().required().min(4).max(50).trim().strict(),
   }).optional(),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -34,8 +36,9 @@ const validateBeforCreate = async (data) => {
   return await PERSON_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
-const createDriver = async (data, licenePlate) => {
+const createDriver = async (data, licenePlate, job, department) => {
   try {
+
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
@@ -45,7 +48,7 @@ const createDriver = async (data, licenePlate) => {
       // xe da co chu
       throw new Error('The car has an owner');
     }
-    data.driver = { vehicleId: vehicle._id.toString() };
+    data.driver = { 'vehicleId': vehicle._id.toString(), 'job': job, 'department': department };
     const validateData = await validateBeforCreate(data);
     validateData.driver.vehicleId = new ObjectId(validateData.driver.vehicleId);
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
@@ -269,7 +272,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   }
 };
 
-const updateDriver = async (_id, data) => {
+const updateDriver = async (_id, data, licenePlate, job, department) => {
   delete data._id;
   data.updatedAt = Date.now();
   const findDriver = await GET_DB()
@@ -280,13 +283,13 @@ const updateDriver = async (_id, data) => {
   }
   const findVehicleOfDataUpdate = await GET_DB()
     .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
-    .findOne({ licenePlate: data.licenePlate });
+    .findOne({ 'licenePlate': licenePlate });
   let vehicleId = findDriver.driver.vehicleId;
 
   if (findVehicleOfDataUpdate == null) {
     //Neu xe khong ton tai
     const createVehicle = await vehicleModel.createNew({
-      licenePlate: data.licenePlate,
+      'licenePlate': licenePlate,
       type: 'Car',
       driverId: findDriver._id,
     });
@@ -304,8 +307,7 @@ const updateDriver = async (_id, data) => {
     //Neu xe ton tai va la xe cua chu nay
     vehicleId = findVehicleOfDataUpdate._id;
   }
-
-  delete data.licenePlate;
+  data = {...data, 'driver.job': job ,'driver.department': department }
 
   let validateData = await validateBeforCreate(data);
   validateData.updatedAt = Date.now();
