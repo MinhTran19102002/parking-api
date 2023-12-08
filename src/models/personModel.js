@@ -47,7 +47,7 @@ const createDriver = async (data, licenePlate, job, department) => {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
-      throw new Error('Biển số đã tồn tại');
+      throw new Error('Biển số chưa tồn tại');
     }
     if (vehicle.driverId != null) {
       // xe da co chu

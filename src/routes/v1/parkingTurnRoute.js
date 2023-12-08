@@ -2,17 +2,18 @@ import express from 'express'
 import {StatusCodes} from 'http-status-codes'
 import {parkingTurnController} from '~/controllers/parkingTurnController'
 import { verifyTokenMidleware } from '~/middlewares/verifytokenMidleware'
+import { parkingTurnValidation } from '~/validations/parkingTurnValidation'
 
 const Router = express.Router()
 
 Router.route('/createPakingTurn')
-  .post(parkingTurnController.createNew)
+  .post(parkingTurnValidation.create,parkingTurnController.createNew)
 
 Router.route('/createPakingTurnWithoutPosition')
-  .post(parkingTurnController.createNewWithoutPosition)
+  .post(parkingTurnValidation.createWithoutPosition,parkingTurnController.createNewWithoutPosition)
 
 Router.route('/createPakingTurnWithoutZoneAndPosition')
-  .post(parkingTurnController.createNewWithoutZone)
+  .post(parkingTurnValidation.createWithoutZoneAndPosition, parkingTurnController.createNewWithoutZone)
 
 Router.route('/outPaking')
   .post(parkingTurnController.outPaking)

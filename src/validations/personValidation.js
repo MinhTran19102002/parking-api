@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 
 const validatePassword = Joi.string()
   .required()
@@ -46,6 +47,8 @@ const driver = base.keys({
   department: Joi.string().required().min(4).max(50).trim().strict(),
 });
 
+const id = Joi.object({_id : Joi.string().pattern(OBJECT_ID_RULE).message('_id Cần có định dạng kiểu Object Id').required()})
+
 const login = async (req, res, next) => {
   const correctCondition = account;
   try {
@@ -70,6 +73,27 @@ const createNew = async (req, res, next) => {
 const createDriver = async (req, res, next) => {
   try {
     await driver.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
+const updateDriver = async (req, res, next) => {
+  try {
+    await id.validateAsync({_id: req.query._id}, { abortEarly: false });
+    await driver.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
+const deleteDriver = async (req, res, next) => {
+  try {
+    await id.validateAsync({_id: req.query._id}, { abortEarly: false });
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
@@ -106,4 +130,6 @@ export const userValidation = {
   valid,
   validateToUpdate,
   createDriver,
+  updateDriver,
+  deleteDriver,
 };

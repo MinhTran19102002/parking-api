@@ -16,11 +16,13 @@ Router.route('/addMany').post(verifyTokenMidleware.verifyTokenAndAdminManager, u
 Router.route('/deleteMany').post(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteMany);
 Router.route('/deleteAll').delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteAll);
 
+Router.route('/addManyDriver').post(userController.createManyDriver);
+
 Router.route('/driver')
-  .post(userValidation.createDriver,verifyTokenMidleware.verifyTokenAndAdminManager, userController.createDriver) //
+  .post(userValidation.createDriver, userController.createDriver) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findDriver) //
-  .put(userValidation.createDriver, verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateDriver) //
-  .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteDriver);
+  .put(userValidation.updateDriver, verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateDriver) //
+  .delete(userValidation.deleteDriver,verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteDriver); //
 
 Router.route('/driver/deletes').post(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteDrivers);
 

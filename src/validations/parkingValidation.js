@@ -10,8 +10,8 @@ const create = async (req, res, next) => {
     occupied : Joi.number().strict(),
     slots: Joi.array().items({
       position: Joi.string().min(4).max(6).trim().strict().required(),
-      isBlank: Joi.boolean().default(true)
-    }).min(1).unique('position').required()
+      isBlank: Joi.boolean().default(true),
+    }).min(1).unique('position').required(),
   })
   try {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
