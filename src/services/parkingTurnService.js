@@ -10,10 +10,14 @@ import { ObjectId } from 'mongodb';
 import moment from 'moment';
 // import { Excel } from 'exceljs';
 const ExcelJS = require('exceljs');
-var fs = require('fs')
 
 const createPakingTurn = async (licenePlate, zone, position) => {
   try {
+    // Nếu API cần random dữ liệu của zone
+    if (zone == '') {
+      const zone_random = ['A', 'B', 'C'];
+      zone = zone_random[Math.floor(Math.random() * zone_random.length)];
+    }
     //tim vehicleId
     let vihicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vihicle) {
@@ -21,12 +25,26 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       vihicle = { _id: createVehicle.insertedId };
 
       if (createVehicle.acknowledged == false) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe tạo không thành công', 'Not Created', 'BR_vihicle_2');
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Xe tạo không thành công',
+          'Not Created',
+          'BR_vihicle_2',
+        );
       }
     }
     //tim parkingId
     const parking = await parkingModel.findOne(zone);
-    //
+    // Nếu API cần random dữ liệu của position
+    let slotRandom;
+    if (position == '') {
+      do {
+        slotRandom = parking.slots[Math.floor(Math.random() * parking.slots.length)];
+      } while (!slotRandom.isBlank);
+      position = slotRandom.position
+      console.log(slotRandom)
+    }
+
     const now = Date.now();
     const data = {
       vehicleId: vihicle._id.toString(),
@@ -39,9 +57,18 @@ const createPakingTurn = async (licenePlate, zone, position) => {
 
     const createPakingTurn = await parkingTurnModel.createNew(data);
     if (createPakingTurn.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Lượt đỗ tạo không thành công', 'Not Created', 'BR_parkingTurn_2');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Lượt đỗ tạo không thành công',
+        'Not Created',
+        'BR_parkingTurn_2',
+      );
     }
-    await eventModel.createEvent({ name: 'in', eventId: createPakingTurn.insertedId, createdAt: now });
+    await eventModel.createEvent({
+      name: 'in',
+      eventId: createPakingTurn.insertedId,
+      createdAt: now,
+    });
     return createPakingTurn;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -69,14 +96,13 @@ const outPaking = async (licenePlate) => {
   }
 };
 
-
 const getVehicleInOutNumber = async (req, res) => {
   let startDate;
   let endDate;
 
   if (req.query.startDate === undefined) {
-    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY')
-    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY')
+    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY');
+    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY');
   } else {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
@@ -84,7 +110,12 @@ const getVehicleInOutNumber = async (req, res) => {
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Thống kê lượt xe không thành công', 'Not Success', 'BR_parkingTurn_4');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Thống kê lượt xe không thành công',
+        'Not Success',
+        'BR_parkingTurn_4',
+      );
     }
     return getVehicleInOutNumber;
   } catch (error) {
@@ -97,8 +128,8 @@ const getRevenue = async (req, res) => {
   let endDate;
 
   if (req.query.startDate === undefined) {
-    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY')
-    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY')
+    endDate = moment().clone().add(1, 'days').format('DD/MM/YYYY');
+    startDate = moment().clone().subtract(6, 'days').format('DD/MM/YYYY');
   } else {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
@@ -106,7 +137,12 @@ const getRevenue = async (req, res) => {
   try {
     const getRevenue = await parkingTurnModel.getRevenue(startDate, endDate);
     if (getRevenue.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Thống kê doanh số không thành công', 'Not Success', 'BR_parkingTurn_5');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Thống kê doanh số không thành công',
+        'Not Success',
+        'BR_parkingTurn_5',
+      );
     }
     return getRevenue;
   } catch (error) {
@@ -121,7 +157,12 @@ const getEvent = async (req, res) => {
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không tìm thấy sự kiện', 'Not Found', 'BR_event_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Không tìm thấy sự kiện',
+        'Not Found',
+        'BR_event_1',
+      );
     }
     return findEvent;
   } catch (error) {
@@ -134,7 +175,12 @@ const exportEvent = async (req, res) => {
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Không tìm thấy sự kiện', 'Not Found', 'BR_event_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Không tìm thấy sự kiện',
+        'Not Found',
+        'BR_event_1',
+      );
     }
     const data = findEvent.data;
 
@@ -144,12 +190,17 @@ const exportEvent = async (req, res) => {
     worksheet.columns = [
       { header: 'STT', key: 'stt', width: 15, style: { font: { bold: true } } },
       { header: 'Name', key: 'name', width: 15, style: { font: { bold: true } } },
-      { header: 'Position', key: 'parkingTurn.position', width: 15, style: { font: { bold: true } } },
+      {
+        header: 'Position',
+        key: 'parkingTurn.position',
+        width: 15,
+        style: { font: { bold: true } },
+      },
       { header: 'Fee', key: 'parkingTurn.fee', width: 15, style: { font: { bold: true } } },
     ];
     let stt = 1;
     // Thêm dữ liệu từ JSON vào Worksheet
-    await data.forEach(item => {
+    await data.forEach((item) => {
       worksheet.addRow([
         stt++,
         item.name,
@@ -159,8 +210,11 @@ const exportEvent = async (req, res) => {
       ]);
     });
     // Tạo một tệp Excel và gửi nó dưới dạng phản hồi HTTP
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader( 'Content-Disposition', 'attachment; filename=output.xlsx')
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename=output.xlsx');
     await workbook.xlsx.write(res);
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
