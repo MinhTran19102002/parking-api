@@ -424,7 +424,7 @@ const checkToken = async (req, res) => {
           res
             .status(StatusCodes.UNAUTHORIZED)
             .json({ errToken: 401, message: 'Token không hợp lệ', type: 'auth', code: 'BR_auth' });
-          return { role: null };
+          return;
         }
         req.user = user;
         return { role: user.role };
@@ -433,7 +433,7 @@ const checkToken = async (req, res) => {
       res
         .status(StatusCodes.FORBIDDEN)
         .json({ message: 'Bạn chưa được xác thực', type: 'auth', code: 'BR_auth' });
-      return { role: null };
+      return;
     }
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
