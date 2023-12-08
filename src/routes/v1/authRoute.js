@@ -11,6 +11,9 @@ Router.route('/login')
 Router.route('/refreshToken')
   .post(authController.refreshToken)
 
+Router.route('/checkToken')
+.post(authController.checkToken)
+
 // Router.route('/logout').post()
 
 export const authRoute = Router

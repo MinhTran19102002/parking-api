@@ -18,13 +18,13 @@ const validatePassword = Joi.string()
   .strict();
 
 const account = Joi.object({
-  username: Joi.string().required().min(4).max(20).trim().strict(),
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(),
   password: validatePassword,
   role: Joi.string().required().min(3).max(20).trim().strict(),
 });
 
 const base = Joi.object().keys({
-  name: Joi.string().required().min(6).max(50).trim().strict(),
+  name: Joi.string().required().min(6).max(50).trim().strict().pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/).message('Không được phép có ký tự và số'),
   address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict().pattern(/(0[3|5|7|8|9])+([0-9]{8})\b/),
   email: Joi.string()

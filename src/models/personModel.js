@@ -10,13 +10,19 @@ const PERSON_COLLECTION_NAME = 'persons';
 const PERSON_COLLECTION_SCHEMA = Joi.object({
   // boadId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
 
-  name: Joi.string().required().min(4).max(50).trim().strict(),
+  name: Joi.string()
+    .required()
+    .min(4)
+    .max(50)
+    .trim()
+    .strict()
+    .pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/).message('Họ và tên không được phép có ký tự và số'),
   address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
   email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(4).max(30).trim().strict(),
+    username: Joi.string().required().min(4).max(30).trim().strict().disallow(),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -38,7 +44,6 @@ const validateBeforCreate = async (data) => {
 
 const createDriver = async (data, licenePlate, job, department) => {
   try {
-
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
@@ -48,7 +53,7 @@ const createDriver = async (data, licenePlate, job, department) => {
       // xe da co chu
       throw new Error('Xe đã có chủ');
     }
-    data.driver = { 'vehicleId': vehicle._id.toString(), 'job': job, 'department': department };
+    data.driver = { vehicleId: vehicle._id.toString(), job: job, department: department };
     const validateData = await validateBeforCreate(data);
     validateData.driver.vehicleId = new ObjectId(validateData.driver.vehicleId);
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
@@ -72,7 +77,12 @@ const createNew = async (data) => {
     const validateData = await validateBeforCreate(data);
     const check = await findOne(data.account);
     if (check) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại', 'Not Found', 'BR_person_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
     return createNew;
@@ -159,9 +169,9 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   let paramMatch = {};
   for (let [key, value] of Object.entries(params)) {
     if (key == 'licenePlate') {
-      key = 'driver.vehicle.' + key;
+      key = 'driver.vehicle.' + key; //driver.vehicle.licenePlate
     }
-    let regex
+    let regex;
     if (key == 'name') {
       regex = {
         [key]: new RegExp(`${value}`, 'i'),
@@ -220,7 +230,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
   for (const [key, value] of Object.entries(params)) {
-    let regex
+    let regex;
     if (key == 'name') {
       regex = {
         [key]: new RegExp(`${value}`, 'i'),
@@ -283,13 +293,13 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
   }
   const findVehicleOfDataUpdate = await GET_DB()
     .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
-    .findOne({ 'licenePlate': licenePlate });
+    .findOne({ licenePlate: licenePlate });
   let vehicleId = findDriver.driver.vehicleId;
 
   if (findVehicleOfDataUpdate == null) {
     //Neu xe khong ton tai
     const createVehicle = await vehicleModel.createNew({
-      'licenePlate': licenePlate,
+      licenePlate: licenePlate,
       type: 'Car',
       driverId: findDriver._id,
     });
@@ -305,13 +315,17 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
     throw new Error('Xe có chủ rồi bà');
   } else if (findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
     //Neu xe ton tai va la xe cua chu nay
-    vehicleId = findVehicleOfDataUpdate._id;
+    vehicleId = findVehicleOfDataUpdate._id.toString();
   }
-  data = {...data, 'driver.job': job ,'driver.department': department }
+  data = {
+    ...data,
+    createdAt: findDriver.createdAt,
+    driver: { job: job, department: department, vehicleId: vehicleId },
+  };
 
   let validateData = await validateBeforCreate(data);
   validateData.updatedAt = Date.now();
-  validateData = { ...validateData, 'driver.vehicleId': new ObjectId(vehicleId) };
+  validateData.driver.vehicleId = new ObjectId(vehicleId);
   try {
     const updateOperation = {
       $set: {
@@ -370,6 +384,7 @@ const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
   delete _data._id;
   const data = await validateBeforCreate(_data);
+  delete data.createdAt
   data.updatedAt = Date.now();
   try {
     const updateOperation = {
