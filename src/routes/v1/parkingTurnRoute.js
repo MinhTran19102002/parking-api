@@ -8,6 +8,12 @@ const Router = express.Router()
 Router.route('/createPakingTurn')
   .post(parkingTurnController.createNew)
 
+Router.route('/createPakingTurnWithoutPosition')
+  .post(parkingTurnController.createNewWithoutPosition)
+
+Router.route('/createPakingTurnWithoutZoneAndPosition')
+  .post(parkingTurnController.createNewWithoutZone)
+
 Router.route('/outPaking')
   .post(parkingTurnController.outPaking)
 

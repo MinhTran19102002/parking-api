@@ -5,9 +5,9 @@ import {server} from '~/server'
 
 const createNew = async (req, res, next) => {
   try {
-    const licenePlate = req.body.licenePlate;
-    const zone = req.body.zone;
-    const position = req.body.position;
+    let licenePlate = req.body.licenePlate;
+    let zone = req.body.zone;
+    let position = req.body.position;
     // Dieu huong sang tang Service
     const createUser = await parkingTurnService.createPakingTurn(licenePlate, zone, position);
     server.io.emit('notification-parking',{ message:  'Car enters the parking lot'})
@@ -16,6 +16,34 @@ const createNew = async (req, res, next) => {
     next(error);
   }
 };
+
+const createNewWithoutPosition = async (req, res, next) => {
+  try {
+    let licenePlate = req.body.licenePlate;
+    let zone = req.body.zone;
+    let position = '';
+    // Dieu huong sang tang Service
+    const createUser = await parkingTurnService.createPakingTurn(licenePlate, zone, position);
+    server.io.emit('notification-parking', { message:  'Car enters the parking lot'})
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createNewWithoutZone = async (req, res, next) => {
+  try {
+    let licenePlate = req.body.licenePlate;
+    let zone = '';
+    let position = '';
+    // Dieu huong sang tang Service
+    const createUser = await parkingTurnService.createPakingTurn(licenePlate, zone, position);
+    server.io.emit('notification-parking',{ message:  'Car enters the parking lot'})
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+}
 
 const outPaking = async (req, res, next) => {
   try {
@@ -74,6 +102,8 @@ const exportEvent = async (req, res, next) => {
 
 export const parkingTurnController = {
   createNew,
+  createNewWithoutPosition,
+  createNewWithoutZone,
   outPaking,
   getVehicleInOutNumber,
   getRevenue,
