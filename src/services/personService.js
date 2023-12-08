@@ -415,25 +415,21 @@ const deleteMany = async (params) => {
 };
 
 const checkToken = async (req, res) => {
+  let user1
   try {
     const token = req.headers.authorization;
     if (token) {
       const accessToken = token.split(' ')[1];
       jwt.verify(accessToken, env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ errToken: 401, message: 'Token không hợp lệ', type: 'auth', code: 'BR_auth' });
-          return;
+          throw new ApiError(StatusCodes.UNAUTHORIZED, {message: 'Token không hợp lệ'}, {type: 'auth'}, {code: 'BR_auth' });
         }
-        req.user = user;
-        return { role: user.role };
+        user1 = user;
+        
       });
+      return user1
     } else {
-      res
-        .status(StatusCodes.FORBIDDEN)
-        .json({ message: 'Bạn chưa được xác thực', type: 'auth', code: 'BR_auth' });
-      return;
+      throw new ApiError(StatusCodes.UNAUTHORIZED, {message: 'Bạn chưa được xác thực'}, {type: 'auth'}, {code: 'BR_auth' });
     }
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
