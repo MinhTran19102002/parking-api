@@ -23,7 +23,19 @@ const refreshToken = async (req, res, next) => {
   }
 }
 
+const checkToken = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const refreshToken = await userService.checkToken(req, res)
+
+    res.status(StatusCodes.OK).json(refreshToken)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const authController = {
   login,
   refreshToken,
+  checkToken,
 }

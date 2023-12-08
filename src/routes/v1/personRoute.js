@@ -7,7 +7,7 @@ import { verifyTokenMidleware } from '~/middlewares/verifytokenMidleware';
 const Router = express.Router();
 
 Router.route('/')
-  .post(userValidation.createNew,verifyTokenMidleware.verifyTokenAndAdminManager, userController.createNew)
+  .post(userValidation.createNew,verifyTokenMidleware.verifyTokenAndAdminManager, userController.createNew) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager,userController.findUsers)
   .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
   .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);

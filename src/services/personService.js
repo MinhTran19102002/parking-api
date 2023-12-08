@@ -41,11 +41,21 @@ const login = async (req, res) => {
     const data = req.body;
     const findOne = await personModel.findOne(data);
     if (!findOne) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại', 'Not Found', 'BR_person_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
     if (!validatePasword) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Mật khẩu không chính xác', 'Error', 'BR_person_password_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Mật khẩu không chính xác',
+        'Error',
+        'BR_person_password_1',
+      );
     }
     const accessToken = generateAccessToken(findOne);
     const refreshToken = generateRefreshToken(findOne);
@@ -70,11 +80,21 @@ const changePassword = async (req, res) => {
     const data = req.body;
     const findOne = await personModel.findOne(data);
     if (!findOne) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại', 'Not Found', 'BR_person_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     const validatePasword = await bcrypt.compare(data.password, findOne.account.password);
     if (!validatePasword) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Mật khẩu không chính xác', 'Error', 'BR_person_password_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Mật khẩu không chính xác',
+        'Error',
+        'BR_person_password_1',
+      );
     }
     const newPassword = await hashPassword(data.newPassword);
     findOne.account.password = newPassword;
@@ -92,7 +112,12 @@ const createUser = async (data) => {
     data.account.password = hashed;
     const createUser = await personModel.createNew(data);
     if (createUser.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Người dùng tạo không thành công', 'Not Created', 'BR_person_2');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người dùng tạo không thành công',
+        'Not Created',
+        'BR_person_2',
+      );
     }
     return createUser;
   } catch (error) {
@@ -125,14 +150,27 @@ const createDriver = async (data) => {
   try {
     // const licenePlate = data.licenePlate;
     // delete data.licenePlate;
-    let {licenePlate, job, department, ...other} = data
+    let { licenePlate, job, department, ...other } = data;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       vehicle = await vehicleModel.createNew({ licenePlate });
+      if (vehicle.acknowledged == false) {
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Xe tạo không thành công',
+          'Not Created',
+          'BR_vehicle_2',
+        );
+      }
     }
     const createDriver = await personModel.createDriver(other, licenePlate, job, department);
     if (createDriver.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Người lái xe tạo không thành công', 'Not Created', 'BR_person_2_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người lái xe tạo không thành công',
+        'Not Created',
+        'BR_person_2_1',
+      );
     }
     return createDriver;
   } catch (error) {
@@ -157,7 +195,12 @@ const findDriver = async () => {
   try {
     const findDriver = await personModel.findDriver();
     if (findDriver.acknowledged == false) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người lái xe không tồn tại', 'Not Found', 'BR_person_1_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người lái xe không tồn tại',
+        'Not Found',
+        'BR_person_1_1',
+      );
     }
     return findDriver;
   } catch (error) {
@@ -170,7 +213,12 @@ const findDriverByFilter = async (filter) => {
   try {
     const findDriver = await personModel.findDriverByFilter(filter);
     if (findDriver.acknowledged == false) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người lái xe không tồn tại', 'Not Found', 'BR_person_1_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người lái xe không tồn tại',
+        'Not Found',
+        'BR_person_1_1',
+      );
     }
     return findDriver;
   } catch (error) {
@@ -187,7 +235,12 @@ const findUsers = async (params) => {
     }
     const users = await personModel.findUsers(params, role);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại', 'Not Found', 'BR_person_1');
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     return users;
   } catch (error) {
@@ -200,7 +253,12 @@ const updateUser = async (_id, params) => {
   try {
     const users = await personModel.updateUser(_id, params);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Người dùng cập nhật không thành công', 'Not Updated', 'BR_person_3');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người dùng cập nhật không thành công',
+        'Not Updated',
+        'BR_person_3',
+      );
     }
     return users;
   } catch (error) {
@@ -211,10 +269,15 @@ const updateUser = async (_id, params) => {
 const updateDriver = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    let {licenePlate, job, department, ...other} = params
+    let { licenePlate, job, department, ...other } = params;
     const driver = await personModel.updateDriver(_id, other, licenePlate, job, department);
     if (driver.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Người lái xe cập nhật không thành công', 'Not Updated', 'BR_person_3_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người lái xe cập nhật không thành công',
+        'Not Updated',
+        'BR_person_3_1',
+      );
     }
     return driver;
   } catch (error) {
@@ -227,7 +290,12 @@ const deleteDriver = async (_idDelete) => {
   try {
     const users = await personModel.deleteDriver(_idDelete);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xóa người lái xe không thành công', 'Not Deleted', 'BR_person_4_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người lái xe không thành công',
+        'Not Deleted',
+        'BR_person_4_1',
+      );
     }
     return users;
   } catch (error) {
@@ -239,11 +307,21 @@ const deleteDrivers = async (ids) => {
   // eslint-disable-next-line no-useless-catch
   try {
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Mảng ID không hợp lệ hoặc rỗng', 'Not Valid', 'BR_array');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Mảng ID không hợp lệ hoặc rỗng',
+        'Not Valid',
+        'BR_array',
+      );
     }
     const users = await personModel.deleteDrivers(ids);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xóa người lái xe không thành công', 'Not Deleted', 'BR_person_4_1');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người lái xe không thành công',
+        'Not Deleted',
+        'BR_person_4_1',
+      );
     }
     return users;
   } catch (error) {
@@ -289,7 +367,12 @@ const deleteUser = async (_id) => {
   try {
     const users = await personModel.deleteUser(_id);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xóa người dùng không thành công', 'Not Deleted', 'BR_person_4');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
     }
     return users;
   } catch (error) {
@@ -301,7 +384,12 @@ const deleteAll = async () => {
   try {
     const users = await personModel.deleteAll();
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xóa người dùng không thành công', 'Not Deleted', 'BR_person_4');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
     }
     return users;
   } catch (error) {
@@ -313,9 +401,40 @@ const deleteMany = async (params) => {
   try {
     const users = await personModel.deleteMany(params);
     if (users.acknowledged == false) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xóa người dùng không thành công', 'Not Deleted', 'BR_person_4');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
     }
     return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const checkToken = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    if (token) {
+      const accessToken = token.split(' ')[1];
+      jwt.verify(accessToken, env.JWT_ACCESS_KEY, (err, user) => {
+        if (err) {
+          res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ errToken: 401, message: 'Token không hợp lệ', type: 'auth', code: 'BR_auth' });
+          return { role: null };
+        }
+        req.user = user;
+        return { role: user.role };
+      });
+    } else {
+      res
+        .status(StatusCodes.FORBIDDEN)
+        .json({ message: 'Bạn chưa được xác thực', type: 'auth', code: 'BR_auth' });
+      return { role: null };
+    }
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -339,4 +458,5 @@ export const userService = {
   deleteDriver,
   deleteDrivers,
   changePassword,
+  checkToken,
 };
