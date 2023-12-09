@@ -178,7 +178,7 @@ const createDriver = async (data) => {
   try {
     // const licenePlate = data.licenePlate;
     // delete data.licenePlate;
-    let { licenePlate, job, deparment, ...other } = data;
+    let { licenePlate, job, department, ...other } = data;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       vehicle = await vehicleModel.createNew({licenePlate: licenePlate });
@@ -192,7 +192,7 @@ const createDriver = async (data) => {
       }
     }
 
-    const createDriver = await personModel.createDriver(other, licenePlate, job, deparment);
+    const createDriver = await personModel.createDriver(other, licenePlate, job, department);
     if (createDriver.acknowledged == false) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,

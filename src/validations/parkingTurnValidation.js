@@ -12,7 +12,7 @@ const createPakingTurnWithoutPosition = Joi.object({
   zone: Joi.string().required().min(1).max(2).trim().strict(),
 });
 const createPakingTurnWithoutZoneAndPosition = Joi.object({
-  licenePlate: Joi.string().required().min(6).max(20).trim().strict(),
+  licenePlate: Joi.string().required().trim().strict().pattern(/^[0-9]{2}[A-Z]-[0-9]{4,5}$/),
 });
 
 

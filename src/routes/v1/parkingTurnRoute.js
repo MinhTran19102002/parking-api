@@ -19,7 +19,7 @@ Router.route('/outPaking')
   .post(parkingTurnController.outPaking)
 
 Router.route('/Reports/GetVehicleInOutNumber')
-  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getVehicleInOutNumber)
+  .get( parkingTurnController.getVehicleInOutNumber)
 
 Router.route('/Reports/GetRevenue')
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
@@ -28,6 +28,6 @@ Router.route('/event')
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
 
 Router.route('/event/export')
-  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.exportEvent)
+  .get(parkingTurnController.exportEvent)
 
 export const parkingTurnRoute = Router

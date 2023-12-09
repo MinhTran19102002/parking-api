@@ -19,10 +19,17 @@ const validatePassword = Joi.string()
   .strict();
 
 const account = Joi.object({
-  username: Joi.string().required().min(4).max(20).trim().strict().disallow(),
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Không cho phép chữ có dấu, khoảng trắng'),
   password: validatePassword,
   role: Joi.string().required().min(3).max(20).trim().strict(),
 });
+
+const checkPassWord = Joi.object({
+  password: validatePassword,
+  newPassword: validatePassword,
+  role: Joi.string().required().min(3).max(20).trim().strict(),
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Không cho phép chữ có dấu, khoảng trắng'),
+})
 
 const base = Joi.object().keys({
   name: Joi.string().required().min(6).max(50).trim().strict().pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/).message('Không được phép có ký tự và số'),
@@ -42,7 +49,7 @@ const user = base.keys({
 });
 
 const driver = base.keys({
-  licenePlate: Joi.string().required().min(6).max(20).trim().strict(),
+  licenePlate: Joi.string().required().trim().strict().pattern(/^[0-9]{2}[A-Z]-[0-9]{4,5}$/),
   job: Joi.string().required().min(4).max(50).trim().strict(),
   department: Joi.string().required().min(4).max(50).trim().strict(),
 });
@@ -111,6 +118,16 @@ const valid = async (req, res, next) => {
   }
 };
 
+const changePassword = async (req, res, next) => {
+  try {
+    await checkPassWord.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
 const validateToUpdate = async (req, res, next) => {
   const updateSchema = user.object().keys({
     account: account.optional(),
@@ -132,4 +149,5 @@ export const userValidation = {
   createDriver,
   updateDriver,
   deleteDriver,
+  changePassword,
 };
