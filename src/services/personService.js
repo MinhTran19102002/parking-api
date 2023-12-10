@@ -151,22 +151,24 @@ const createManyDriver = async (_data) => {
   try {
     await Promise.allSettled(
       _data.map(async (data) => {
-        const create = await createDriver(data)
-        return create
+        const create = await createDriver(data);
+        return create;
       }),
-    ).then(results => {
-      results.forEach(result => {
-        console.log(result)
-        if (result.value.acknowledged == true) {
-          console.log('Thêm thành công');
-        } else {
-          console.error('Thêm thất bại');
-        }
+    )
+      .then((results) => {
+        results.forEach((result) => {
+          console.log(result);
+          if (result.value.acknowledged == true) {
+            console.log('Thêm thành công');
+          } else {
+            console.error('Thêm thất bại');
+          }
+        });
+      })
+      .catch((error) => {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
       });
-    }).catch(error => {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
-    });
-    return {message :'Thành công'};
+    return { message: 'Thành công' };
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -181,7 +183,7 @@ const createDriver = async (data) => {
     let { licenePlate, job, department, ...other } = data;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
-      vehicle = await vehicleModel.createNew({licenePlate: licenePlate });
+      vehicle = await vehicleModel.createNew({ licenePlate: licenePlate });
       if (vehicle.acknowledged == false) {
         throw new ApiError(
           StatusCodes.INTERNAL_SERVER_ERROR,
@@ -474,6 +476,104 @@ const checkToken = async (req, res) => {
   }
 };
 
+const findEmployees = async (params) => {
+  try {
+    const users = await personModel.findEmployees(params);
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const createEmployee = async (data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const createUser = await personModel.createEmployee(data);
+    if (createUser.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Tạo nhân viên không thành công',
+        'Not Created',
+        'BR_person_2',
+      );
+    }
+    return createUser;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const updateEmployee = async (_id, params) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const users = await personModel.updateEmployee(_id, params);
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Cập nhật nhân viên không thành công',
+        'Not Updated',
+        'BR_person_3',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const createManyEmployee = async (_data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    await Promise.allSettled(
+      _data.map(async (data) => {
+        const create = await createEmployee(data);
+        return create;
+      }),
+    )
+      .then((results) => {
+        results.forEach((result) => {
+          console.log(result);
+          if (result.value.acknowledged == true) {
+            console.log('Thêm thành công');
+          } else {
+            console.error('Thêm thất bại');
+          }
+        });
+      })
+      .catch((error) => {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+      });
+    return { message: 'Thành công' };
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteAllEmployee = async () => {
+  try {
+    const users = await personModel.deleteAllEmployee();
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const userService = {
   login,
   createUser,
@@ -494,4 +594,9 @@ export const userService = {
   deleteDrivers,
   changePassword,
   checkToken,
+  findEmployees,
+  createEmployee,
+  updateEmployee,
+  createManyEmployee,
+  deleteAllEmployee,
 };
