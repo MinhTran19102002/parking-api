@@ -7,7 +7,7 @@ import { verifyTokenMidleware } from '~/middlewares/verifytokenMidleware';
 const Router = express.Router();
 
 Router.route('/')
-  .post(userValidation.createNew,verifyTokenMidleware.verifyTokenAndAdminManager, userController.createNew) //
+  .post(userValidation.createNew, userController.createNew) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager,userController.findUsers)
   .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
   .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);
@@ -19,7 +19,7 @@ Router.route('/deleteAll').delete(verifyTokenMidleware.verifyTokenAndAdminManage
 Router.route('/addManyDriver').post(userController.createManyDriver);
 
 Router.route('/driver')
-  .post(userValidation.createDriver, userController.createDriver) //
+  .post(userValidation.createDriver, verifyTokenMidleware.verifyTokenAndAdminManager, userController.createDriver) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findDriver) //
   .put(userValidation.updateDriver, verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateDriver) //
   .delete(userValidation.deleteDriver,verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteDriver); //

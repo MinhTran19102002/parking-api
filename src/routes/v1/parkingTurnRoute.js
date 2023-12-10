@@ -28,6 +28,6 @@ Router.route('/event')
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
 
 Router.route('/event/export')
-  .get(parkingTurnController.exportEvent)
+  .get( parkingTurnController.exportEvent)
 
 export const parkingTurnRoute = Router

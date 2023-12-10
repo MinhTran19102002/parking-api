@@ -23,7 +23,7 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(4).max(30).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Không cho phép chữ có dấu, khoảng trắng'),
+    username: Joi.string().required().min(4).max(30).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Username không cho phép chữ có dấu, khoảng trắng'),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
