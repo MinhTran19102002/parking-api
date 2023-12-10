@@ -176,6 +176,25 @@ const findDriverByFilter = async (req, res, next) => {
   }
 };
 
+const createEmployee = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createUser = await userService.createEmployee(req.body);
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateEmployee = async (req, res, next) => {
+  try {
+    const rs = await userService.updateEmployee(req.query._id, req.body);
+    res.status(StatusCodes.CREATED).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const userController = {
   createNew,
   createMany,
@@ -194,4 +213,6 @@ export const userController = {
   deleteDriver,
   deleteDrivers,
   changePassword,
+  createEmployee,
+  updateEmployee,
 };

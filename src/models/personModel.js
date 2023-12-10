@@ -23,7 +23,15 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(4).max(30).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Không cho phép chữ có dấu, khoảng trắng'),
+    username: Joi.string()
+      .required()
+      .min(4)
+      .max(30)
+      .trim()
+      .strict()
+      .disallow(' ')
+      .pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/)
+      .message('Không cho phép chữ có dấu, khoảng trắng'),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -221,7 +229,7 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
-      console.log(pageIndex)
+      console.log(pageIndex);
       if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
       // eslint-disable-next-line use-isnan
       if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
@@ -280,7 +288,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
       if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
-      if (pageIndex < 1 || isNaN(pageIndex) ) pageIndex = 1;
+      if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       pipeline.push(
         {
           $skip: pageSize * (pageIndex - 1),
@@ -475,6 +483,38 @@ const deleteMany = async ({ ids }) => {
   }
 };
 
+const createEmployee = async (data) => {
+  try {
+    const validateData = await validateBeforCreate(data);
+    const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
+    return createNew;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateEmployee = async (_id, _data) => {
+  _data.updatedAt = Date.now();
+  delete _data._id;
+  const data = await validateBeforCreate(_data);
+  delete data.createdAt;
+  data.updatedAt = Date.now();
+  try {
+    const updateOperation = {
+      $set: {
+        ...data,
+      },
+    };
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const personModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -493,4 +533,6 @@ export const personModel = {
   updateDriver,
   deleteDriver,
   deleteDrivers,
+  createEmployee,
+  updateEmployee
 };
