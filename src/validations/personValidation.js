@@ -19,15 +19,7 @@ const validatePassword = Joi.string()
   .strict();
 
 const account = Joi.object({
-  username: Joi.string()
-    .required()
-    .min(4)
-    .max(20)
-    .trim()
-    .strict()
-    .disallow(' ')
-    .pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/)
-    .message('Không cho phép chữ có dấu, khoảng trắng'),
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Username không cho phép chữ có dấu, khoảng trắng'),
   password: validatePassword,
   role: Joi.string().required().min(3).max(20).trim().strict(),
 });
@@ -36,26 +28,11 @@ const checkPassWord = Joi.object({
   password: validatePassword,
   newPassword: validatePassword,
   role: Joi.string().required().min(3).max(20).trim().strict(),
-  username: Joi.string()
-    .required()
-    .min(4)
-    .max(20)
-    .trim()
-    .strict()
-    .disallow(' ')
-    .pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/)
-    .message('Không cho phép chữ có dấu, khoảng trắng'),
-});
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Username không cho phép chữ có dấu, khoảng trắng'),
+})
 
 const base = Joi.object().keys({
-  name: Joi.string()
-    .required()
-    .min(6)
-    .max(50)
-    .trim()
-    .strict()
-    .pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/)
-    .message('Không được phép có ký tự và số'),
+  name: Joi.string().required().min(6).max(50).trim().strict().pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/).message('Họ và tên không được phép có ký tự và số'),
   address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string()
     .required()

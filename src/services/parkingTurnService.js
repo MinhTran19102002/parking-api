@@ -223,7 +223,7 @@ const exportEvent = async (req, res) => {
         phone,
         item.vehicle.licenePlate,
         item.parkingTurn.position,
-        item.parkingTurn.fee,
+        item.parkingTurn.fee + ' VND',
         moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss'),
         // Thêm các trường khác theo yêu cầu của bạn
       ]);
@@ -232,8 +232,8 @@ const exportEvent = async (req, res) => {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition', 'attachment; filename=output.xlsx',
     );
-    res.setHeader('Content-Disposition', 'attachment; filename=output.xlsx');
     await workbook.xlsx.write(res);
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
