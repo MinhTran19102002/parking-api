@@ -68,6 +68,16 @@ Router.route('/employee')
     userController.updateEmployee,
   );
 
+Router.route('/createManyEmployee').post(
+  verifyTokenMidleware.verifyTokenAndAdminManager,
+  userController.createManyEmployee,
+);
+
+Router.route('/deleteAllEmployee').delete(
+  verifyTokenMidleware.verifyTokenAndAdminManager,
+  userController.deleteAllEmployee,
+);
+
 Router.route('/changePassword').post(
   userValidation.changePassword,
   verifyTokenMidleware.verifyToken,

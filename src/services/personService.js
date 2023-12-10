@@ -476,6 +476,23 @@ const checkToken = async (req, res) => {
   }
 };
 
+const findEmployees = async (params) => {
+  try {
+    const users = await personModel.findEmployees(params);
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người dùng không tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const createEmployee = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -512,6 +529,51 @@ const updateEmployee = async (_id, params) => {
   }
 };
 
+const createManyEmployee = async (_data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    await Promise.allSettled(
+      _data.map(async (data) => {
+        const create = await createEmployee(data);
+        return create;
+      }),
+    )
+      .then((results) => {
+        results.forEach((result) => {
+          console.log(result);
+          if (result.value.acknowledged == true) {
+            console.log('Thêm thành công');
+          } else {
+            console.error('Thêm thất bại');
+          }
+        });
+      })
+      .catch((error) => {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+      });
+    return { message: 'Thành công' };
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const deleteAllEmployee = async () => {
+  try {
+    const users = await personModel.deleteAllEmployee();
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const userService = {
   login,
   createUser,
@@ -532,6 +594,9 @@ export const userService = {
   deleteDrivers,
   changePassword,
   checkToken,
+  findEmployees,
   createEmployee,
   updateEmployee,
+  createManyEmployee,
+  deleteAllEmployee,
 };

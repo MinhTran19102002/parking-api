@@ -76,7 +76,7 @@ const findUsers = async (req, res, next) => {
 const findEmployees = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
-    const users = await userService.findUsers({ ...req.query, role: 'Employee' });
+    const users = await userService.findEmployees({ ...req.query });
     res.status(StatusCodes.OK).json(users);
   } catch (error) {
     next(error);
@@ -195,6 +195,25 @@ const updateEmployee = async (req, res, next) => {
   }
 };
 
+const createManyEmployee = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createUser = await userService.createManyEmployee(req.body);
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAllEmployee = async (req, res, next) => {
+  try {
+    const rs = await userService.deleteAllEmployee();
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const userController = {
   createNew,
   createMany,
@@ -215,4 +234,6 @@ export const userController = {
   changePassword,
   createEmployee,
   updateEmployee,
+  createManyEmployee,
+  deleteAllEmployee,
 };
