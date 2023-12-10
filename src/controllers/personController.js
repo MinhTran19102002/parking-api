@@ -32,6 +32,16 @@ const createMany = async (req, res, next) => {
   }
 };
 
+const createManyDriver = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createUser = await userService.createManyDriver(req.body);
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createDriver = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -169,6 +179,7 @@ const findDriverByFilter = async (req, res, next) => {
 export const userController = {
   createNew,
   createMany,
+  createManyDriver,
   createDriver,
   findDriver,
   findUsers,

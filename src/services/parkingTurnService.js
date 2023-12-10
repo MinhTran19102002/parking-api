@@ -41,8 +41,8 @@ const createPakingTurn = async (licenePlate, zone, position) => {
       do {
         slotRandom = parking.slots[Math.floor(Math.random() * parking.slots.length)];
       } while (!slotRandom.isBlank);
-      position = slotRandom.position
-      console.log(slotRandom)
+      position = slotRandom.position;
+      console.log(slotRandom);
     }
 
     const now = Date.now();
@@ -107,6 +107,7 @@ const getVehicleInOutNumber = async (req, res) => {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
+  console.log(endDate + '         ' + startDate)
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
@@ -171,7 +172,7 @@ const getEvent = async (req, res) => {
 };
 
 const exportEvent = async (req, res) => {
-  const filter = req.query;
+  const filter = { pageSize: 50, pageIndex: 1 };
   try {
     const findEvent = await eventModel.findEvent(filter);
     if (findEvent.acknowledged == false) {
@@ -189,7 +190,11 @@ const exportEvent = async (req, res) => {
     // Thêm dòng tiêu đề
     worksheet.columns = [
       { header: 'STT', key: 'stt', width: 15, style: { font: { bold: true } } },
-      { header: 'Name', key: 'name', width: 15, style: { font: { bold: true } } },
+      { header: 'Sự kiện', key: 'name', width: 15, style: { font: { bold: true } } },
+      { header: 'Họ và tên', key: 'person.name', width: 15, style: { font: { bold: true } } },
+      { header: 'Email', key: 'person.email', width: 30, style: { font: { bold: true } } },
+      { header: 'SDT', key: 'person.phone', width: 15, style: { font: { bold: true } } },
+      { header: 'Biển số', key: 'vehicle.licenePlate', width: 15, style: { font: { bold: true } } },
       {
         header: 'Position',
         key: 'parkingTurn.position',
@@ -197,15 +202,29 @@ const exportEvent = async (req, res) => {
         style: { font: { bold: true } },
       },
       { header: 'Fee', key: 'parkingTurn.fee', width: 15, style: { font: { bold: true } } },
+      { header: 'Thời gian', key: 'createAt', width: 15, style: { font: { bold: true } } },
     ];
     let stt = 1;
     // Thêm dữ liệu từ JSON vào Worksheet
     await data.forEach((item) => {
+      let namePerson = 'Không xác định',
+        email = 'Không xác định',
+        phone = 'Không xác định';
+      if (item.person) {
+        namePerson = item.person.name;
+        email = item.person.email;
+        phone = item.person.phone;
+      }
       worksheet.addRow([
         stt++,
         item.name,
+        namePerson,
+        email,
+        phone,
+        item.vehicle.licenePlate,
         item.parkingTurn.position,
         item.parkingTurn.fee,
+        moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss'),
         // Thêm các trường khác theo yêu cầu của bạn
       ]);
     });

@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '~/config/environment';
 import express from 'express';
+import { date } from 'joi';
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -145,7 +146,34 @@ const createMany = async (_data) => {
   }
 };
 
+const createManyDriver = async (_data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    await Promise.allSettled(
+      _data.map(async (data) => {
+        const create = await createDriver(data)
+        return create
+      }),
+    ).then(results => {
+      results.forEach(result => {
+        console.log(result)
+        if (result.value.acknowledged == true) {
+          console.log('Thêm thành công');
+        } else {
+          console.error('Thêm thất bại');
+        }
+      });
+    }).catch(error => {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    });
+    return {message :'Thành công'};
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const createDriver = async (data) => {
+  //sai loi chinh ta
   // eslint-disable-next-line no-useless-catch
   try {
     // const licenePlate = data.licenePlate;
@@ -153,7 +181,7 @@ const createDriver = async (data) => {
     let { licenePlate, job, department, ...other } = data;
     let vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
-      vehicle = await vehicleModel.createNew({ licenePlate });
+      vehicle = await vehicleModel.createNew({licenePlate: licenePlate });
       if (vehicle.acknowledged == false) {
         throw new ApiError(
           StatusCodes.INTERNAL_SERVER_ERROR,
@@ -163,6 +191,7 @@ const createDriver = async (data) => {
         );
       }
     }
+
     const createDriver = await personModel.createDriver(other, licenePlate, job, department);
     if (createDriver.acknowledged == false) {
       throw new ApiError(
@@ -415,25 +444,30 @@ const deleteMany = async (params) => {
 };
 
 const checkToken = async (req, res) => {
+  let user1;
   try {
     const token = req.headers.authorization;
     if (token) {
       const accessToken = token.split(' ')[1];
       jwt.verify(accessToken, env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ errToken: 401, message: 'Token không hợp lệ', type: 'auth', code: 'BR_auth' });
-          return;
+          throw new ApiError(
+            StatusCodes.UNAUTHORIZED,
+            { message: 'Token không hợp lệ' },
+            { type: 'auth' },
+            { code: 'BR_auth' },
+          );
         }
-        req.user = user;
-        return { role: user.role };
+        user1 = user;
       });
+      return user1;
     } else {
-      res
-        .status(StatusCodes.FORBIDDEN)
-        .json({ message: 'Bạn chưa được xác thực', type: 'auth', code: 'BR_auth' });
-      return;
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        { message: 'Bạn chưa được xác thực' },
+        { type: 'auth' },
+        { code: 'BR_auth' },
+      );
     }
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
@@ -444,6 +478,7 @@ export const userService = {
   login,
   createUser,
   createMany,
+  createManyDriver,
   refreshToken,
   createDriver,
   findDriver,

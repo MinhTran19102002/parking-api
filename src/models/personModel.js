@@ -16,13 +16,14 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
     .max(50)
     .trim()
     .strict()
-    .pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/).message('Họ và tên không được phép có ký tự và số'),
+    .pattern(/^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/)
+    .message('Họ và tên không được phép có ký tự và số'),
   address: Joi.string().min(6).max(50).trim().strict(),
   phone: Joi.string().required().min(10).max(11).trim().strict(),
   email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(4).max(30).trim().strict().disallow(),
+    username: Joi.string().required().min(4).max(30).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Không cho phép chữ có dấu, khoảng trắng'),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -47,7 +48,7 @@ const createDriver = async (data, licenePlate, job, department) => {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
-      throw new Error('Biển số đã tồn tại');
+      throw new Error('Biển số chưa tồn tại');
     }
     if (vehicle.driverId != null) {
       // xe da co chu
@@ -79,7 +80,7 @@ const createNew = async (data) => {
     if (check) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
-        'Người dùng không tồn tại',
+        'Người dùng đã tồn tại',
         'Not Found',
         'BR_person_1',
       );
@@ -193,6 +194,11 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
           },
         },
         {
+          $sort: {
+            createdAt: -1, // sắp xếp theo thứ tự giảm dần của trường thoi_gian
+          },
+        },
+        {
           $lookup: {
             from: vehicleModel.VEHICLE_COLLECTION_NAME,
             localField: 'driver.vehicleId',
@@ -213,7 +219,14 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
     let newDriver = driver;
 
     if (pageSize && pageIndex) {
+      pageSize = Number(pageSize);
+      pageIndex = Number(pageIndex);
+      console.log(pageIndex)
+      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      // eslint-disable-next-line use-isnan
+      if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       totalPage = Math.ceil(totalCount / pageSize);
+      if (pageIndex > totalPage) pageIndex = totalPage;
       newDriver = newDriver.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
     }
     return {
@@ -252,6 +265,11 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
           ...paramMatch,
         },
       },
+      {
+        $sort: {
+          createdAt: -1, // sắp xếp theo thứ tự giảm dần của trường thoi_gian
+        },
+      },
     ];
     let query = await GET_DB().collection(PERSON_COLLECTION_NAME);
     const allUsers = await query.aggregate(pipeline).toArray();
@@ -261,6 +279,8 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
+      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      if (pageIndex < 1 || isNaN(pageIndex) ) pageIndex = 1;
       pipeline.push(
         {
           $skip: pageSize * (pageIndex - 1),
@@ -384,7 +404,7 @@ const updateUser = async (_id, _data) => {
   _data.updatedAt = Date.now();
   delete _data._id;
   const data = await validateBeforCreate(_data);
-  delete data.createdAt
+  delete data.createdAt;
   data.updatedAt = Date.now();
   try {
     const updateOperation = {

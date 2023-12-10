@@ -142,6 +142,7 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
   try {
     const start = Date.parse(parseDate(startDate));
     const end = Date.parse(parseDate(endDate));
+    console.log(start + '         ' + end)
     const getVehicleInOutNumber = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
       .aggregate([
@@ -172,9 +173,13 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
         {
           $group: {
             _id: {
-              year: { $year: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
-              month: { $month: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
-              day: { $dayOfMonth: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              year: { $year: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              month: { $month: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              day: { $dayOfMonth: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+
+              // year: { $year: { $toDate: '$start' } },
+              // month: { $month:{ $toDate: '$start' } },
+              // day: { $dayOfMonth: { $toDate: '$start' } },
               zone: '$parking.zone',
             },
             count: { $sum: 1 },
@@ -256,9 +261,9 @@ const getRevenue = async (startDate, endDate) => {
         {
           $group: {
             _id: {
-              year: { $year: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
-              month: { $month: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
-              day: { $dayOfMonth: { $add: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              year: { $year: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              month: { $month: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
+              day: { $dayOfMonth: { $subtract: [{ $toDate: '$start' }, '$timezoneOffset'] } },
               zone: '$parking.zone',
             },
             totalFee: { $sum: '$fee' },
