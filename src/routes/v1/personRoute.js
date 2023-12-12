@@ -8,7 +8,7 @@ const Router = express.Router();
 
 Router.route('/')
   .post(userValidation.createNew, userController.createNew) //
-  .get(verifyTokenMidleware.verifyTokenAndAdminManager,userController.findUsers)
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findUsers)
   .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
   .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);
 
@@ -25,10 +25,16 @@ Router.route('/deleteAll').delete(
   userController.deleteAll,
 );
 
-Router.route('/addManyDriver').post(userController.createManyDriver);
+Router.route('/addManyDriver').post(userController.createManyDriver); // tạo nhiều driver
+
+Router.route('/addManyManager').post(userController.createMany); // tạo nhiều manager
 
 Router.route('/driver')
-  .post(userValidation.createDriver, verifyTokenMidleware.verifyTokenAndAdminManager, userController.createDriver) //
+  .post(
+    userValidation.createDriver,
+    verifyTokenMidleware.verifyTokenAndAdminManager,
+    userController.createDriver,
+  ) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findDriver) //
   .put(
     userValidation.updateDriver,
@@ -64,11 +70,21 @@ Router.route('/employee')
     userController.updateEmployee,
   );
 
+//Sử lý crud của manager
 Router.route('/manager')
   .post(userValidation.createUser, userController.createUser) //
   .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findManagerByFilter)
-  .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
-  .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);
+  .put(
+    userValidation.updateUser,
+    verifyTokenMidleware.verifyTokenAndAdminManager,
+    userController.updateUser,
+  )
+  .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteManager);
+
+Router.route('/manager/deletes').post(
+  verifyTokenMidleware.verifyTokenAndAdminManager,
+  userController.deleteManagers,
+);
 
 Router.route('/createManyEmployee').post(
   verifyTokenMidleware.verifyTokenAndAdminManager,

@@ -423,12 +423,12 @@ const updateUser = async (_id, _data) => {
   }
 };
 
-const deleteUser = async (_id) => {
+const deleteUser = async (_id, role) => {
   try {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteOne(
-        { _id: new ObjectId(_id) },
+        { _id: new ObjectId(_id) , 'account.role' : role },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
@@ -465,7 +465,7 @@ const deleteMany = async ({ ids }) => {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { _id: { $in: objectIds } },
+        { _id: { $in: objectIds }, 'account.role' :  'Manager' },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );

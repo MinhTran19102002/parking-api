@@ -118,7 +118,25 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const rs = await userService.deleteUser(req.query._id);
+    const rs = await userService.deleteUser(req.query._id, 'Admin');
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteManager = async (req, res, next) => {
+  try {
+    const rs = await userService.deleteUser(req.query._id, 'Manager');
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteManagers = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const rs = await userService.deleteMany(req.body);
     res.status(StatusCodes.OK).json(rs);
   } catch (error) {
     next(error);
@@ -246,6 +264,8 @@ export const userController = {
   updateUser,
   findByID,
   deleteUser,
+  deleteManager,
+  deleteManagers,
   deleteMany,
   deleteAll,
   findDriverByFilter,
