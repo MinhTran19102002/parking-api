@@ -281,7 +281,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
       if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
-      if (pageIndex < 1 || isNaN(pageIndex) ) pageIndex = 1;
+      if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       pipeline.push(
         {
           $skip: pageSize * (pageIndex - 1),
@@ -476,6 +476,115 @@ const deleteMany = async ({ ids }) => {
   }
 };
 
+const findEmployees = async ({ pageSize, pageIndex, ...params }) => {
+  // Construct the regular expression pattern dynamically
+  let paramMatch = {};
+  for (const [key, value] of Object.entries(params)) {
+    let regex;
+    if (key == 'name') {
+      regex = {
+        [key]: new RegExp(`${value}`, 'i'),
+      };
+    } else {
+      regex = {
+        [key]: new RegExp(`^${value}`, 'i'),
+      };
+    }
+    Object.assign(paramMatch, regex);
+  }
+
+  try {
+    let pipeline = [
+      {
+        $match: {
+          ...paramMatch,
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1, // sắp xếp theo thứ tự giảm dần của trường thoi_gian
+        },
+      },
+    ];
+    let query = await GET_DB().collection(PERSON_COLLECTION_NAME);
+    const allUsers = await query.aggregate(pipeline).toArray();
+    let totalCount = allUsers.length;
+    let totalPage = 1;
+
+    if (pageSize && pageIndex) {
+      pageSize = Number(pageSize);
+      pageIndex = Number(pageIndex);
+      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
+      pipeline.push(
+        {
+          $skip: pageSize * (pageIndex - 1),
+        },
+        { $limit: pageSize },
+      );
+      totalPage = Math.ceil(totalCount / pageSize);
+    }
+
+    const users = await query.aggregate([...pipeline]).toArray();
+
+    return {
+      data: users,
+      totalCount,
+      totalPage,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const createEmployee = async (data) => {
+  try {
+    const validateData = await validateBeforCreate(data);
+    const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
+    return createNew;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateEmployee = async (_id, _data) => {
+  _data.updatedAt = Date.now();
+  delete _data._id;
+  const data = await validateBeforCreate(_data);
+  delete data.createdAt;
+  data.updatedAt = Date.now();
+  try {
+    const updateOperation = {
+      $set: {
+        ...data,
+      },
+    };
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteAllEmployee = async () => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { account: { $exists: false }, driver: { $exists: false } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const personModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -494,4 +603,8 @@ export const personModel = {
   updateDriver,
   deleteDriver,
   deleteDrivers,
+  findEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteAllEmployee,
 };
