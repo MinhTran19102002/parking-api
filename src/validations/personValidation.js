@@ -135,6 +135,17 @@ const updateDriver = async (req, res, next) => {
   }
 };
 
+const updateUser = async (req, res, next) => {
+  try {
+    await id.validateAsync({ _id: req.query._id }, { abortEarly: false });
+    await base.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
 const deleteDriver = async (req, res, next) => {
   try {
     await id.validateAsync({ _id: req.query._id }, { abortEarly: false });
@@ -197,6 +208,7 @@ export const userValidation = {
   createDriver,
   updateDriver,
   deleteDriver,
+  updateUser,
   changePassword,
   createEmployee,
 };

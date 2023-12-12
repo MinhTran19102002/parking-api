@@ -154,6 +154,7 @@ const createMany = async (_data) => {
       _data.map(async (el) => {
         const hashed = await hashPassword(el.account.password);
         el.account.password = hashed;
+        el.account.role = 'Manager';
         return el;
       }),
     );
@@ -434,9 +435,9 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const deleteUser = async (_id) => {
+const deleteUser = async (_id, role) => {
   try {
-    const users = await personModel.deleteUser(_id);
+    const users = await personModel.deleteUser(_id,role);
     if (users.acknowledged == false) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
