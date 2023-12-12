@@ -123,7 +123,7 @@ const findOne = async (data) => {
   try {
     const findUser = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOne({ 'account.username': data.username });
+      .findOne({ 'account.username': data.username, 'account.role' : data.role });
     return findUser;
   } catch (error) {
     throw new Error(error);
@@ -221,7 +221,6 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
-      console.log(pageIndex)
       if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
       // eslint-disable-next-line use-isnan
       if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
@@ -238,6 +237,8 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
     throw new Error(error);
   }
 };
+
+
 
 const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
@@ -393,7 +394,7 @@ const deleteDrivers = async (_ids) => {
       .updateMany({ driverId: { $in: objectIds } }, { $set: { driverId: null } });
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .deleteMany({ _id: { $in: objectIds } });
+      .deleteMany({ _id: { $in: objectIds }, driver: { $exists: true } });
     return result;
   } catch (error) {
     throw new Error(error);

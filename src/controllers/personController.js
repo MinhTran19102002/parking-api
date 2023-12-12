@@ -12,6 +12,16 @@ const createNew = async (req, res, next) => {
   }
 };
 
+const createUser = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const createUser = await userService.createUserM(req.body);
+    res.status(StatusCodes.CREATED).json(createUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const changePassword = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
@@ -25,8 +35,8 @@ const changePassword = async (req, res, next) => {
 const createMany = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
-    const createUser = await userService.createMany(req.body);
-    res.status(StatusCodes.CREATED).json(createUser);
+    const createMany = await userService.createMany(req.body);
+    res.status(StatusCodes.CREATED).json(createMany);
   } catch (error) {
     next(error);
   }
@@ -35,8 +45,8 @@ const createMany = async (req, res, next) => {
 const createManyDriver = async (req, res, next) => {
   try {
     // Dieu huong sang tang Service
-    const createUser = await userService.createManyDriver(req.body);
-    res.status(StatusCodes.CREATED).json(createUser);
+    const createManyDriver = await userService.createManyDriver(req.body);
+    res.status(StatusCodes.CREATED).json(createManyDriver);
   } catch (error) {
     next(error);
   }
@@ -176,8 +186,20 @@ const findDriverByFilter = async (req, res, next) => {
   }
 };
 
+
+const findManagerByFilter = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const rs = await userService.findManagerByFilter(req.query);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const userController = {
   createNew,
+  createUser,
   createMany,
   createManyDriver,
   createDriver,
@@ -190,6 +212,7 @@ export const userController = {
   deleteMany,
   deleteAll,
   findDriverByFilter,
+  findManagerByFilter,
   updateDriver,
   deleteDriver,
   deleteDrivers,

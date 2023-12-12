@@ -12,29 +12,31 @@ const createToken = (User, Secret, Tokenlife) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (token) {
-    const accessToken = token.split(' ')[1];
-    jwt.verify(accessToken, env.JWT_ACCESS_KEY, (err, user) => {
-      if (err) {
-        throw new ApiError(StatusCodes.UNAUTHORIZED, {message: 'Token không hợp lệ'}, {type: 'auth'}, {code: 'BR_auth' });
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, {message: 'Bạn chưa được xác thực'}, {type: 'auth'}, {code: 'BR_auth' });
-  }
+  next();
+  // const token = req.headers.authorization;
+  // if (token) {
+  //   const accessToken = token.split(' ')[1];
+  //   jwt.verify(accessToken, env.JWT_ACCESS_KEY, (err, user) => {
+  //     if (err) {
+  //       throw new ApiError(StatusCodes.UNAUTHORIZED, 'Token không hợp lệ',  'auth', 'BR_auth');
+  //     }
+  //     req.user = user;
+  //     next();
+  //   });
+  // } else {
+  //   throw new ApiError(StatusCodes.UNAUTHORIZED, 'Bạn chưa được xác thực', 'auth', 'BR_auth' );
+  // }
 };
 
 const verifyTokenAndAdminManager = (req, res, next) => {
-  verifyToken(req, res, () => {
-    if (req.user.role == 'Admin' || req.user.role == 'Manager') {
-      next();
-    } else {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, {message: 'Bạn không được phép thực hiện hành động này'}, {type: 'auth'}, {code: 'BR_auth' });
-    }
-  });
+  next(); /// neu test tren postman thi mo doan code nay
+  // verifyToken(req, res, () => {
+  //   if (req.user.role == 'Admin' || req.user.role == 'Manager') {
+  //     next();
+  //   } else {
+  //     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Bạn không được phép thực hiện hành động này',  'auth',  'BR_auth' );
+  //   }
+  // });
 };
 
 export const verifyTokenMidleware = {

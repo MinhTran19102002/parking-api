@@ -33,6 +33,12 @@ Router.route('/employee')
   .post(userValidation.createNew,verifyTokenMidleware.verifyTokenAndAdminManager, userController.createNew)
   .put(userValidation.createNew , verifyTokenMidleware.verifyTokenAndAdminManager,userController.updateUser);
 
+Router.route('/manager')
+  .post(userValidation.createUser, userController.createUser) //
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findManagerByFilter)
+  .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
+  .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);
+
 Router.route('/changePassword').post(userValidation.changePassword,verifyTokenMidleware.verifyToken, userController.changePassword)
 
 export const userRoute = Router;
