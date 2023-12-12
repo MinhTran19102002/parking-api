@@ -24,6 +24,12 @@ const account = Joi.object({
   role: Joi.string().required().min(3).max(20).trim().strict(),
 });
 
+const accountUser = Joi.object({
+  username: Joi.string().required().min(4).max(20).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Username không cho phép chữ có dấu, khoảng trắng'),
+  password: validatePassword,
+});
+
+
 const checkPassWord = Joi.object({
   password: validatePassword,
   newPassword: validatePassword,
@@ -54,6 +60,10 @@ const user = base.keys({
   account: account.required(),
 });
 
+
+const userM = base.keys({
+  account: accountUser.required(),
+});
 const employee = base;
 
 const driver = base.keys({
@@ -87,6 +97,16 @@ const login = async (req, res, next) => {
 const createNew = async (req, res, next) => {
   try {
     await user.validateAsync(req.body, { abortEarly: false });
+    // Dieu huong sang tang Controller
+    next();
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+  }
+};
+
+const createUser = async (req, res, next) => {
+  try {
+    await userM.validateAsync(req.body, { abortEarly: false });
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
@@ -171,6 +191,7 @@ const createEmployee = async (req, res, next) => {
 export const userValidation = {
   login,
   createNew,
+  createUser,
   valid,
   validateToUpdate,
   createDriver,

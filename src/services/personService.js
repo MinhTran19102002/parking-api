@@ -126,6 +126,27 @@ const createUser = async (data) => {
   }
 };
 
+const createUserM = async (data) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const hashed = await hashPassword(data.account.password);
+    data.account.password = hashed;
+    data.account.role = 'Manager'
+    const createUser = await personModel.createNew(data);
+    if (createUser.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người dùng tạo không thành công',
+        'Not Created',
+        'BR_person_2',
+      );
+    }
+    return createUser;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const createMany = async (_data) => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -252,6 +273,25 @@ const findDriverByFilter = async (filter) => {
       );
     }
     return findDriver;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const findManagerByFilter = async (filter) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    let role = 'Manager'
+    const findManagerByFilter = await personModel.findUsers(filter, role);
+    if (findManagerByFilter.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Người quản lý không tồn tại',
+        'Not Found',
+        'BR_person_1_1',
+      );
+    }
+    return findManagerByFilter;
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -577,6 +617,7 @@ const deleteAllEmployee = async () => {
 export const userService = {
   login,
   createUser,
+  createUserM,
   createMany,
   createManyDriver,
   refreshToken,
@@ -589,6 +630,7 @@ export const userService = {
   deleteMany,
   deleteAll,
   findDriverByFilter,
+  findManagerByFilter,
   updateDriver,
   deleteDriver,
   deleteDrivers,

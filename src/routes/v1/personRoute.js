@@ -64,6 +64,12 @@ Router.route('/employee')
     userController.updateEmployee,
   );
 
+Router.route('/manager')
+  .post(userValidation.createUser, userController.createUser) //
+  .get(verifyTokenMidleware.verifyTokenAndAdminManager, userController.findManagerByFilter)
+  .put(verifyTokenMidleware.verifyTokenAndAdminManager, userController.updateUser)
+  .delete(verifyTokenMidleware.verifyTokenAndAdminManager, userController.deleteUser);
+
 Router.route('/createManyEmployee').post(
   verifyTokenMidleware.verifyTokenAndAdminManager,
   userController.createManyEmployee,
