@@ -315,7 +315,7 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
   const findVehicleOfDataUpdate = await GET_DB()
     .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
     .findOne({ licenePlate: licenePlate });
-  let vehicleId = findDriver.driver.vehicleId;
+  let vehicleId = findDriver.driver.vehicleId.toString();
 
   if (findVehicleOfDataUpdate == null) {
     //Neu xe khong ton tai
