@@ -324,12 +324,12 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
       type: 'Car',
       driverId: findDriver._id,
     });
-    vehicleId = createVehicle.insertedId;
+    vehicleId = createVehicle.insertedId.toString();
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
   } else if (findVehicleOfDataUpdate.driverId == null) {
     //Neu xe ton tai nhung chua co chu
     const update = await vehicleModel.updateDriverId(findVehicleOfDataUpdate._id, findDriver._id);
-    vehicleId = findVehicleOfDataUpdate._id;
+    vehicleId = findVehicleOfDataUpdate._id.toString();
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
   } else if (!findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
     //Neu xe ton tai nhung co chu khac roi
