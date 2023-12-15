@@ -291,7 +291,6 @@ describe('Test API user', () => {
       try {
         const createManyEmployee = await userService.createManyEmployee(data);
       } catch (error) {
-        console.log(error)
         expect(error.message).toBe('Người dùng không tồn tại');
       }
     });
@@ -303,7 +302,6 @@ describe('Test API user', () => {
       try {
         const createManyEmployee = await userService.checkToken(req, {});
       } catch (error) {
-        console.log(error)
         expect(error.message).toBe('Token không hợp lệ');
       }
     });
