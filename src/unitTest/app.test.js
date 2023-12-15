@@ -311,7 +311,6 @@ import { userService } from '~/services/personService';
 describe('Test API parking', () => {
   beforeAll(async () => {
     await server.connectDB();
-    console.log('123')
   }, 10000);
   describe('Test ham getStatusByZone', () => {
     test('Cha ve mot object', async () => {
