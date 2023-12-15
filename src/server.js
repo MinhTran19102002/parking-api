@@ -10,31 +10,24 @@ import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-// const io = new Server(3000, {
-//   cors: {
-//     origin: ['http://localhost:3001'],
-//   },
-// });
-// io.on('connection', (socket) => {
-//   console.log('A user connected');
-// });
-
 const app = express();
+let io;
 //
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: ['http://172.20.10.2:5173'],
-  },
-});
-
-io.on('connection', (socket) => {
-  console.log('connect !');
-});
-
-httpServer.listen(3000);
 
 const START_SEVER = () => {
+  const httpServer = createServer(app);
+  io = new Server(httpServer, {
+    cors: {
+      origin: ['http://172.20.10.2:5173'],
+    },
+  });
+
+  io.on('connection', (socket) => {
+    console.log('connect !');
+  });
+
+  httpServer.listen(3000);
+
   app.use(express.json());
 
   app.use(cors());
@@ -46,17 +39,16 @@ const START_SEVER = () => {
   app.use(errorHandlingMiddleware);
 
   // deploy app
-  app.listen(process.env.PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
-  });
-
-  // chay local
-  // app.listen(env.APP_PORT, env.APP_HOST, () => {
+  // app.listen(process.env.PORT, () => {
   //   // eslint-disable-next-line no-console
-  //   console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
+  //   console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
   // });
 
+  // chay local
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
+  });
 
   exitHook(() => {
     console.log('Disconnecting');
@@ -75,4 +67,7 @@ connectDB()
 
 export const server = {
   io,
+  app,
+  START_SEVER,
+  connectDB,
 };

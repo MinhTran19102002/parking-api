@@ -133,7 +133,7 @@ const findOne = async (data) => {
 const findByID = async (id) => {
   try {
     const objectId = new ObjectId(id);
-    return await GET_DB().collection(PERSON_COLLECTION_NAME).findByID(objectId);
+    return await GET_DB().collection(PERSON_COLLECTION_NAME).findOne({_id: objectId});
   } catch (error) {
     throw new Error(error);
   }
@@ -374,7 +374,7 @@ const deleteDriver = async (_id) => {
           .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId: null } });
       }
     } else {
-      throw new ApiError('Driver not exist');
+      throw new ApiError('Người lái không tồn tại');
     }
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)

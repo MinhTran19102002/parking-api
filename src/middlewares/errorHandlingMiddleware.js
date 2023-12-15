@@ -7,6 +7,7 @@ export const errorHandlingMiddleware = (err, req, res, next) => {
   // Nếu dev không cẩn thận thiếu statusCode thì mặc định sẽ để code 500 INTERNAL_SERVER_ERROR
   if (!err.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
 
+  if (err.message == 'MongoServerError: E11000 duplicate key error collection: paking-management.persons index: phone_1_email_1 dup key: { phone: \"0909749720\", email: \"maianh332@gmail.com\" }') err.message = 'SDT hoặc Email bị trùng'
   if (!err.type) err.type = 'Undefined';
   if (!err.code) err.code = 'BR_undefined';
 

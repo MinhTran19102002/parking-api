@@ -23,18 +23,18 @@ const generateAccessToken = (user) => {
   );
 };
 
-const generateRefreshToken = (user) => {
-  return jwt.sign(
-    {
-      id: user._id,
-      name: user.name,
-      username: user.account.username,
-      role: user.account.role,
-    },
-    env.JWT_REFRESH_KEY,
-    { expiresIn: '2d' },
-  );
-};
+// const generateRefreshToken = (user) => {
+//   return jwt.sign(
+//     {
+//       id: user._id,
+//       name: user.name,
+//       username: user.account.username,
+//       role: user.account.role,
+//     },
+//     env.JWT_REFRESH_KEY,
+//     { expiresIn: '2d' },
+//   );
+// };
 
 const login = async (req, res) => {
   // eslint-disable-next-line no-useless-catch
@@ -59,15 +59,15 @@ const login = async (req, res) => {
       );
     }
     const accessToken = generateAccessToken(findOne);
-    const refreshToken = generateRefreshToken(findOne);
+    //const refreshToken = generateRefreshToken(findOne);
     delete findOne.account.password;
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      path: '/',
-      sercure: false,
-      sametime: 'strict',
-    });
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   path: '/',
+    //   sercure: false,
+    //   sametime: 'strict',
+    // });
     // const { account: { password,  }, ...userLogin } = findOne
     return { person: findOne, accessToken };
   } catch (error) {
@@ -180,11 +180,6 @@ const createManyDriver = async (_data) => {
       .then((results) => {
         results.forEach((result) => {
           console.log(result);
-          if (result.value.acknowledged == true) {
-            console.log('Thêm thành công');
-          } else {
-            console.error('Thêm thất bại');
-          }
         });
       })
       .catch((error) => {
@@ -324,7 +319,7 @@ const updateUser = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const users = await personModel.updateUser(_id, params);
-    if (users.acknowledged == false) {
+    if (users == null) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
         'Người dùng cập nhật không thành công',
@@ -408,32 +403,32 @@ const hashPassword = async (password) => {
 };
 
 // Đoạn này chưa xài tới
-const refreshToken = async (req, res) => {
-  try {
-    const refreshToken = req.cookie.refreshToken;
-    if (!refreshToken) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');
-    }
-    //
+// const refreshToken = async (req, res) => {
+//   try {
+//     const refreshToken = req.cookie.refreshToken;
+//     if (!refreshToken) {
+//       throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');
+//     }
+//     //
 
-    jwt.verify(refreshToken, env.JWT_REFRESH_KEY, (err, user) => {
-      if (err) {
-        throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');
-      }
-      const newAccessToken = generateAccessToken(user);
-      const newRefreshToken = generateRefreshToken(user);
-      res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        path: '/',
-        sercure: false,
-        sametime: 'strict',
-      });
-      return newAccessToken;
-    });
-  } catch (error) {
-    throw error;
-  }
-};
+//     jwt.verify(refreshToken, env.JWT_REFRESH_KEY, (err, user) => {
+//       if (err) {
+//         throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authenticated');
+//       }
+//       const newAccessToken = generateAccessToken(user);
+//       const newRefreshToken = generateRefreshToken(user);
+//       res.cookie('refreshToken', newRefreshToken, {
+//         httpOnly: true,
+//         path: '/',
+//         sercure: false,
+//         sametime: 'strict',
+//       });
+//       return newAccessToken;
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const deleteUser = async (_id, role) => {
   try {
@@ -496,9 +491,9 @@ const checkToken = async (req, res) => {
         if (err) {
           throw new ApiError(
             StatusCodes.UNAUTHORIZED,
-            { message: 'Token không hợp lệ' },
-            { type: 'auth' },
-            { code: 'BR_auth' },
+            'Token không hợp lệ' ,
+            'auth' ,
+            'BR_auth' ,
           );
         }
         user1 = user;
@@ -548,7 +543,7 @@ const createEmployee = async (data) => {
     }
     return createUser;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    throw new ApiError(error.code, error.message);
   }
 };
 
@@ -556,7 +551,7 @@ const updateEmployee = async (_id, params) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const users = await personModel.updateEmployee(_id, params);
-    if (users.acknowledged == false) {
+    if (users == null) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
         'Cập nhật nhân viên không thành công',
@@ -582,11 +577,6 @@ const createManyEmployee = async (_data) => {
       .then((results) => {
         results.forEach((result) => {
           console.log(result);
-          if (result.value.acknowledged == true) {
-            console.log('Thêm thành công');
-          } else {
-            console.error('Thêm thất bại');
-          }
         });
       })
       .catch((error) => {
@@ -621,7 +611,7 @@ export const userService = {
   createUserM,
   createMany,
   createManyDriver,
-  refreshToken,
+  // refreshToken,
   createDriver,
   findDriver,
   findUsers,
