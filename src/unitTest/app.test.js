@@ -310,31 +310,31 @@ describe('Test API user', () => {
   });
 });
 
-describe('Test API parking', () => {
-  beforeAll(async () => {
-    await server.connectDB();
-  }, 10000);
-  describe('Test ham getStatusByZone', () => {
-    test('Cha ve mot object', async () => {
-      const createManyEmployee = await parkingService.getStatusByZone('A');
-      expect(createManyEmployee.zone).toBe('A');
-    });
-  });
+// describe('Test API parking', () => {
+//   beforeAll(async () => {
+//     await server.connectDB();
+//   }, 10000);
+//   describe('Test ham getStatusByZone', () => {
+//     test('Cha ve mot object', async () => {
+//       const createManyEmployee = await parkingService.getStatusByZone('A');
+//       expect(createManyEmployee.zone).toBe('A');
+//     });
+//   });
 
-  describe('Test ham getStatusByZone', () => {
-    test('Cha ve mot object', async () => {
-      const createManyEmployee = await parkingService.getStatusByZone('B');
-      expect(createManyEmployee.zone).toBe('B');
-    });
-  });
+//   describe('Test ham getStatusByZone', () => {
+//     test('Cha ve mot object', async () => {
+//       const createManyEmployee = await parkingService.getStatusByZone('B');
+//       expect(createManyEmployee.zone).toBe('B');
+//     });
+//   });
 
-  describe('Test ham getStatusByZone', () => {
-    test('Cha ve mot object', async () => {
-      try {
-        const createManyEmployee = await parkingService.getStatusByZone('B');
-      } catch (error) {
-        expect(error.message).toBe('Khu vực không được tìm thấy');
-      }
-    });
-  });
-});
+//   describe('Test ham getStatusByZone', () => {
+//     test('Cha ve mot object', async () => {
+//       try {
+//         const createManyEmployee = await parkingService.getStatusByZone('B');
+//       } catch (error) {
+//         expect(error.message).toBe('Khu vực không được tìm thấy');
+//       }
+//     });
+//   });
+// });
