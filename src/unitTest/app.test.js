@@ -9,7 +9,7 @@ import { userService } from '~/services/personService';
 describe('Test API user', () => {
   beforeAll(async () => {
     await server.connectDB();
-  }, 10000);
+  }, 30000);
   describe('get', () => {
     test('shoul 200', async () => {
       await supertest(server.app).get('/user/driver').expect(200);
