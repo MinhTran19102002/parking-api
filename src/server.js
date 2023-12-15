@@ -38,17 +38,20 @@ const START_SEVER = () => {
   //Middleware xu ly loi tap trung
   app.use(errorHandlingMiddleware);
 
-  // deploy app
-  // app.listen(process.env.PORT, () => {
-  //   // eslint-disable-next-line no-console
-  //   console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
-  // });
+  
 
   // chay local
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
-  });
+  if (env.BUILD_MODE == 'dev') {
+    app.listen(env.APP_PORT, env.APP_HOST, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
+    });
+  }else{
+    app.listen(process.env.PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
+    });
+  }
 
   exitHook(() => {
     console.log('Disconnecting');
