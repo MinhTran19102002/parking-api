@@ -21,12 +21,13 @@ const START_SEVER = () => {
       origin: ['http://localhost:5173', 'https://parking-management-iota.vercel.app'],
     },
   });
+  const PORT = process.env.PORT || 3000;
 
   io.on('connection', (socket) => {
     console.log('connect !');
   });
 
-  httpServer.listen(3000);
+  httpServer.listen(PORT);
 
   app.use(express.json());
 
