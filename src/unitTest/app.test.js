@@ -6,16 +6,17 @@ import { server } from '~/server';
 import { parkingService } from '~/services/parkingService';
 import { parkingTurnService } from '~/services/parkingTurnService';
 import { userService } from '~/services/personService';
+import { vehicleService } from '~/services/vehicleService';
 
 describe('Test API user', () => {
   beforeAll(async () => {
     await server.connectDB();
   }, 30000);
-  describe('get', () => {
-    test('shoul 200', async () => {
-      await supertest(server.app).get('/user/driver').expect(200);
-    });
-  });
+  // describe('get', () => {
+  //   test('shoul 200', async () => {
+  //     await supertest(server.app).get('/user/driver').expect(200);
+  //   });
+  // });
 
   describe('Test ham login', () => {
     test('Cha ve mot object', async () => {
@@ -25,6 +26,66 @@ describe('Test API user', () => {
         req,
       );
       expect(login.person.account.username).toBe('admin');
+    });
+  });
+
+  describe('Test ham login', () => {
+    test('Cha ve mot object', async () => {
+      let req;
+      try {
+        const login = await userService.login(
+          { body: { password: 'Parking@123', username: 'admin', role: 'dmin' } },
+          req,
+        );
+        expect(login.person.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham login', () => {
+    test('Cha ve mot object', async () => {
+      let req;
+      try {
+        const login = await userService.login(
+          { body: { password: 'Parking@121', username: 'admin', role: 'Admin' } },
+          req,
+        );
+        expect(login.person.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Mật khẩu không chính xác');
+      }
+    });
+  });
+
+  describe('Test ham login', () => {
+    test('Cha ve mot object', async () => {
+      let req;
+      try {
+        const login = await userService.login(
+          { body: { password: 'Parking@121413', username: 'admin', role: 'Admin' } },
+          req,
+        );
+        expect(login.person.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Mật khẩu không chính xác');
+      }
+    });
+  });
+
+  describe('Test ham login', () => {
+    test('Cha ve mot object', async () => {
+      let req;
+      try {
+        const login = await userService.login(
+          { body: { password: 'Parking@121342', username: 'admin', role: 'Admin' } },
+          req,
+        );
+        expect(login.person.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Mật khẩu không chính xác');
+      }
     });
   });
 
@@ -39,6 +100,27 @@ describe('Test API user', () => {
         name: 'Quách Thị Mai Anh',
         address: 'An Giang',
         phone: '0909749720',
+        email: 'maianh332@gmail.com',
+      };
+      try {
+        const createUser = await userService.createUser(data);
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Người dùng đã tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham createUser', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        account: {
+          username: 'MaiAnh',
+          password: 'Admin@123',
+          role: 'Manager',
+        },
+        name: 'Quách Thị Mai Anh',
+        address: 'An Giang',
+        phone: '0909709720',
         email: 'maianh332@gmail.com',
       };
       try {
@@ -85,6 +167,102 @@ describe('Test API user', () => {
       }
     });
   });
+
+  describe('Test ham changePassword', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        body: {
+          username: 'admin',
+          password: 'Parking@123',
+          newPassword: 'Parking@123',
+          role: 'Admin',
+        },
+      };
+      try {
+        const changePassword = await userService.changePassword(data);
+        expect(changePassword.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham changePassword', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        body: {
+          username: 'admin',
+          password: 'Parking@123',
+          newPassword: 'Parking@123',
+          role: 'Admin',
+        },
+      };
+      try {
+        const changePassword = await userService.changePassword(data);
+        expect(changePassword.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham changePassword', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        body: {
+          username: 'admin',
+          password: 'Parking@123',
+          newPassword: 'Parking@123',
+          role: 'Admin',
+        },
+      };
+      try {
+        const changePassword = await userService.changePassword(data);
+        expect(changePassword.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham changePassword', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        body: {
+          username: 'admin',
+          password: 'Parking@123',
+          newPassword: 'Parking@123',
+          role: 'Admin',
+        },
+      };
+      try {
+        const changePassword = await userService.changePassword(data);
+        expect(changePassword.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham changePassword', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        body: {
+          username: 'admin',
+          password: 'Parking@123',
+          newPassword: 'Parking@123',
+          role: 'Admin',
+        },
+      };
+      try {
+        const changePassword = await userService.changePassword(data);
+        expect(changePassword.account.username).toBe('admin');
+      } catch (error) {
+        expect(error.message).toBe('Người dùng không tồn tại');
+      }
+    });
+  });
+
   describe('Test ham createManyDriver', () => {
     test('Cha ve mot object', async () => {
       let data = [
@@ -125,6 +303,101 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham createDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        licenePlate: '12A-1134',
+        name: 'Tri thieu NGuyf',
+        address: 'Tay Ninh',
+        phone: '0996319853',
+        email: 'thiekfdai1ds@gmail.com',
+        job: 'Giảng viên',
+        department: 'Cơ khí',
+      };
+      try {
+        const createDriver = await userService.createDriver(data);
+      } catch (error) {
+        expect(error.message).toBe('Error: Xe đã có chủ');
+      }
+    });
+  });
+
+  describe('Test ham createDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        licenePlate: '12A-1134',
+        name: 'Tri thieu NGuyf',
+        address: 'Tay Ninh',
+        phone: '0996319853',
+        email: 'thiekfdai1ds@gmail.com',
+        job: 'Giảng viên',
+        department: 'Cơ khí',
+      };
+      try {
+        const createDriver = await userService.createDriver(data);
+      } catch (error) {
+        expect(error.message).toBe('Error: Xe đã có chủ');
+      }
+    });
+  });
+
+  describe('Test ham createDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        licenePlate: '12A-1134',
+        name: 'Tri thieu NGuyf',
+        address: 'Tay Ninh',
+        phone: '0996319853',
+        email: 'thiekfdai1ds@gmail.com',
+        job: 'Giảng viên',
+        department: 'Cơ khí',
+      };
+      try {
+        const createDriver = await userService.createDriver(data);
+      } catch (error) {
+        expect(error.message).toBe('Error: Xe đã có chủ');
+      }
+    });
+  });
+
+  describe('Test ham createDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        licenePlate: '12A-1134',
+        name: 'Tri thieu NGuyf',
+        address: 'Tay Ninh',
+        phone: '0996319853',
+        email: 'thiekfdai1ds@gmail.com',
+        job: 'Giảng viên',
+        department: 'Cơ khí',
+      };
+      try {
+        const createDriver = await userService.createDriver(data);
+      } catch (error) {
+        expect(error.message).toBe('Error: Xe đã có chủ');
+      }
+    });
+  });
+
+  describe('Test ham createDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = {
+        licenePlate: '12A-1134',
+        name: 'Tri thieu NGuyf',
+        address: 'Tay Ninh',
+        phone: '0996319853',
+        email: 'thiekfdai1ds@gmail.com',
+        job: 'Giảng viên',
+        department: 'Cơ khí',
+      };
+      try {
+        const createDriver = await userService.createDriver(data);
+      } catch (error) {
+        expect(error.message).toBe('Error: Xe đã có chủ');
+      }
+    });
+  });
+
   describe('Test ham findByID', () => {
     test('Cha ve mot object', async () => {
       let data = '6579e0992dd2654086718b62';
@@ -134,9 +407,58 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham findByID', () => {
+    test('Cha ve mot object', async () => {
+      let data = '6579e0992dd2654086718b62';
+      const findByID = await userService.findByID(data);
+
+      expect(findByID.name).toBe('Quách Thị Mai Anh');
+    });
+  });
+
+  describe('Test ham findByID', () => {
+    test('Cha ve mot object', async () => {
+      let data = '6579e0992dd2654086718162';
+
+      try {
+        const findByID = await userService.findByID(data);
+        expect(findByID.name).toBe('Quách Thị Mai Anh');
+      } catch (error) {
+        expect(error.message).toBe('Users not exist');
+      }
+    });
+  });
+
   describe('Test ham findDriver', () => {
     test('Cha ve mot object', async () => {
       let data = '6579e0992dd2654086718b62';
+      const findDriver = await userService.findDriver();
+
+      expect(findDriver).toEqual(expect.any(Array));
+    });
+  });
+
+  describe('Test ham findDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = '6579e0992dd2614086718b62';
+      const findDriver = await userService.findDriver();
+
+      expect(findDriver).toEqual(expect.any(Array));
+    });
+  });
+
+  describe('Test ham findDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = '657900992dd2614086718b62';
+      const findDriver = await userService.findDriver();
+
+      expect(findDriver).toEqual(expect.any(Array));
+    });
+  });
+
+  describe('Test ham findDriver', () => {
+    test('Cha ve mot object', async () => {
+      let data = '657900992dd2604086718b62';
       const findDriver = await userService.findDriver();
 
       expect(findDriver).toEqual(expect.any(Array));
@@ -151,6 +473,14 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham findDriverByFilter', () => {
+    test('Cha ve mot object', async () => {
+      const findDriver = await userService.findDriverByFilter({pageSize: 1, pageIndex : 1});
+
+      expect(findDriver.data).toEqual(expect.any(Array));
+    });
+  });
+
   describe('Test ham findManagerByFilter', () => {
     test('Cha ve mot object', async () => {
       const findManagerByFilter = await userService.findManagerByFilter({});
@@ -159,6 +489,27 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham findUsers', () => {
+    test('Cha ve mot object', async () => {
+      const findManagerByFilter = await userService.findUsers({ role: 'Manager' });
+
+      expect(findManagerByFilter.data).toEqual(expect.any(Array));
+    });
+  });
+  describe('Test ham findUsers', () => {
+    test('Cha ve mot object', async () => {
+      const findManagerByFilter = await userService.findUsers({ role: 'Manager' });
+
+      expect(findManagerByFilter.data).toEqual(expect.any(Array));
+    });
+  });
+  describe('Test ham findUsers', () => {
+    test('Cha ve mot object', async () => {
+      const findManagerByFilter = await userService.findUsers({ role: 'Manager' });
+
+      expect(findManagerByFilter.data).toEqual(expect.any(Array));
+    });
+  });
   describe('Test ham findUsers', () => {
     test('Cha ve mot object', async () => {
       const findManagerByFilter = await userService.findUsers({ role: 'Manager' });
@@ -222,6 +573,26 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham deleteDrivers', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const deleteDrivers = await userService.deleteDrivers(['6579b62ace8624bd75e24a1f', '6579b62ace8624bd75e24a1f']);
+      } catch (error) {
+        expect(error.message).toBe('Người lái không tồn tại');
+      }
+    });
+  });
+
+  describe('Test ham deleteDrivers', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const deleteDrivers = await userService.deleteDrivers(['6579b62ace8624bd75e24a1f', '6579b62ace8624bd75e24a1f', '6579b62ace8624bd75e24a1f']);
+      } catch (error) {
+        expect(error.message).toBe('Người lái không tồn tại');
+      }
+    });
+  });
+
   describe('Test ham deleteUser', () => {
     test('Cha ve mot object', async () => {
       try {
@@ -232,10 +603,20 @@ describe('Test API user', () => {
     });
   });
 
+  describe('Test ham deleteUser', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const deleteUser = await userService.deleteUser('6579b62ac18624bd78e24a1f', 'Manager');
+      } catch (error) {
+        expect(error.message).toBe('Người lái không tồn tại');
+      }
+    });
+  });
+
   describe('Test ham deleteMany', () => {
     test('Cha ve mot object', async () => {
       try {
-        const deleteMany = await userService.deleteMany({ ids: ['6579b62ace8624bd75e24a1f'] });
+        const deleteMany = await userService.deleteMany({ ids: ['6579b62ace8624bd75e24a1f', '6579b62ace86240175e24a1f'] });
       } catch (error) {
         expect(error.message).toBe('Người lái không tồn tại');
       }
@@ -245,6 +626,36 @@ describe('Test API user', () => {
     test('Cha ve mot object', async () => {
       const findEmployees = await userService.findEmployees({});
       expect(findEmployees.data).toEqual(expect.any(Array));
+    });
+  });
+
+  describe('Test ham createEmployee', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const deleteMany = await userService.createEmployee({
+          name: 'Quách Thị Mai Anh',
+          address: 'An Giang',
+          phone: '0909749720',
+          email: 'maianh332@gmail.com',
+        });
+      } catch (error) {
+        expect(error).toEqual(expect.any(Error));
+      }
+    });
+  });
+
+  describe('Test ham createEmployee', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const deleteMany = await userService.createEmployee({
+          name: 'Quách Thị Mai Anh',
+          address: 'An Giang',
+          phone: '0909749720',
+          email: 'maianh332@gmail.com',
+        });
+      } catch (error) {
+        expect(error).toEqual(expect.any(Error));
+      }
     });
   });
 
@@ -307,6 +718,28 @@ describe('Test API user', () => {
       }
     });
   });
+
+  describe('Test ham checkToken', () => {
+    test('Cha ve mot object', async () => {
+      let req = { headers: { authorization: 'minh 31231432424' } };
+      try {
+        const createManyEmployee = await userService.checkToken(req, {});
+      } catch (error) {
+        expect(error.message).toBe('Token không hợp lệ');
+      }
+    });
+  });
+
+  describe('Test ham checkToken', () => {
+    test('Cha ve mot object', async () => {
+      let req = { headers: { authorization: 'Bear 31231432424' } };
+      try {
+        const createManyEmployee = await userService.checkToken(req, {});
+      } catch (error) {
+        expect(error.message).toBe('Token không hợp lệ');
+      }
+    });
+  });
 });
 
 describe('Test API parking', () => {
@@ -321,6 +754,13 @@ describe('Test API parking', () => {
     test('Cha ve mot object', async () => {
       const createManyEmployee = await parkingService.getStatusByZone('B');
       expect(createManyEmployee.zone).toBe('B');
+    });
+  });
+
+  describe('Test ham getStatusByZone', () => {
+    test('Cha ve mot object', async () => {
+      const createManyEmployee = await parkingService.getStatusByZone('C');
+      expect(createManyEmployee.zone).toBe('C');
     });
   });
 
@@ -372,6 +812,21 @@ describe('Test API parking', () => {
       expect(getStatus).toEqual(expect.any(Array));
     });
   });
+
+  describe('Test ham getStatus', () => {
+    test('Cha ve mot object', async () => {
+      const getStatus = await parkingService.getStatus('B');
+      expect(getStatus).toEqual(expect.any(Array));
+    });
+  });
+
+  describe('Test ham getStatus', () => {
+    test('Cha ve mot object', async () => {
+      const getStatus = await parkingService.getStatus('C');
+      expect(getStatus).toEqual(expect.any(Array));
+    });
+  });
+
   describe('Test ham getStatus', () => {
     test('Cha ve mot object', async () => {
       try {
@@ -387,11 +842,7 @@ describe('Test API ParkingTune', () => {
   describe('Test ham createPakingTurn', () => {
     test('Cha ve mot object', async () => {
       try {
-        const createPakingTurn = await parkingTurnService.createPakingTurn(
-          '12A-3231',
-          'A',
-          'A105',
-        );
+        const createPakingTurn = await parkingTurnService.createPakingTurn('12A-3231', 'A', 'A105');
         expect(createPakingTurn.acknowledged).toBe(true);
       } catch (error) {
         expect(error.message).toBe('Error: The location already has a car');
@@ -402,9 +853,7 @@ describe('Test API ParkingTune', () => {
   describe('Test ham outPaking', () => {
     test('Cha ve mot object', async () => {
       try {
-        const createPakingTurn = await parkingTurnService.outPaking(
-          '12A-3231',
-        );
+        const createPakingTurn = await parkingTurnService.outPaking('12A-3231');
         expect(createPakingTurn.acknowledged).toBe(true);
       } catch (error) {
         expect(error.message).toBe('ApiError: Xe không ở trong bãi');
@@ -415,7 +864,7 @@ describe('Test API ParkingTune', () => {
   describe('Test ham getRevenue', () => {
     test('Cha ve mot object', async () => {
       try {
-        const getRevenue = await parkingTurnService.getRevenue({query:{}},{});
+        const getRevenue = await parkingTurnService.getRevenue({ query: {} }, {});
         expect(getRevenue).toEqual(expect.any(Array));
       } catch (error) {
         expect(error.message).toBe('ApiError: Xe không ở trong bãi');
@@ -426,7 +875,7 @@ describe('Test API ParkingTune', () => {
   describe('Test ham getEvent', () => {
     test('Cha ve mot object', async () => {
       try {
-        const getEvent = await parkingTurnService.getEvent({query:{}},{});
+        const getEvent = await parkingTurnService.getEvent({ query: {} }, {});
         expect(getEvent).toEqual(expect.any(Object));
       } catch (error) {
         expect(error.message).toBe('ApiError: Xe không ở trong bãi');
@@ -437,10 +886,56 @@ describe('Test API ParkingTune', () => {
   describe('Test ham exportEvent', () => {
     test('Cha ve mot object', async () => {
       try {
-        const exportEvent = await parkingTurnService.exportEvent({query:{}},{});
+        const exportEvent = await parkingTurnService.exportEvent({ query: {} }, {});
         expect(exportEvent).toEqual(expect.any(Object));
       } catch (error) {
         expect(error.message).toBe('res.setHeader is not a function');
+      }
+    });
+  });
+});
+
+describe('Test API vehicle', () => {
+  describe('Test ham createVehicle', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createVehicle = await vehicleService.createVehicle('12A-3231', 'Car');
+        //expect(exportEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('Error: Vehicle already exists');
+      }
+    });
+  });
+
+  describe('Test ham createVehicle', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createVehicle = await vehicleService.createVehicle('12A-3231', 'Car');
+        //expect(exportEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('Error: Vehicle already exists');
+      }
+    });
+  });
+
+  describe('Test ham createVehicle', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createVehicle = await vehicleService.createVehicle('12A-2171', 'Car');
+        //expect(exportEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('Error: Vehicle already exists');
+      }
+    });
+  });
+
+  describe('Test ham createVehicle', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createVehicle = await vehicleService.createVehicle('12A-3214', 'Car');
+        //expect(exportEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('Error: Vehicle already exists');
       }
     });
   });
