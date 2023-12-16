@@ -4,6 +4,7 @@ import supertest from 'supertest';
 import { CLOSE_DB } from '~/config/mongodb';
 import { server } from '~/server';
 import { parkingService } from '~/services/parkingService';
+import { parkingTurnService } from '~/services/parkingTurnService';
 import { userService } from '~/services/personService';
 
 describe('Test API user', () => {
@@ -298,7 +299,7 @@ describe('Test API user', () => {
 
   describe('Test ham checkToken', () => {
     test('Cha ve mot object', async () => {
-      let req = {headers:{authorization:'minh 31231432424'}}
+      let req = { headers: { authorization: 'minh 31231432424' } };
       try {
         const createManyEmployee = await userService.checkToken(req, {});
       } catch (error) {
@@ -326,9 +327,120 @@ describe('Test API parking', () => {
   describe('Test ham getStatusByZone', () => {
     test('Cha ve mot object', async () => {
       try {
+        const createManyEmployee = await parkingService.getStatusByZone('D');
+      } catch (error) {
+        expect(error.message).toBe('Khu vực không được tìm thấy');
+      }
+    });
+  });
+
+  describe('Test ham getStatusByZone', () => {
+    test('Cha ve mot object', async () => {
+      try {
         const createManyEmployee = await parkingService.getStatusByZone('B');
       } catch (error) {
         expect(error.message).toBe('Khu vực không được tìm thấy');
+      }
+    });
+  });
+
+  describe('Test ham createPaking', () => {
+    test('Cha ve mot object', async () => {
+      let data = { zone: 'C', description: '1eqweq', slots: [{ position: 'aewqe' }] };
+      try {
+        const createPaking = await parkingService.createPaking(data);
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Khu vực không được tìm thấy');
+      }
+    });
+  });
+
+  describe('Test ham createPaking', () => {
+    test('Cha ve mot object', async () => {
+      let data = { zone: 'B', description: '1eqweq', slots: [{ position: 'aewqe' }] };
+      try {
+        const createPaking = await parkingService.createPaking(data);
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Khu vực không được tìm thấy');
+      }
+    });
+  });
+
+  describe('Test ham getStatus', () => {
+    test('Cha ve mot object', async () => {
+      const getStatus = await parkingService.getStatus('A');
+      expect(getStatus).toEqual(expect.any(Array));
+    });
+  });
+  describe('Test ham getStatus', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const getStatus = await parkingService.getStatus('D');
+      } catch (error) {
+        expect(error.message).toBe('Khu vực không được tìm thấy');
+      }
+    });
+  });
+});
+
+describe('Test API ParkingTune', () => {
+  describe('Test ham createPakingTurn', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createPakingTurn = await parkingTurnService.createPakingTurn(
+          '12A-3231',
+          'A',
+          'A105',
+        );
+        expect(createPakingTurn.acknowledged).toBe(true);
+      } catch (error) {
+        expect(error.message).toBe('Error: The location already has a car');
+      }
+    });
+  });
+
+  describe('Test ham outPaking', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const createPakingTurn = await parkingTurnService.outPaking(
+          '12A-3231',
+        );
+        expect(createPakingTurn.acknowledged).toBe(true);
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Xe không ở trong bãi');
+      }
+    });
+  });
+
+  describe('Test ham getRevenue', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const getRevenue = await parkingTurnService.getRevenue({query:{}},{});
+        expect(getRevenue).toEqual(expect.any(Array));
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Xe không ở trong bãi');
+      }
+    });
+  });
+
+  describe('Test ham getEvent', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const getEvent = await parkingTurnService.getEvent({query:{}},{});
+        expect(getEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('ApiError: Xe không ở trong bãi');
+      }
+    });
+  });
+
+  describe('Test ham exportEvent', () => {
+    test('Cha ve mot object', async () => {
+      try {
+        const exportEvent = await parkingTurnService.exportEvent({query:{}},{});
+        expect(exportEvent).toEqual(expect.any(Object));
+      } catch (error) {
+        expect(error.message).toBe('res.setHeader is not a function');
       }
     });
   });
