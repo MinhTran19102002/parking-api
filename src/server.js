@@ -26,7 +26,7 @@ const START_SEVER = () => {
     console.log('connect !');
   });
 
-  httpServer.listen(3030);
+  httpServer.listen(3000);
 
   app.use(express.json());
 
