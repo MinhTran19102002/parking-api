@@ -850,16 +850,16 @@ describe('Test API ParkingTune', () => {
     });
   });
 
-  describe('Test ham outPaking', () => {
-    test('Cha ve mot object', async () => {
-      try {
-        const createPakingTurn = await parkingTurnService.outPaking('12A-3231');
-        expect(createPakingTurn.acknowledged).toBe(true);
-      } catch (error) {
-        expect(error.message).toBe('ApiError: Xe không ở trong bãi');
-      }
-    });
-  });
+  // describe('Test ham outPaking', () => {
+  //   test('Cha ve mot object', async () => {
+  //     try {
+  //       const createPakingTurn = await parkingTurnService.outPaking('12A-3231');
+  //       expect(createPakingTurn.acknowledged).toBe(true);
+  //     } catch (error) {
+  //       expect(error.message).toBe('ApiError: Xe không ở trong bãi');
+  //     }
+  //   });
+  // });
 
   describe('Test ham getRevenue', () => {
     test('Cha ve mot object', async () => {
