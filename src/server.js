@@ -18,7 +18,7 @@ const START_SEVER = () => {
   const httpServer = createServer(app);
   io = new Server(httpServer, {
     cors: {
-      origin: ['http://172.20.10.2:5173'],
+      origin: ['http://localhost:5173', 'https://parking-management-iota.vercel.app'],
     },
   });
 
