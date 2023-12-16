@@ -7,27 +7,27 @@ import { parkingTurnValidation } from '~/validations/parkingTurnValidation'
 const Router = express.Router()
 
 Router.route('/createPakingTurn')
-  .post(parkingTurnValidation.create,parkingTurnController.createNew)
+  .post(parkingTurnValidation.create, verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.createNew)
 
 Router.route('/createPakingTurnWithoutPosition')
-  .post(parkingTurnValidation.createWithoutPosition,parkingTurnController.createNewWithoutPosition)
+  .post(parkingTurnValidation.createWithoutPosition,verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.createNewWithoutPosition)
 
 Router.route('/createPakingTurnWithoutZoneAndPosition')
-  .post(parkingTurnValidation.createWithoutZoneAndPosition, parkingTurnController.createNewWithoutZone)
+  .post(parkingTurnValidation.createWithoutZoneAndPosition,verifyTokenMidleware.verifyTokenAndManager, parkingTurnController.createNewWithoutZone)
 
 Router.route('/outPaking')
-  .post(parkingTurnController.outPaking)
+  .post(parkingTurnValidation.createWithoutZoneAndPosition,verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.outPaking)
 
 Router.route('/Reports/GetVehicleInOutNumber')
-  .get( parkingTurnController.getVehicleInOutNumber)
+  .get(verifyTokenMidleware.verifyTokenAndManager, parkingTurnController.getVehicleInOutNumber)
 
 Router.route('/Reports/GetRevenue')
-  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
+  .get(verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
 
 Router.route('/event')
-  .get(verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
+  .get(verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
 
 Router.route('/event/export')
-  .get( parkingTurnController.exportEvent)
+  .get( verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.exportEvent)
 
 export const parkingTurnRoute = Router

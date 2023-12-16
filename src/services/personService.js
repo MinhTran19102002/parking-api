@@ -229,7 +229,7 @@ const createDriver = async (data) => {
 const findByID = async (_id) => {
   try {
     const users = await personModel.findByID(_id);
-    if (users.acknowledged == false) {
+    if (users == null) {
       throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Users not exist');
     }
     return users;
