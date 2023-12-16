@@ -27,7 +27,7 @@ const START_SEVER = () => {
     console.log('connect !');
   });
 
-  httpServer.listen(PORT);
+  // httpServer.listen(PORT);
 
   app.use(express.json());
 
@@ -46,7 +46,7 @@ const START_SEVER = () => {
       console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
     });
   } else {
-    app.listen(process.env.PORT, () => {
+    httpServer.listen(process.env.PORT, () => {
       // eslint-disable-next-line no-console
       console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
     });
