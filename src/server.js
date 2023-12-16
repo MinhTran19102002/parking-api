@@ -11,31 +11,31 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 
 const app = express();
-let io;
 //
+let io;
+app.use(express.json());
 
+app.use(cors());
+
+//Use API V1
+app.use('/', APIs_V1);
+
+//Middleware xu ly loi tap trung
+app.use(errorHandlingMiddleware);
+const httpServer = createServer(app);
+io = new Server(httpServer, {
+  cors: {
+    origin: ['http://localhost:5173', 'https://parking-management-iota.vercel.app'],
+  },
+});
 const START_SEVER = () => {
-  app.use(express.json());
 
-  app.use(cors());
-
-  //Use API V1
-  app.use('/', APIs_V1);
-
-  //Middleware xu ly loi tap trung
-  app.use(errorHandlingMiddleware);
-  const httpServer = createServer(app);
-  io = new Server(httpServer, {
-    cors: {
-      origin: ['http://localhost:5173', 'https://parking-management-iota.vercel.app'],
-    },
-  });
-  const PORT = process.env.PORT || 3000;
 
   io.on('connection', (socket) => {
     console.log('connect !');
   });
 
+  //mo lai
   // httpServer.listen(PORT);
 
 
@@ -49,7 +49,7 @@ const START_SEVER = () => {
   } else {
     httpServer.listen(process.env.PORT, () => {
       // eslint-disable-next-line no-console
-      console.log(`Hello Minh, I am running at ${process.env.PORT}/`);
+      console.log(`Hello Minh, I am running hosting at ${process.env.PORT}/`);
     });
   }
 
