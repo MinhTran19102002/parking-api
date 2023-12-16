@@ -15,6 +15,15 @@ let io;
 //
 
 const START_SEVER = () => {
+  app.use(express.json());
+
+  app.use(cors());
+
+  //Use API V1
+  app.use('/', APIs_V1);
+
+  //Middleware xu ly loi tap trung
+  app.use(errorHandlingMiddleware);
   const httpServer = createServer(app);
   io = new Server(httpServer, {
     cors: {
@@ -29,15 +38,7 @@ const START_SEVER = () => {
 
   // httpServer.listen(PORT);
 
-  app.use(express.json());
 
-  app.use(cors());
-
-  //Use API V1
-  app.use('/', APIs_V1);
-
-  //Middleware xu ly loi tap trung
-  app.use(errorHandlingMiddleware);
 
   // chay local
   if (env.BUILD_MODE == 'dev') {
