@@ -90,7 +90,7 @@ const login = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -100,7 +100,7 @@ const createNew = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -110,7 +110,7 @@ const createUser = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -120,7 +120,7 @@ const createDriver = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -131,7 +131,7 @@ const updateDriver = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -142,7 +142,7 @@ const updateUser = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -152,7 +152,7 @@ const deleteDriver = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -162,7 +162,7 @@ const valid = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -172,7 +172,7 @@ const changePassword = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -185,7 +185,7 @@ const validateToUpdate = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -195,7 +195,7 @@ const createEmployee = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 

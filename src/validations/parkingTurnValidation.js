@@ -22,7 +22,7 @@ const create = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -32,7 +32,7 @@ const createWithoutPosition = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
@@ -42,7 +42,7 @@ const createWithoutZoneAndPosition = async (req, res, next) => {
     // Dieu huong sang tang Controller
     next();
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message));
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message, 'BR_Validate', 'BR_Validate'));
   }
 };
 
