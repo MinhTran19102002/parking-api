@@ -42,7 +42,7 @@ const START_SEVER = () => {
 
   // chay local
   if (env.BUILD_MODE == 'dev') {
-    app.listen(env.APP_PORT, env.APP_HOST, () => {
+    httpServer.listen(env.APP_PORT, env.APP_HOST, () => {
       // eslint-disable-next-line no-console
       console.log(`Hello Minh, I am running at ${env.APP_HOST}:${env.APP_PORT}/`);
     });
