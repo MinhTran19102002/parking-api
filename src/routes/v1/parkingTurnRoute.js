@@ -10,7 +10,7 @@ Router.route('/createPakingTurn')
   .post(parkingTurnValidation.create, verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.createNew)
 
 Router.route('/createPakingTurnWithoutPosition')
-  .post(parkingTurnValidation.createWithoutPosition,verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.createNewWithoutPosition)
+  .post(parkingTurnValidation.createWithoutPosition, verifyTokenMidleware.verifyTokenAndManager, parkingTurnController.createNewWithoutPosition)
 
 Router.route('/createPakingTurnWithoutZoneAndPosition')
   .post(parkingTurnValidation.createWithoutZoneAndPosition,verifyTokenMidleware.verifyTokenAndManager, parkingTurnController.createNewWithoutZone)
@@ -25,7 +25,8 @@ Router.route('/Reports/GetRevenue')
   .get(verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
 
 Router.route('/event')
-  .get(verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getEvent)
+  .get( parkingTurnController.getEvent)
+  //verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager,
 
 Router.route('/event/export')
   .get( verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.exportEvent)
