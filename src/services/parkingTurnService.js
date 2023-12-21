@@ -64,6 +64,19 @@ const createPakingTurn = async (licenePlate, zone, position) => {
         'BR_parkingTurn_2',
       );
     }
+    if (parking.total == parking.occupied + 1)
+      await eventModel.createEvent({
+        name: 'full',
+        zone: parking.zone,
+        createdAt: now,
+      });
+    else if (parking.total - 3 <= parking.occupied + 1) {
+      await eventModel.createEvent({
+        name: 'almost full',
+        zone: parking.zone,
+        createdAt: now,
+      });
+    }
     await eventModel.createEvent({
       name: 'in',
       eventId: createPakingTurn.insertedId,
@@ -80,7 +93,12 @@ const outPaking = async (licenePlate) => {
     //tim vehicleId
     const vihicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vihicle) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'The car not exist');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xe không tồn tại',
+        'Error',
+        'BR_vihicle_5',
+      );
     }
     //
     const now = Date.now();
@@ -107,7 +125,7 @@ const getVehicleInOutNumber = async (req, res) => {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
-  console.log(endDate + '         ' + startDate)
+  console.log(endDate + '         ' + startDate);
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
@@ -174,7 +192,7 @@ const getEvent = async (req, res) => {
 const exportEvent = async (req, res) => {
   const filter = { pageSize: 50, pageIndex: 1 };
   try {
-    const findEvent = await eventModel.findEvent(filter);
+    const findEvent = await eventModel.exportEvent(filter);
     if (findEvent.acknowledged == false) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
@@ -232,7 +250,8 @@ const exportEvent = async (req, res) => {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition', 'attachment; filename=output.xlsx',
+      'Content-Disposition',
+      'attachment; filename=output.xlsx',
     );
     await workbook.xlsx.write(res);
   } catch (error) {

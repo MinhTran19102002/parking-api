@@ -32,7 +32,7 @@ const createNew = async (data) => {
     validateData.parkingId = new ObjectId(validateData.parkingId);
     const checkPosition = await findPosition(validateData);
     if (checkPosition == null) {
-      throw new Error('The location already has a car');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Vị trí đã có xe', 'Error', 'BR_vihicle_5');
     }
     const checkvehicleId = await findvehicleId(validateData);
     if (checkvehicleId) {

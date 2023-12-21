@@ -50,7 +50,7 @@ const verifyTokenAndAdmin = (req, res, next) => {
 };
 
 const verifyTokenAndManager = (req, res, next) => {
-  // next(); /// neu test tren postman thi mo doan code nay
+  //next(); /// neu test tren postman thi mo doan code nay
   verifyToken(req, res, () => {
     if (req.user.role == 'Manager') {
       next();
