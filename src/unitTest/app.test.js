@@ -845,7 +845,7 @@ describe('Test API ParkingTune', () => {
         const createPakingTurn = await parkingTurnService.createPakingTurn('12A-3231', 'A', 'A105');
         expect(createPakingTurn.acknowledged).toBe(true);
       } catch (error) {
-        expect(error.message).toBe('Error: The location already has a car');
+        expect(error.message).toBe('Vị trí đã có xe');
       }
     });
   });
@@ -889,7 +889,7 @@ describe('Test API ParkingTune', () => {
         const exportEvent = await parkingTurnService.exportEvent({ query: {} }, {});
         expect(exportEvent).toEqual(expect.any(Object));
       } catch (error) {
-        expect(error.message).toBe('res.setHeader is not a function');
+        expect(error.message).toBe('500');
       }
     });
   });

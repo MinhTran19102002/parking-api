@@ -235,7 +235,7 @@ const exportEvent = async (req, res) => {
     // Thêm dòng tiêu đề
     worksheet.columns = [
       { key: 'stt', width: 15 },
-      { key: 'name', width: 15 },
+      { key: 'name', width: 15},
       { key: 'person.name', width: 15 },
       { key: 'person.email', width: 30 },
       { key: 'person.phone', width: 15 },
