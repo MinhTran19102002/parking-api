@@ -61,7 +61,9 @@ const createNew = async (data) => {
     }
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -103,7 +105,9 @@ const updateOut = async (filter, now) => {
     }
     return updateOut;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -114,7 +118,9 @@ const findvehicleId = async (data) => {
       .findOne({ vehicleId: new ObjectId(data.vehicleId), _destroy: false }); // KẾt quả trả về là xe nằm trong bãi
     return findvehicleId;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -134,7 +140,9 @@ const findPosition = async (data) => {
       });
     return findPosition;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -223,7 +231,9 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
       ]);
     return await getVehicleInOutNumber.toArray();
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -307,7 +317,9 @@ const getRevenue = async (startDate, endDate) => {
       ]);
     return await getVehicleInOutNumber.toArray();
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 

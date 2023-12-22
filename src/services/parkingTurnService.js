@@ -92,7 +92,9 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     });
     return createPakingTurn;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message, error.type, error.code);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -118,7 +120,9 @@ const outPaking = async (licenePlate) => {
     await eventModel.createEvent({ name: 'out', eventId: outPaking._id, createdAt: now });
     return outPaking;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -146,7 +150,9 @@ const getVehicleInOutNumber = async (req, res) => {
     }
     return getVehicleInOutNumber;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -173,7 +179,9 @@ const getRevenue = async (req, res) => {
     }
     return getRevenue;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -193,7 +201,9 @@ const getEvent = async (req, res) => {
     }
     return findEvent;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -263,7 +273,9 @@ const exportEvent = async (req, res) => {
     );
     await workbook.xlsx.write(res);
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
