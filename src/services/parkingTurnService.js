@@ -38,13 +38,12 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     // Nếu API cần random dữ liệu của position
     let slotRandom;
     if (position == '') {
-      if(parking.total == parking.occupied )
-      {
+      if (parking.total == parking.occupied) {
         throw new ApiError(
           StatusCodes.INTERNAL_SERVER_ERROR,
           'Bãi đỗ ' + parking.zone + ' đầy',
           'full',
-          'BR_parkingTurn_2',
+          'BR_parkingTurn_5',
         );
       }
       do {
@@ -93,7 +92,7 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     });
     return createPakingTurn;
   } catch (error) {
-    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message, error.type, error.code);
   }
 };
 
