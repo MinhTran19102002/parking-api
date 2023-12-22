@@ -38,6 +38,15 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     // Nếu API cần random dữ liệu của position
     let slotRandom;
     if (position == '') {
+      if(parking.total == parking.occupied )
+      {
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Bãi đỗ ' + parking.zone + ' đầy',
+          'full',
+          'BR_parkingTurn_2',
+        );
+      }
       do {
         slotRandom = parking.slots[Math.floor(Math.random() * parking.slots.length)];
       } while (!slotRandom.isBlank);
@@ -66,13 +75,13 @@ const createPakingTurn = async (licenePlate, zone, position) => {
     }
     if (parking.total == parking.occupied + 1)
       await eventModel.createEvent({
-        name: 'full',
+        name: 'parking_full',
         zone: parking.zone,
         createdAt: now,
       });
     else if (parking.total - 3 <= parking.occupied + 1) {
       await eventModel.createEvent({
-        name: 'almost full',
+        name: 'almost_full',
         zone: parking.zone,
         createdAt: now,
       });
