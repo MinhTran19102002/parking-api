@@ -6,7 +6,6 @@ import { GET_DB } from '~/config/mongodb';
 import { parkingModel } from '~/models/parkingModel';
 import { StatusCodes } from 'http-status-codes';
 
-'fdsgsgsdgd'
 const PARKINGTURN_COLLECTION_NAME = 'parkingTurn';
 const PARKINGTURN_COLLECTION_SCHEMA = Joi.object({
   vehicleId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
