@@ -29,6 +29,6 @@ Router.route('/event')
   //verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager,
 
 Router.route('/event/export')
-  .get( verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.exportEvent)
+  .get(parkingTurnController.exportEvent)
 
 export const parkingTurnRoute = Router

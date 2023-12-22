@@ -223,26 +223,51 @@ const exportEvent = async (req, res) => {
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sheet 1');
+    worksheet.mergeCells('A1:I1');
+
+    // Lấy ô đã gộp
+    const mergedCell = worksheet.getCell('A1');
+
+    // Viết dữ liệu vào ô đã gộp
+    mergedCell.value = 'Bảng thống kê 50 lượt ra vào gần nhất';
+    mergedCell.font = { bold: true, size: 16 };
+    mergedCell.alignment = { vertical: 'middle', horizontal: 'center' };
     // Thêm dòng tiêu đề
     worksheet.columns = [
-      { header: 'STT', key: 'stt', width: 15, style: { font: { bold: true } } },
-      { header: 'Sự kiện', key: 'name', width: 15, style: { font: { bold: true } } },
-      { header: 'Họ và tên', key: 'person.name', width: 15, style: { font: { bold: true } } },
-      { header: 'Email', key: 'person.email', width: 30, style: { font: { bold: true } } },
-      { header: 'SDT', key: 'person.phone', width: 15, style: { font: { bold: true } } },
-      { header: 'Biển số', key: 'vehicle.licenePlate', width: 15, style: { font: { bold: true } } },
+      { key: 'stt', width: 15 },
+      { key: 'name', width: 15 },
+      { key: 'person.name', width: 15 },
+      { key: 'person.email', width: 30 },
+      { key: 'person.phone', width: 15 },
+      { key: 'vehicle.licenePlate', width: 15 },
       {
-        header: 'Position',
         key: 'parkingTurn.position',
         width: 15,
         style: { font: { bold: true } },
       },
-      { header: 'Fee', key: 'parkingTurn.fee', width: 15, style: { font: { bold: true } } },
-      { header: 'Thời gian', key: 'createAt', width: 15, style: { font: { bold: true } } },
+      { key: 'parkingTurn.fee', width: 15 },
+      { key: 'createAt', width: 30 },
     ];
+    const headerRow = worksheet.addRow([
+      'STT',
+      'Sự kiện',
+      'Họ và tên',
+      'Email',
+      'SDT',
+      'Biển số',
+      'Position',
+      'Fee',
+      'Thời gian',
+    ]);
+
+    // Lấy dòng thứ 2 để đặt kiểu chữ in đậm
+    const row2 = worksheet.getRow(2);
+    row2.eachCell((cell) => {
+      cell.style = { font: { bold: true } };
+    });
     let stt = 1;
     // Thêm dữ liệu từ JSON vào Worksheet
-    await data.forEach((item) => {
+    data.forEach((item) => {
       let namePerson = 'Không xác định',
         email = 'Không xác định',
         phone = 'Không xác định';
