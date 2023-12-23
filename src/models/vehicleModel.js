@@ -2,6 +2,8 @@ import Joi from 'joi';
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { GET_DB } from '~/config/mongodb';
 import { ObjectId } from 'mongodb';
+import ApiError from '~/utils/ApiError';
+import { StatusCodes } from 'http-status-codes';
 
 const VEHICLE_COLLECTION_NAME = 'vehicles';
 const VEHICLE_COLLECTION_SCHEMA = Joi.object({
@@ -32,7 +34,7 @@ const createNew = async (data) => {
     }
     const check = await findOneByLicenePlate(data.licenePlate);
     if (check) {
-      throw new Error('Vehicle already exists');
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Xe đã tồn tại', 'Not FOUND', 'BR_vihicle_4');
     }
     const createNew = await GET_DB().collection(VEHICLE_COLLECTION_NAME).insertOne(validateData);
     return createNew;
