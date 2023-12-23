@@ -23,7 +23,15 @@ const PERSON_COLLECTION_SCHEMA = Joi.object({
   email: Joi.string().required().min(4).max(50).trim().strict(),
 
   account: Joi.object({
-    username: Joi.string().required().min(4).max(30).trim().strict().disallow(' ').pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/).message('Username không cho phép chữ có dấu, khoảng trắng'),
+    username: Joi.string()
+      .required()
+      .min(4)
+      .max(30)
+      .trim()
+      .strict()
+      .disallow(' ')
+      .pattern(/^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/)
+      .message('Username không cho phép chữ có dấu, khoảng trắng'),
     password: Joi.string().required().min(20).max(100).trim().strict(),
     role: Joi.string().required().min(3).max(20).trim().strict(),
   }).optional(),
@@ -48,11 +56,21 @@ const createDriver = async (data, licenePlate, job, department) => {
     const vehicle = await vehicleModel.findOneByLicenePlate(licenePlate);
     if (!vehicle) {
       // xe da duoc tao o service neu xe chua ton tai
-      throw new Error('Biển số chưa tồn tại');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Biển số chưa tồn tại',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     if (vehicle.driverId != null) {
       // xe da co chu
-      throw new Error('Xe đã có chủ');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xe đã có chủ',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     data.driver = { vehicleId: vehicle._id.toString(), job: job, department: department };
     const validateData = await validateBeforCreate(data);
@@ -65,11 +83,18 @@ const createDriver = async (data, licenePlate, job, department) => {
         { $set: { driverId: createNew.insertedId } },
       );
     if (updateVihecle.modifiedCount == 0) {
-      throw new Error('Cập nhật không thành công');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Cập nhật không thành công',
+        'Not Found',
+        'BR_person_1',
+      );
     }
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -88,7 +113,9 @@ const createNew = async (data) => {
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -115,7 +142,9 @@ const createMany = async (_data) => {
       .insertMany(data, { ordered: true });
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -123,7 +152,7 @@ const findOne = async (data) => {
   try {
     const findUser = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
-      .findOne({ 'account.username': data.username, 'account.role' : data.role });
+      .findOne({ 'account.username': data.username, 'account.role': data.role });
     return findUser;
   } catch (error) {
     throw new Error(error);
@@ -133,7 +162,7 @@ const findOne = async (data) => {
 const findByID = async (id) => {
   try {
     const objectId = new ObjectId(id);
-    return await GET_DB().collection(PERSON_COLLECTION_NAME).findOne({_id: objectId});
+    return await GET_DB().collection(PERSON_COLLECTION_NAME).findOne({ _id: objectId });
   } catch (error) {
     throw new Error(error);
   }
@@ -238,8 +267,6 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
   }
 };
 
-
-
 const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
@@ -310,7 +337,12 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
     .collection(PERSON_COLLECTION_NAME)
     .findOne({ _id: new ObjectId(_id) });
   if (!findDriver) {
-    throw new Error('Không tìm thấy người');
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không tìm thấy người',
+      'Not FOUND',
+      'BR_vihicle_4',
+    );
   }
   const findVehicleOfDataUpdate = await GET_DB()
     .collection(vehicleModel.VEHICLE_COLLECTION_NAME)
@@ -333,7 +365,12 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
     await vehicleModel.deleteOne(findDriver.driver.vehicleId);
   } else if (!findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
     //Neu xe ton tai nhung co chu khac roi
-    throw new Error('Xe có chủ rồi bà');
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Xe có chủ rồi bà',
+      'Not FOUND',
+      'BR_vihicle_4',
+    );
   } else if (findVehicleOfDataUpdate.driverId.equals(findDriver._id)) {
     //Neu xe ton tai va la xe cua chu nay
     vehicleId = findVehicleOfDataUpdate._id.toString();
@@ -358,7 +395,9 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
       .findOneAndUpdate({ _id: new ObjectId(_id) }, updateOperation, { returnDocument: 'after' });
     return result;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -374,14 +413,21 @@ const deleteDriver = async (_id) => {
           .updateOne({ _id: new ObjectId(driver.driver.vehicleId) }, { $set: { driverId: null } });
       }
     } else {
-      throw new ApiError('Người lái không tồn tại');
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Người lái không tồn tại',
+        'Not',
+        'BR_vihicle_4',
+      );
     }
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(_id) });
     return result;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -428,7 +474,7 @@ const deleteUser = async (_id, role) => {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteOne(
-        { _id: new ObjectId(_id) , 'account.role' : role },
+        { _id: new ObjectId(_id), 'account.role': role },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
@@ -465,7 +511,7 @@ const deleteMany = async ({ ids }) => {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteMany(
-        { _id: { $in: objectIds }, 'account.role' :  'Manager' },
+        { _id: { $in: objectIds }, 'account.role': 'Manager' },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
@@ -587,12 +633,12 @@ const deleteAllEmployee = async () => {
   }
 };
 
-const deleteEmployee  = async (_id) => {
+const deleteEmployee = async (_id) => {
   try {
     const result = await GET_DB()
       .collection(PERSON_COLLECTION_NAME)
       .deleteOne(
-        { _id: new ObjectId(_id) , account: { $exists: false }, driver: { $exists: false } },
+        { _id: new ObjectId(_id), account: { $exists: false }, driver: { $exists: false } },
         { returnDocument: 'after' },
         { locale: 'vi', strength: 1 },
       );
