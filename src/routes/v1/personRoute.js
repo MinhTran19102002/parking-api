@@ -68,6 +68,10 @@ Router.route('/employee')
     userValidation.createEmployee,
     verifyTokenMidleware.verifyTokenAndManager,
     userController.updateEmployee,
+  )
+  .delete(
+    verifyTokenMidleware.verifyTokenAndManager,
+    userController.deleteEmployee,
   );
 
 //Sử lý crud của manager

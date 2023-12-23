@@ -585,6 +585,22 @@ const deleteAllEmployee = async () => {
   }
 };
 
+const deleteEmployee  = async (_id) => {
+  try {
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteOne(
+        { _id: new ObjectId(_id) , account: { $exists: false }, driver: { $exists: false } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const personModel = {
   PERSON_COLLECTION_NAME,
   PERSON_COLLECTION_SCHEMA,
@@ -607,4 +623,5 @@ export const personModel = {
   createEmployee,
   updateEmployee,
   deleteAllEmployee,
+  deleteEmployee,
 };

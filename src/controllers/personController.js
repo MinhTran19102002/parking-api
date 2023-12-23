@@ -252,6 +252,18 @@ const findManagerByFilter = async (req, res, next) => {
   }
 };
 
+
+const deleteEmployee = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const _idDelete = req.query._id;
+    const rs = await userService.deleteEmployee(_idDelete);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const userController = {
   createNew,
   createUser,
@@ -278,4 +290,5 @@ export const userController = {
   updateEmployee,
   createManyEmployee,
   deleteAllEmployee,
+  deleteEmployee,
 };
