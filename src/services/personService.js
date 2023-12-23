@@ -605,6 +605,23 @@ const deleteAllEmployee = async () => {
   }
 };
 
+const deleteEmployee = async (_id) => {
+  try {
+    const users = await personModel.deleteEmployee(_id);
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
+    }
+    return users;
+  } catch (error) {
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 export const userService = {
   login,
   createUser,
@@ -632,4 +649,5 @@ export const userService = {
   updateEmployee,
   createManyEmployee,
   deleteAllEmployee,
+  deleteEmployee,
 };
