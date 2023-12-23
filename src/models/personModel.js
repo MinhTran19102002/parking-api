@@ -498,6 +498,8 @@ const findEmployees = async ({ pageSize, pageIndex, ...params }) => {
       {
         $match: {
           ...paramMatch,
+          driver: { $exists: false },
+          account: { $exists: false },
         },
       },
       {
