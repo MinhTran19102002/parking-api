@@ -608,7 +608,7 @@ const deleteAllEmployee = async () => {
 const deleteEmployee = async (_id) => {
   try {
     const users = await personModel.deleteEmployee(_id);
-    if (users.acknowledged == false) {
+    if (users.deletedCount == 0) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
         'Xóa người dùng không thành công',

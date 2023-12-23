@@ -70,7 +70,7 @@ Router.route('/employee')
     userController.updateEmployee,
   )
   .delete(
-    verifyTokenMidleware.verifyTokenAndManager,
+    // verifyTokenMidleware.verifyTokenAndManager,
     userController.deleteEmployee,
   );
 
