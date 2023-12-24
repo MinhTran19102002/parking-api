@@ -39,7 +39,9 @@ const createNew = async (data) => {
     const createNew = await GET_DB().collection(VEHICLE_COLLECTION_NAME).insertOne(validateData);
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
