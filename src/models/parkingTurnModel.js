@@ -149,7 +149,7 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
   try {
     const start = Date.parse(parseDate(startDate));
     const end = Date.parse(parseDate(endDate));
-    console.log(startDate + '         ' + endDate)
+    console.log(parseDate(startDate) + '         ' + parseDate(endDate))
     console.log(start + '         ' + end)
     const getVehicleInOutNumber = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
