@@ -397,7 +397,9 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
   } catch (error) {
     if (error.type && error.code)
       throw new ApiError(error.statusCode, error.message, error.type, error.code);
-    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    else 
+    { console.log(error.message)
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);}
   }
 };
 
