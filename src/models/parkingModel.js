@@ -193,17 +193,6 @@ const getStatus = async (zone) => {
                         position: '$$slot.parkingTurn.position',
                         fee: '$$slot.parkingTurn.fee',
                         _destroy: '$$slot.parkingTurn._destroy',
-                        // start: {
-                        //   $dateToString: {
-                        //     date: {
-                        //       $subtract: [
-                        //         { $toDate: '$$slot.parkingTurn.start' },
-                        //         '$timezoneOffset',
-                        //       ],
-                        //     },
-                        //     format: '%d/%m/%Y %H:%M:%S',
-                        //   },
-                        // },
                         start: '$$slot.parkingTurn.start',
                         end: '$$slot.parkingTurn.end',
                         vehicles: '$$slot.parkingTurn.vehicles',
