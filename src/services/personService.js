@@ -519,6 +519,25 @@ const deleteMany = async (params) => {
   }
 };
 
+const deleteManyE = async (params) => {
+  try {
+    const users = await personModel.deleteManyEmployee(params);
+    if (users.acknowledged == false) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Xóa người dùng không thành công',
+        'Not Deleted',
+        'BR_person_4',
+      );
+    }
+    return users;
+  } catch (error) {
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 const checkToken = async (req, res) => {
   let user1;
   try {
@@ -697,4 +716,5 @@ export const userService = {
   createManyEmployee,
   deleteAllEmployee,
   deleteEmployee,
+  deleteManyE,
 };

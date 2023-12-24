@@ -524,6 +524,24 @@ const deleteMany = async ({ ids }) => {
   }
 };
 
+const deleteManyEmployee = async ({ ids }) => {
+  try {
+    const objectIds = ids.map((id) => new ObjectId(id));
+
+    const result = await GET_DB()
+      .collection(PERSON_COLLECTION_NAME)
+      .deleteMany(
+        { _id: { $in: objectIds }, account: { $exists: false }, driver: { $exists: false } },
+        { returnDocument: 'after' },
+        { locale: 'vi', strength: 1 },
+      );
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const findEmployees = async ({ pageSize, pageIndex, ...params }) => {
   // Construct the regular expression pattern dynamically
   let paramMatch = {};
@@ -674,4 +692,5 @@ export const personModel = {
   updateEmployee,
   deleteAllEmployee,
   deleteEmployee,
+  deleteManyEmployee,
 };
