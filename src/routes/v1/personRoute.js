@@ -37,8 +37,8 @@ Router.route('/driver')
   ) //
   .get(verifyTokenMidleware.verifyTokenAndManager, userController.findDriver) //
   .put(
-    // userValidation.updateDriver,
-    // verifyTokenMidleware.verifyTokenAndManager,
+    userValidation.updateDriver,
+    verifyTokenMidleware.verifyTokenAndManager,
     userController.updateDriver,
   ) //
   .delete(
