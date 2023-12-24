@@ -94,10 +94,9 @@ const createDriver = async (data, licenePlate, job, department) => {
   } catch (error) {
     if (error.type && error.code)
       throw new ApiError(error.statusCode, error.message, error.type, error.code);
-      else if (error.message.includes('Plan executor error during findAndModify')) {
-        throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
-      }
-    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    else if (error.message.includes('Plan executor error during')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
