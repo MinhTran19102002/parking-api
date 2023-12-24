@@ -74,9 +74,18 @@ Router.route('/employee')
     userController.deleteEmployee,
   );
 
+Router.route('/employee/deletes').post(
+  verifyTokenMidleware.verifyTokenAndManager,
+  userController.deleteEmployees,
+);
+
 //Sử lý crud của manager
 Router.route('/manager')
-  .post(userValidation.createUser,verifyTokenMidleware.verifyTokenAndAdmin, userController.createUser) //
+  .post(
+    userValidation.createUser,
+    verifyTokenMidleware.verifyTokenAndAdmin,
+    userController.createUser,
+  ) //
   .get(verifyTokenMidleware.verifyTokenAndAdmin, userController.findManagerByFilter)
   .put(
     userValidation.updateUser,

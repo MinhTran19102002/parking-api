@@ -143,6 +143,15 @@ const deleteManagers = async (req, res, next) => {
   }
 };
 
+const deleteEmployees = async (req, res, next) => {
+  try {
+    // Dieu huong sang tang Service
+    const rs = await userService.deleteManyE(req.body);
+    res.status(StatusCodes.OK).json(rs);
+  } catch (error) {
+    next(error);
+  }
+};
 const deleteAll = async (req, res, next) => {
   try {
     const rs = await userService.deleteAll();
@@ -291,4 +300,5 @@ export const userController = {
   createManyEmployee,
   deleteAllEmployee,
   deleteEmployee,
+  deleteEmployees,
 };
