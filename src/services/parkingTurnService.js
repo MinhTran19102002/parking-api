@@ -137,7 +137,6 @@ const getVehicleInOutNumber = async (req, res) => {
     startDate = moment(req.query.startDate, 'DD/MM/YYYY').format('DD/MM/YYYY');
     endDate = moment(req.query.endDate, 'DD/MM/YYYY').clone().add(1, 'days').format('DD/MM/YYYY');
   }
-  console.log(endDate + '         ' + startDate);
   try {
     const getVehicleInOutNumber = await parkingTurnModel.getVehicleInOutNumber(startDate, endDate);
     if (outPaking.acknowledged == false) {
