@@ -19,7 +19,7 @@ Router.route('/outPaking')
   .post(parkingTurnValidation.createWithoutZoneAndPosition,verifyTokenMidleware.verifyTokenAndManager,parkingTurnController.outPaking)
 
 Router.route('/Reports/GetVehicleInOutNumber')
-  .get(verifyTokenMidleware.verifyTokenAndManager, parkingTurnController.getVehicleInOutNumber)
+  .get( parkingTurnController.getVehicleInOutNumber)
 
 Router.route('/Reports/GetRevenue')
   .get(verifyTokenMidleware.verifyTokenAndManager,verifyTokenMidleware.verifyTokenAndAdminManager, parkingTurnController.getRevenue)
