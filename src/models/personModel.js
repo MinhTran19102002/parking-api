@@ -94,6 +94,9 @@ const createDriver = async (data, licenePlate, job, department) => {
   } catch (error) {
     if (error.type && error.code)
       throw new ApiError(error.statusCode, error.message, error.type, error.code);
+      else if (error.message.includes('Plan executor error during findAndModify')) {
+        throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+      }
     else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -115,7 +118,9 @@ const createNew = async (data) => {
   } catch (error) {
     if (error.type && error.code)
       throw new ApiError(error.statusCode, error.message, error.type, error.code);
-    else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    else if (error.message.includes('Plan executor error during findAndModify')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else throw new Error(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -397,9 +402,11 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
   } catch (error) {
     if (error.type && error.code)
       throw new ApiError(error.statusCode, error.message, error.type, error.code);
-    else 
-    { console.log(error.message)
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);}
+    else if (error.message.includes('Plan executor error during findAndModify')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 };
 
@@ -467,7 +474,13 @@ const updateUser = async (_id, _data) => {
 
     return result;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else if (error.message.includes('Plan executor error during findAndModify')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 };
 
@@ -611,7 +624,13 @@ const createEmployee = async (data) => {
     const createNew = await GET_DB().collection(PERSON_COLLECTION_NAME).insertOne(validateData);
     return createNew;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else if (error.message.includes('Plan executor error during findAndModify')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 };
 
@@ -633,7 +652,13 @@ const updateEmployee = async (_id, _data) => {
 
     return result;
   } catch (error) {
-    throw new Error(error);
+    if (error.type && error.code)
+      throw new ApiError(error.statusCode, error.message, error.type, error.code);
+    else if (error.message.includes('Plan executor error during findAndModify')) {
+      throw new ApiError(error.statusCode, 'Trùng SĐT hoặc gmail', 'Email_1', 'Email_1');
+    } else {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
   }
 };
 
