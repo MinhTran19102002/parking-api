@@ -255,7 +255,7 @@ const findDriverByFilter = async ({ pageSize, pageIndex, ...params }) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
-      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      if (pageSize != 10 && pageSize != 20 && pageSize != 30) pageSize = 10;
       // eslint-disable-next-line use-isnan
       if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       totalPage = Math.ceil(totalCount / pageSize);
@@ -312,7 +312,7 @@ const findUsers = async ({ pageSize, pageIndex, ...params }, role) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
-      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      if (pageSize != 10 && pageSize != 20 && pageSize != 30) pageSize = 10;
       if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       pipeline.push(
         {
@@ -595,7 +595,7 @@ const findEmployees = async ({ pageSize, pageIndex, ...params }) => {
     if (pageSize && pageIndex) {
       pageSize = Number(pageSize);
       pageIndex = Number(pageIndex);
-      if (pageSize != 10 || pageSize != 20 || pageSize != 30) pageSize = 10;
+      if (pageSize != 10 && pageSize != 20 && pageSize != 30) pageSize = 10;
       if (pageIndex < 1 || isNaN(pageIndex)) pageIndex = 1;
       pipeline.push(
         {
