@@ -147,8 +147,8 @@ const findPosition = async (data) => {
 
 const getVehicleInOutNumber = async (startDate, endDate) => {
   try {
-    const start = Date.parse(parseDate(startDate));
-    const end = Date.parse(parseDate(endDate));
+    const start = Date.parse(parseDate(startDate).setUTCHours(-7));
+    const end = Date.parse(parseDate(endDate).setUTCHours(-7));
     console.log(parseDate(startDate).getTimezoneOffset() + '         ' + parseDate(endDate).setUTCHours(7))
     console.log(start + '         ' + end)
     const getVehicleInOutNumber = await GET_DB()
@@ -239,8 +239,8 @@ const getVehicleInOutNumber = async (startDate, endDate) => {
 
 const getRevenue = async (startDate, endDate) => {
   try {
-    const start = Date.parse(parseDate(startDate));
-    const end = Date.parse(parseDate(endDate));
+    const start = Date.parse(parseDate(startDate).setUTCHours(-7));
+    const end = Date.parse(parseDate(endDate).setUTCHours(-7));
     const getVehicleInOutNumber = await GET_DB()
       .collection(PARKINGTURN_COLLECTION_NAME)
       .aggregate([

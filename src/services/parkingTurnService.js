@@ -269,11 +269,15 @@ const exportEvent = async (req, res) => {
     data.forEach((item) => {
       let namePerson = 'Không xác định',
         email = 'Không xác định',
-        phone = 'Không xác định';
+        phone = 'Không xác định',
+        fee = '';
       if (item.person) {
         namePerson = item.person.name;
         email = item.person.email;
         phone = item.person.phone;
+      }
+      if(item.name == 'out') {
+        fee = item.parkingTurn.fee + ' VND'
       }
       worksheet.addRow([
         stt++,
@@ -283,7 +287,7 @@ const exportEvent = async (req, res) => {
         phone,
         item.vehicle.licenePlate,
         item.parkingTurn.position,
-        item.parkingTurn.fee + ' VND',
+        fee,
         moment(item.createdAt).format('DD/MM/YYYY HH:mm:ss'),
         // Thêm các trường khác theo yêu cầu của bạn
       ]);
