@@ -388,6 +388,7 @@ const updateDriver = async (_id, data, licenePlate, job, department) => {
 
   let validateData = await validateBeforCreate(data);
   validateData.updatedAt = Date.now();
+  validateData.createdAt = findDriver.createdAt;
   validateData.driver.vehicleId = new ObjectId(vehicleId);
   try {
     const updateOperation = {
